@@ -1,0 +1,90 @@
+name: Check Spec Kit upstream
+
+concurrency:
+  group: spec-kit-upstream-check
+  cancel-in-progress: false
+
+on:
+  schedule:
+    - cron: "0 2 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out reference repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Add official upstream remote
+        run: |
+          upstream_url=$(git remote get-url upstream 2>/dev/null || true)
+          if [ -z "$upstream_url" ]; then
+            git remote add upstream https://github.com/github/spec-kit.git
+          elif [ "$upstream_url" != "https://github.com/github/spec-kit.git" ] && [ "$upstream_url" != "https://github.com/github/spec-kit" ]; then
+            echo "upstream remote points to an unexpected URL: $upstream_url" >&2
+            exit 1
+          fi
+
+      - name: Check upstream baseline
+        id: upstream
+        continue-on-error: true
+        run: |
+          set +e
+          python scripts/check_upstream.py > upstream-update.md 2>&1
+          status=$?
+          echo "status=$status" >> "$GITHUB_OUTPUT"
+          exit 0
+
+      - name: Stop on checker error
+        if: steps.upstream.outputs.status != '0' && steps.upstream.outputs.status != '2'
+        run: |
+          cat upstream-update.md
+          exit 1
+
+      - name: Create or update review issue
+        if: steps.upstream.outputs.status == '2'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          title="Spec Kit upstream update requires review"
+          issue_number=$(gh issue list --state open --search "$title in:title" --json number --jq '.[0].number')
+          if [ -n "$issue_number" ]; then
+            gh issue comment "$issue_number" --body-file upstream-update.md
+          else
+            gh issue create --title "$title" --body-file upstream-update.md
+          fi
+
+  validate:
+    name: Validate ${{ matrix.os }} wrapper
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - name: Check out reference repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Fetch upstream for validation
+        shell: bash
+        run: |
+          git remote add upstream https://github.com/github/spec-kit.git
+          git fetch --quiet upstream main
+
+      - name: Validate POSIX wrapper
+        if: runner.os != 'Windows'
+        shell: bash
+        run: ./scripts/check-upstream.sh --no-fetch
+
+      - name: Validate PowerShell wrapper
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: .\scripts\check-upstream.ps1 --no-fetch
