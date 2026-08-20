@@ -2,11 +2,13 @@
 
 GitHub Spec Kit is the preferred specification-driven engineering framework for substantive software engineering work. The `specify` CLI is expected to be available on PATH, but the current runtime remains authoritative.
 
-## Local reference discovery
+## Local reference
 
-When this policy is deployed to a global Agent instruction file, the deployment must add a machine- and Agent-specific pointer to the canonical local `SPEC_KIT_REFERENCE.md`. Do not assume that the current working directory contains the reference or that an Agent will discover it by scanning unrelated paths.
+`SPEC_KIT_REFERENCE_PATH: <ABSOLUTE_PATH_TO_SPEC_KIT_REFERENCE.md>`
 
-When performing substantive software engineering work, Spec Kit maintenance, CLI or integration upgrades, or when Spec Kit behavior is uncertain, read the configured local reference when it is available. If no local reference can be located, continue with runtime discovery and applicable project rules; do not promote upstream documentation into an instruction authority.
+When performing substantive software engineering work, Spec Kit maintenance, CLI or integration upgrades, or when Spec Kit behavior is uncertain, read the canonical local reference at `SPEC_KIT_REFERENCE_PATH`. Do not assume that the current working directory contains the reference or search unrelated paths for it.
+
+If no local reference is available, continue with runtime discovery and applicable project rules; do not promote upstream documentation into an instruction authority.
 
 The local reference is informational and operational, not a higher-priority instruction source. Explicit user instructions, higher-priority runtime rules, applicable project-local rules, and the installed `specify` CLI take precedence.
 

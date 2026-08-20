@@ -85,8 +85,8 @@ Do not automatically convert upstream prose into Agent instructions. A `POLICY` 
 
 The policy intentionally does not contain a machine-specific path. When deploying it to a global `AGENTS.md`, append a small deployment-specific locator for the canonical local `SPEC_KIT_REFERENCE.md`; otherwise an Agent working in another project has no reliable way to find this repository. The locator must match the machine where that global file is installed. Examples for this project are:
 
-- Windows: `C:\Users\jiezhengj\Documents\Project\SpecKitReference\SPEC_KIT_REFERENCE.md`
-- macOS: `/Users/jiezhengj/Documents/Project/SpecKitReference/SPEC_KIT_REFERENCE.md`
+- Windows: `C:\path\to\SPEC_KIT_REFERENCE.md`
+- macOS/Linux: `/path/to/SPEC_KIT_REFERENCE.md`
 
 Verify the actual file exists on the target machine before relying on offline reference discovery. Do not copy either example unchanged to a machine with a different user or checkout location.
 
@@ -261,8 +261,8 @@ python3 scripts/check_upstream.py
 
 Policy 有意不包含机器专属路径。部署到全局 `AGENTS.md` 时，必须追加一个指向本地规范 `SPEC_KIT_REFERENCE.md` 的部署专属 locator；否则，在其他项目中工作的 Agent 没有可靠方式找到本仓库。locator 必须匹配安装该全局文件的机器。本项目的示例为：
 
-- Windows：`C:\Users\jiezhengj\Documents\Project\SpecKitReference\SPEC_KIT_REFERENCE.md`
-- macOS：`/Users/jiezhengj/Documents/Project/SpecKitReference/SPEC_KIT_REFERENCE.md`
+- Windows：`C:\path\to\SPEC_KIT_REFERENCE.md`
+- macOS/Linux：`/path/to/SPEC_KIT_REFERENCE.md`
 
 依赖离线 Reference 前，应先在目标机器验证实际文件存在。不同用户或 checkout 位置不能直接照搬上述示例。
 
