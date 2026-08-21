@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://jiezhengj.github.io/Spec-Kit-Reference/governance/schemas/resolution-result.schema.json",
+  "title": "Spec Kit governance agent resolution result",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "status", "project_root", "identity", "integration", "context", "required_action", "warnings", "next_safe_step"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "status": {
+      "enum": [
+        "CLI_MISSING", "CLI_INCOMPATIBLE", "CLI_VERSION_UNTESTED", "CLI_VERSION_UNPARSEABLE",
+        "IDENTITY_UNKNOWN", "IDENTITY_CONFLICT", "KEY_REQUIRED", "PROJECT_NOT_INITIALIZED",
+        "EXACT_NATIVE_INSTALLED", "NATIVE_CANDIDATE_NOT_INSTALLED", "NATIVE_CANDIDATE_INSTALLED_UNVERIFIED",
+        "NATIVE_CANDIDATE_REJECTED", "NATIVE_INSTALL_BLOCKED", "AMBIGUOUS", "CATALOG_UNAVAILABLE",
+        "CONTEXT_ANCHOR_UNKNOWN", "ANCHOR_FORMAT_UNSUPPORTED", "UNSUPPORTED_GENERIC_COMPATIBLE",
+        "UNSUPPORTED_INCOMPATIBLE", "INTEGRATION_CONFLICT", "DEFAULT_CHANGE_FORBIDDEN",
+        "CENTRAL_SOURCE_UNVERIFIED", "STATE_BROKEN", "RECOVERY_REQUIRED", "READY_WITH_LIMITATIONS", "READY"
+      ]
+    },
+    "project_root": { "type": ["string", "null"], "minLength": 1 },
+    "identity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["runtime_id", "display_name", "source"],
+      "properties": {
+        "runtime_id": { "type": ["string", "null"] },
+        "display_name": { "type": ["string", "null"] },
+        "source": { "type": ["string", "null"], "enum": [null, "user-declared", "host-metadata", "environment", "runtime-declared", "display-name-only"] }
+      }
+    },
+    "integration": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["key", "mode", "installed", "default", "multi_install_safe"],
+      "properties": {
+        "key": { "type": ["string", "null"], "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$" },
+        "mode": { "type": ["string", "null"], "enum": [null, "native", "generic"] },
+        "installed": { "type": "boolean" },
+        "default": { "type": "boolean" },
+        "multi_install_safe": { "type": ["boolean", "null"] }
+      }
+    },
+    "context": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["anchor", "anchor_source"],
+      "properties": {
+        "anchor": { "type": ["string", "null"], "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$)).+" },
+        "anchor_source": { "type": ["string", "null"], "enum": [null, "active-binding", "user-explicit"] }
+      }
+    },
+    "required_action": { "type": "string", "minLength": 1 },
+    "warnings": { "type": "array", "uniqueItems": true, "items": { "type": "string", "minLength": 1 } },
+    "next_safe_step": { "type": "string", "minLength": 1 }
+  }
+}

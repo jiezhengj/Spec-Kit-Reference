@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://jiezhengj.github.io/Spec-Kit-Reference/governance/schemas/governance-manifest.schema.json",
+  "title": "Spec Kit project governance manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "governance_package_version", "policy_version", "reference_version", "manager_version", "source", "specify_compatibility", "paths", "content_sha256", "project_owned_files", "portable_anchor"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "governance_package_version": { "$ref": "#/$defs/semver" },
+    "policy_version": { "$ref": "#/$defs/semver" },
+    "reference_version": { "type": "string", "pattern": "^[0-9]{4}\\.[0-9]{2}\\.[0-9]{2}$" },
+    "manager_version": { "$ref": "#/$defs/semver" },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["repository", "revision", "release", "reviewed_upstream_revision"],
+      "properties": {
+        "repository": { "type": "string", "format": "uri" },
+        "revision": { "$ref": "#/$defs/gitSha" },
+        "release": { "type": "string", "pattern": "^v[0-9]+\\.[0-9]+\\.[0-9]+$" },
+        "reviewed_upstream_revision": { "$ref": "#/$defs/gitSha" }
+      }
+    },
+    "specify_compatibility": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["minimum_version", "tested_version", "maximum_version_exclusive", "approved_install_ref"],
+      "properties": {
+        "minimum_version": { "$ref": "#/$defs/cliVersion" },
+        "tested_version": { "$ref": "#/$defs/cliVersion" },
+        "maximum_version_exclusive": { "anyOf": [{ "type": "null" }, { "$ref": "#/$defs/cliVersion" }] },
+        "approved_install_ref": { "$ref": "#/$defs/gitSha" }
+      }
+    },
+    "paths": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["start_here", "policy", "reference", "operating_protocol", "onboarding", "local_overrides", "project_config", "adapters", "manager"],
+      "properties": {
+        "start_here": { "const": "docs/spec-kit/START_HERE.md" },
+        "policy": { "const": "docs/spec-kit/POLICY.md" },
+        "reference": { "const": "docs/spec-kit/REFERENCE.md" },
+        "operating_protocol": { "const": "docs/spec-kit/OPERATING_PROTOCOL.md" },
+        "onboarding": { "const": "docs/spec-kit/AGENT_ONBOARDING.md" },
+        "local_overrides": { "const": "docs/spec-kit/LOCAL_OVERRIDES.md" },
+        "project_config": { "const": "docs/spec-kit/PROJECT_CONFIG.json" },
+        "adapters": { "const": "docs/spec-kit/ADAPTERS.json" },
+        "manager": { "const": "tools/spec-kit-governance/governance.py" }
+      }
+    },
+    "content_sha256": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": { "$ref": "#/$defs/sha256" },
+      "propertyNames": { "$ref": "#/$defs/projectRelativePath" }
+    },
+    "project_owned_files": {
+      "type": "array",
+      "const": ["docs/spec-kit/LOCAL_OVERRIDES.md", "docs/spec-kit/PROJECT_CONFIG.json", "docs/spec-kit/ADAPTERS.json"]
+    },
+    "portable_anchor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "marker_start", "marker_end"],
+      "properties": {
+        "path": { "const": "AGENTS.md" },
+        "marker_start": { "const": "<!-- PROJECT SPEC-KIT GOVERNANCE START -->" },
+        "marker_end": { "const": "<!-- PROJECT SPEC-KIT GOVERNANCE END -->" }
+      }
+    }
+  },
+  "$defs": {
+    "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "gitSha": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+    "semver": { "type": "string", "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$" },
+    "cliVersion": { "type": "string", "pattern": "^([0-9]+)\\.([0-9]+)\\.([0-9]+)(?:(\\.dev|a|b|rc)([0-9]+))?$" },
+    "projectRelativePath": { "type": "string", "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$)).+$" }
+  }
+}

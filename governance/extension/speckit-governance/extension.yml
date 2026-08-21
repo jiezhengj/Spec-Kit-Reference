@@ -1,0 +1,11 @@
+name: speckit-governance
+version: 1.0.0
+description: Agent-neutral project governance bootstrap for Spec Kit
+entrypoints:
+  bootstrap: scripts/python/bootstrap_governance.py
+payload:
+  manager: governance/manager/speckit_governance.py
+  project_template: governance/project
+security:
+  requires_operation_plan: true
+  installs_native_skills: false

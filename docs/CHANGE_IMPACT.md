@@ -52,3 +52,30 @@ The upstream reviewed commit, local reference, and installed CLI may differ and 
 ## Conclusion
 
 The Qoder integration change is classified as `REFERENCE`: it changes generated artifact layout for one integration but does not change the local Agent governance lifecycle. The baseline has advanced to the reviewed commit after repository validation. The current CLI is operational; project-level integration behavior remains to be checked from a real Spec Kit project root.
+
+## Local policy amendment
+
+Date:
+
+`2026-08-21`
+
+Classification:
+
+`POLICY`
+
+Trigger:
+
+The DriversLicense migration review found that choosing `generic` because the Codex Skills target was not writable produced a valid Agent-neutral project but did not satisfy the requirement to expose Codex Spec Kit Skills.
+
+Decision:
+
+When a concrete Agent is in scope, its native Spec Kit integration is mandatory. Permission, sandbox, or unwritable-path failures are blockers and must not trigger a silent downgrade to `generic`. A migration cannot be marked complete or pushed as complete until the native integration and its managed files are verified. `generic` remains available only for an explicitly Agent-neutral request.
+
+Affected documents:
+
+- `GLOBAL_POLICY.md`
+- `SPEC_KIT_REFERENCE.md`
+
+Validation:
+
+The rule was added to the single logical Policy source and the corresponding operational reference. Existing upstream baseline data was not changed.

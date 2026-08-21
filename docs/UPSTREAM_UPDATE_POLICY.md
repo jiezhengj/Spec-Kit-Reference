@@ -44,11 +44,11 @@ No local operational knowledge or governance policy changes. Record the review a
 
 ### REFERENCE
 
-Operational facts changed, such as CLI syntax, integrations, generated directories, upgrade commands, or extension behavior. Update `SPEC_KIT_REFERENCE.md` when justified; normally leave `global-policy.md` unchanged.
+Operational facts changed, such as CLI syntax, integrations, generated directories, upgrade commands, or extension behavior. Update `SPEC_KIT_REFERENCE.md` when justified; normally leave `GLOBAL_POLICY.md` unchanged.
 
 ### POLICY
 
-The methodology, lifecycle, completion semantics, integration architecture, or project-authority model changed in a way that may alter Agent behavior. Review and possibly update both `global-policy.md` and `SPEC_KIT_REFERENCE.md`. Human review is required before deployment or merge.
+The methodology, lifecycle, completion semantics, integration architecture, or project-authority model changed in a way that may alter Agent behavior. Review and possibly update both `GLOBAL_POLICY.md` and `SPEC_KIT_REFERENCE.md`. Human review is required before deployment or merge.
 
 ## Automation boundary
 

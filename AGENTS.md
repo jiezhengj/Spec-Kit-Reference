@@ -29,7 +29,7 @@ Do not require an upstream fetch for unrelated typo-only or read-only edits when
 
 `REFERENCE` means operational facts changed, such as CLI arguments, integrations, generated directories, upgrade commands, or extension behavior. Update `SPEC_KIT_REFERENCE.md` when evidence requires it; normally leave policy unchanged.
 
-`POLICY` means the upstream methodology or lifecycle changed enough to affect how Agents should manage engineering work. Review `global-policy.md` and the reference, document the rationale, and require human review before deployment.
+`POLICY` means the upstream methodology or lifecycle changed enough to affect how Agents should manage engineering work. Review `GLOBAL_POLICY.md` and the reference, document the rationale, and require human review before deployment.
 
 Do not modify policy merely because upstream changed.
 

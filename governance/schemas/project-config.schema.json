@@ -1,0 +1,91 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://jiezhengj.github.io/Spec-Kit-Reference/governance/schemas/project-config.schema.json",
+  "title": "Spec Kit project governance configuration",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "default_integration",
+    "onboarding",
+    "generic",
+    "catalogs",
+    "context",
+    "upgrade",
+    "quality_gates"
+  ],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "default_integration": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["policy", "key", "allow_change"],
+      "properties": {
+        "policy": { "const": "pinned" },
+        "key": {
+          "type": ["string", "null"],
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+        },
+        "allow_change": { "type": "boolean" }
+      }
+    },
+    "onboarding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["requires_current_user_approval", "allow_unsafe_multi_install"],
+      "properties": {
+        "requires_current_user_approval": { "const": true },
+        "allow_unsafe_multi_install": { "const": false }
+      }
+    },
+    "generic": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["policy", "maximum_bindings"],
+      "properties": {
+        "policy": { "enum": ["deny", "explicit-approval-required"] },
+        "maximum_bindings": { "const": 1 }
+      }
+    },
+    "catalogs": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["allowed_sources"],
+      "properties": {
+        "allowed_sources": {
+          "type": "array",
+          "maxItems": 0
+        }
+      }
+    },
+    "context": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["default_delivery_mode", "allow_materialized_after_loader_failure"],
+      "properties": {
+        "default_delivery_mode": { "const": "loader" },
+        "allow_materialized_after_loader_failure": { "const": true }
+      }
+    },
+    "upgrade": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["review_mode"],
+      "properties": {
+        "review_mode": { "const": "pull-request-required" }
+      }
+    },
+    "quality_gates": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["clarify", "checklist", "analyze", "validate", "converge"],
+      "properties": {
+        "clarify": { "enum": ["risk-triggered", "required"] },
+        "checklist": { "enum": ["risk-triggered", "required"] },
+        "analyze": { "enum": ["risk-triggered", "required"] },
+        "validate": { "const": "required" },
+        "converge": { "const": "required" }
+      }
+    }
+  }
+}

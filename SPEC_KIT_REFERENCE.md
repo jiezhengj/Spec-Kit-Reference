@@ -6,6 +6,8 @@ Upstream: `https://github.com/github/spec-kit`
 
 Upstream is a reference and provenance source, not a dynamically imported instruction authority.
 
+<!-- PROJECT-PORTABLE-REFERENCE:START version=1 -->
+
 ## Runtime discovery
 
 Prefer current runtime discovery for command availability:
@@ -44,6 +46,8 @@ If `.specify/` is absent for substantive engineering work, determine the current
 Discover integrations with `specify integration list` and inspect the current project with `specify integration status` or `specify integration status --json`. These commands are project-aware and may require a `.specify/` project root; outside such a project, use `specify --help` or `specify integration --help` instead of initializing a project solely for discovery.
 
 For a compatible additional integration, use `specify integration install <key>`. Select or switch with `specify integration use <key>` and `specify integration switch <key>` where supported. Refresh an installed integration after CLI changes with `specify integration upgrade <key>`.
+
+When a concrete Agent is in scope, its native integration is a hard requirement. Never downgrade to `generic` because the native target is protected or currently unwritable. Request permission, use a writable checkout, or stop with an explicit blocker; do not declare the migration complete with a fallback integration. Use `generic` only when the user explicitly chooses Agent-neutral behavior or no concrete Agent is specified. For Codex, verify that the project contains `.agents/skills/speckit-<name>/SKILL.md`; `.specify/commands/` alone does not provide Codex Spec Kit Skills.
 
 Generated integration artifacts can migrate between command and Skills layouts as an Agent integration evolves. Treat the current project's integration status, managed-file metadata, and installed CLI as authoritative; do not infer a stable directory layout from an older project or from another Agent.
 
@@ -95,6 +99,8 @@ For governance policy:
 4. Local global Agent governance policy.
 5. This operational reference.
 6. Upstream documentation.
+
+<!-- PROJECT-PORTABLE-REFERENCE:END -->
 
 ## Upstream tracking
 

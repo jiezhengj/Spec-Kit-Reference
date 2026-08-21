@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://jiezhengj.github.io/Spec-Kit-Reference/governance/schemas/release-index.schema.json",
+  "title": "Spec Kit governance release index",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "version", "source", "portable_artifact", "extension_artifact", "extension_install_argv"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "version": { "type": "string", "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$" },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["repository", "revision", "worktree_status_sha256", "worktree_clean", "reviewed_upstream_revision"],
+      "properties": {
+        "repository": { "type": "string", "format": "uri" },
+        "revision": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+        "worktree_status_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "worktree_clean": { "type": "boolean" },
+        "reviewed_upstream_revision": { "type": ["string", "null"], "pattern": "^[0-9a-f]{40}$" }
+      }
+    },
+    "portable_artifact": { "$ref": "#/$defs/artifact" },
+    "extension_artifact": { "$ref": "#/$defs/artifact" },
+    "extension_install_argv": { "type": "array", "minItems": 4, "items": { "type": "string" } }
+  },
+  "$defs": {
+    "artifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "content_sha256"],
+      "properties": {
+        "path": { "type": "string", "pattern": "^(?!/)(?!.*\\.\\.).+$" },
+        "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "content_sha256": { "type": "object", "minProperties": 1, "additionalProperties": { "type": "string", "pattern": "^[0-9a-f]{64}$" } }
+      }
+    }
+  }
+}

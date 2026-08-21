@@ -5,3 +5,6 @@ upstream-update.md
 .DS_Store
 Thumbs.db
 Desktop.ini
+# SPEC-KIT-GOVERNANCE-RUNTIME:START
+/.spec-kit-governance/
+# SPEC-KIT-GOVERNANCE-RUNTIME:END
