@@ -6,6 +6,8 @@ GitHub Spec Kit 用于实质性软件工程工作。只读调查、解释、极�
 
 变更前必须确认真实项目根目录，读取所有适用项目本地规则、README、架构、测试、依赖和 CI，理解真实 brownfield 系统并保护现有用户工作。存在 `.specify/` 时恢复已有项目状态，不得例行重新初始化。
 
+如果项目已经有 `AGENTS.md`，它属于项目共同维护的规则内容。Spec Kit loader 只能通过已审查的 manager plan 追加到该文件，绝不得替换、删除、重排、规范化或覆盖既有字节。只有项目没有 `AGENTS.md` 时，manager 才能通过同一类已审查 plan 创建 loader 文件。
+
 # Agent-neutral 与原生 integration
 
 治理包不预先枚举 Agent 产品。当前 Agent 必须由用户、宿主或 Agent runtime 明确声明 runtime ID 和精确 integration key；display name 不能生成 mutation plan。不得从 PATH、目录名、default integration、相似产品名或 Rich catalog 输出猜测身份。

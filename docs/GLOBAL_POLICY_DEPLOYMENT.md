@@ -19,17 +19,17 @@ Any failure must stop the operation with zero writes:
 2. `SPEC_KIT_REFERENCE.md`, `GLOBAL_POLICY.md`, and `UPSTREAM_BASELINE` exist and are readable within source.
 3. The sole template is `<source>/GLOBAL_POLICY.md`; the template must not be obtained from another checkout, the current working directory, or session text.
 4. The template is UTF-8/LF without a BOM, and the file ends with exactly one LF.
-5. The entire START line matches `<!-- SPEC-KIT-GLOBAL-POLICY:START version=X.Y.Z -->`, where `X.Y.Z` is a non-negative SemVer, and occurs exactly once.
-6. The entire END line equals `<!-- SPEC-KIT-GLOBAL-POLICY:END -->`, occurs exactly once, and appears after START.
-7. Any line containing `SPEC-KIT-GLOBAL-POLICY:` that does not match the grammar above causes validation to fail.
-8. `<ABSOLUTE_PATH_TO_SPEC_KIT_REFERENCE_REPOSITORY>` occurs exactly once and only on the sole `SPEC_KIT_GOVERNANCE_SOURCE:` line.
+5. `GLOBAL_POLICY.md` has exactly one H1 title, `# Spec Kit Global Policy`, and its policy sections are H2 headings; the source contains no `SPEC-KIT-GLOBAL-POLICY` HTML comment markers.
+6. `<ABSOLUTE_PATH_TO_SPEC_KIT_REFERENCE_REPOSITORY>` occurs exactly once and only on the sole `SPEC_KIT_GOVERNANCE_SOURCE:` line.
+7. The deployment renderer uses the fixed generated START line `<!-- SPEC-KIT-GLOBAL-POLICY:START version=X.Y.Z -->` and END line `<!-- SPEC-KIT-GLOBAL-POLICY:END -->`, where `X.Y.Z` is a non-negative SemVer; each generated line occurs exactly once and START precedes END.
+8. Any target line containing `SPEC-KIT-GLOBAL-POLICY:` that does not match the generated marker grammar causes validation to fail.
 9. A nonexistent target, an empty target, a target without markers, and a target with one valid and unique marker pair enter the create, initial append, or update branch, respectively; a missing, duplicate, reversed, or malformed marker stops the operation.
 
 The managed marker block is generated as a whole. Updates do not perform a three-way merge or determine whether the block contains manual edits; the new rendered block replaces the old block unconditionally. Custom rules that must be preserved must be placed outside the markers.
 
 # Sole Rendering Procedure
 
-Read the complete marker span from the validated source template and perform exactly one literal replacement:
+Read the complete source template, perform exactly one literal replacement, and wrap the resulting source text in the generated marker pair:
 
 ```text
 <ABSOLUTE_PATH_TO_SPEC_KIT_REFERENCE_REPOSITORY>

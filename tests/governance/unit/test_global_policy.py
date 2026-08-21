@@ -1,13 +1,10 @@
 from __future__ import annotations
 
-import re
 import unittest
 from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[3]
-START_RE = re.compile(r"^<!-- SPEC-KIT-GLOBAL-POLICY:START version=(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*) -->$")
-END = "<!-- SPEC-KIT-GLOBAL-POLICY:END -->"
 PLACEHOLDER = "<ABSOLUTE_PATH_TO_SPEC_KIT_REFERENCE_REPOSITORY>"
 
 
@@ -16,12 +13,14 @@ class GlobalPolicyTemplateTests(unittest.TestCase):
         self.assertTrue((ROOT / "GLOBAL_POLICY.md").is_file())
         self.assertFalse((ROOT / "global-policy.md").exists())
 
-    def test_template_has_exact_markers_and_placeholder(self) -> None:
+    def test_template_has_title_sections_and_placeholder(self) -> None:
         text = (ROOT / "GLOBAL_POLICY.md").read_text(encoding="utf-8")
         self.assertTrue(text.endswith("\n"))
         lines = text.splitlines()
-        self.assertEqual(sum(bool(START_RE.fullmatch(line)) for line in lines), 1)
-        self.assertEqual(lines.count(END), 1)
+        self.assertEqual(lines[0], "# Spec Kit Global Policy")
+        self.assertEqual(sum(line.startswith("# ") for line in lines), 1)
+        self.assertEqual(sum(line.startswith("## ") for line in lines), 5)
+        self.assertNotIn("<!-- SPEC-KIT-GLOBAL-POLICY:", text)
         self.assertEqual(text.count(PLACEHOLDER), 1)
         self.assertIn("SPEC_KIT_GOVERNANCE_SOURCE: " + PLACEHOLDER, text)
         self.assertLessEqual(sum(bool(line.strip()) for line in lines), 40)

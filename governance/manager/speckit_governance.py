@@ -43,7 +43,7 @@ STATUSES = {
     "NATIVE_CANDIDATE_REJECTED", "NATIVE_INSTALL_BLOCKED", "AMBIGUOUS", "CATALOG_UNAVAILABLE",
     "CONTEXT_ANCHOR_UNKNOWN", "ANCHOR_FORMAT_UNSUPPORTED", "UNSUPPORTED_GENERIC_COMPATIBLE",
     "UNSUPPORTED_INCOMPATIBLE", "INTEGRATION_CONFLICT", "DEFAULT_CHANGE_FORBIDDEN",
-    "CENTRAL_SOURCE_UNVERIFIED", "STATE_BROKEN", "RECOVERY_REQUIRED", "READY_WITH_LIMITATIONS", "READY",
+    "CENTRAL_SOURCE_UNVERIFIED", "PROJECT_RULES_PROTECTED", "STATE_BROKEN", "RECOVERY_REQUIRED", "READY_WITH_LIMITATIONS", "READY",
 }
 
 
@@ -315,8 +315,10 @@ def preflight_writable(root: Path, rel: str) -> dict[str, Any]:
 
 def file_mutation(root: Path, rel: str, content: bytes, action: str = "create") -> dict[str, Any]:
     safe_relative(root, rel)
+    if rel == "AGENTS.md" and action != "append-managed-loader":
+        raise GovernanceError("project-owned AGENTS.md accepts only append-managed-loader", "PROJECT_RULES_PROTECTED")
     target = root / rel
-    actual_action = action if target.exists() else "create"
+    actual_action = action if action == "append-managed-loader" or target.exists() else "create"
     expected_content = content
     if actual_action == "append-managed-loader" and target.is_file():
         existing = target.read_bytes()
@@ -870,6 +872,8 @@ def apply_manager_mutations(root: Path, plan: dict[str, Any]) -> list[str]:
             rel = item["path"]
             safe_relative(root, rel)
             target = root / rel
+            if rel == "AGENTS.md" and item.get("action") != "append-managed-loader":
+                raise GovernanceError("project-owned AGENTS.md accepts only append-managed-loader", "PROJECT_RULES_PROTECTED")
             if target.is_symlink():
                 raise GovernanceError(f"refusing to mutate symlink: {rel}", "STATE_BROKEN")
             old = target.read_bytes() if target.is_file() else None

@@ -11,3 +11,5 @@
 9. 仅 Loader fresh-session 失败且用户显式请求时才允许 Materialized；此时必须同时提供 `--loader-failure-evidence <project-relative-json>`。
 10. 用户使用 `apply-plan --approve-plan-id <id> --approve-plan-sha256 <hash>` 授权后，才执行唯一 apply。
 11. 新会话验证 anchor、Loader、Policy version、probe token、runtime ID、integration key、原生 workflow 和既有 inventory 后，保存项目相对 verification evidence，再生成 `plan-activate-binding`；在该计划 apply 前，binding 只能是 `provisional`，不能报告 `READY`。
+
+12. 如果项目已有 `AGENTS.md`，onboarding 只能向其中注入 managed loader；必须保留原有项目规则的全部字节，禁止覆盖、删除、重排或全文件格式化。

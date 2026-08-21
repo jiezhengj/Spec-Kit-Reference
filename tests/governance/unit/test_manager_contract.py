@@ -57,6 +57,28 @@ class ManagerContractTests(unittest.TestCase):
             self.run_manager(project, "apply-plan", "--plan", bootstrap["path"], "--approve-plan-id", bootstrap["plan_id"], "--approve-plan-sha256", bootstrap["plan_sha256"])
             self.assertEqual((project / "AGENTS.md").read_bytes(), existing)
 
+    def test_bootstrap_only_appends_to_existing_unmanaged_agents(self):
+        with tempfile.TemporaryDirectory() as directory:
+            project = Path(directory)
+            subprocess.run(["git", "init", "-q", str(project)], check=True)
+            existing = b"# Project-owned rules\n\nKeep this exact text and byte order.\n"
+            (project / "AGENTS.md").write_bytes(existing)
+            bootstrap = json.loads(self.run_manager(project, "plan-governance-bootstrap", "--source", str(ROOT)).stdout)
+            self.run_manager(project, "apply-plan", "--plan", bootstrap["path"], "--approve-plan-id", bootstrap["plan_id"], "--approve-plan-sha256", bootstrap["plan_sha256"])
+            result = (project / "AGENTS.md").read_bytes()
+            self.assertTrue(result.startswith(existing))
+            self.assertEqual(result.count(manager.START_MARKER.encode("utf-8")), 1)
+            self.assertEqual(result.count(manager.END_MARKER.encode("utf-8")), 1)
+
+    def test_agents_file_rejects_replace_or_create_mutations(self):
+        with tempfile.TemporaryDirectory() as directory:
+            project = Path(directory)
+            (project / "AGENTS.md").write_text("project rules\n", encoding="utf-8")
+            for action in ("create", "replace"):
+                with self.assertRaises(manager.GovernanceError) as raised:
+                    manager.file_mutation(project, "AGENTS.md", b"replacement\n", action)
+                self.assertEqual(raised.exception.status, "PROJECT_RULES_PROTECTED")
+
     def test_unknown_identity_requires_exact_key_and_generic_is_not_native(self):
         with tempfile.TemporaryDirectory() as directory:
             project = Path(directory)

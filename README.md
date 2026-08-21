@@ -104,7 +104,7 @@ Upstream content is never dynamically imported as a higher-priority instruction 
 
 # Global Policy deployment
 
-[GLOBAL_POLICY.md](GLOBAL_POLICY.md) is the only global Policy template. It contains one managed marker block and this deployment-time locator:
+[GLOBAL_POLICY.md](GLOBAL_POLICY.md) is the only global Policy template. It is a clean Markdown document with one H1 title and H2 policy sections; it has no surrounding HTML-comment wrapper. The deployment renderer adds the managed marker block only to the rendered target and fills this deployment-time locator:
 
 ~~~text
 SPEC_KIT_GOVERNANCE_SOURCE: <ABSOLUTE_PATH_TO_SPEC_KIT_REFERENCE_REPOSITORY>
@@ -116,7 +116,7 @@ Do not permanently write a personal absolute path into the committed source temp
 
 # 全局 Policy 部署
 
-[GLOBAL_POLICY.md](GLOBAL_POLICY.md) 是唯一的全局 Policy 模板。它包含一个受管 marker block 和以下仅在部署时使用的 locator：
+[GLOBAL_POLICY.md](GLOBAL_POLICY.md) 是唯一的全局 Policy 模板。它是干净的 Markdown 文档，包含一个 H1 标题和 H2 Policy 章节，不带首尾 HTML 注释包裹。部署 renderer 只在渲染到目标文件时添加受管 marker block，并填写以下仅在部署时使用的 locator：
 
 ~~~text
 SPEC_KIT_GOVERNANCE_SOURCE: <ABSOLUTE_PATH_TO_SPEC_KIT_REFERENCE_REPOSITORY>
@@ -142,6 +142,8 @@ For substantive work in a business project:
 
 Every mutation uses a two-stage plan/apply protocol. Approve the exact plan ID and hash before `apply-plan`. Native integration failure is a blocker: an unwritable target, permission error, sandbox restriction, repair failure, or CLI installation failure must never silently become `generic`.
 
+If the project already has an `AGENTS.md`, it is project-owned instruction content. The governance loader may only be appended through the reviewed manager plan; it must preserve all existing bytes and must never replace, delete, reorder, normalize, or overwrite the file. The manager may create `AGENTS.md` only when it does not already exist.
+
 The conceptual Spec Kit lifecycle is:
 
 ~~~text
@@ -166,6 +168,8 @@ Quality gates are risk-driven. Converge is the completion gate; passing tests or
 9. 仅在验证证据获准后才激活 binding。
 
 每项变更都使用两阶段的 plan/apply 协议。`apply-plan` 前必须批准精确的 plan ID 和 hash。native integration 失败是 blocker：不可写 target、权限错误、sandbox 限制、修复失败或 CLI 安装失败，绝不得静默变成 `generic`。
+
+如果项目已经有 `AGENTS.md`，它属于项目拥有的规则内容。治理 loader 只能通过已审查的 manager plan 追加注入，必须保留全部既有字节，绝不得替换、删除、重排、规范化或覆盖该文件。只有文件不存在时，manager 才能创建 `AGENTS.md`。
 
 概念上的 Spec Kit 生命周期为：
 

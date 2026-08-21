@@ -243,10 +243,11 @@ class CapabilityContractTests(unittest.TestCase):
         self.assertIn("windows-latest", workflow)
         self.assertIn("check-upstream.ps1", workflow)
 
-    def test_global_policy_template_has_exact_markers(self):
+    def test_global_policy_template_has_title_and_no_html_wrapper(self):
         policy = read("GLOBAL_POLICY.md")
-        self.assertEqual(policy.count("<!-- SPEC-KIT-GLOBAL-POLICY:START"), 1)
-        self.assertEqual(policy.count("<!-- SPEC-KIT-GLOBAL-POLICY:END"), 1)
+        self.assertTrue(policy.startswith("# Spec Kit Global Policy\n"))
+        self.assertNotIn("<!-- SPEC-KIT-GLOBAL-POLICY:", policy)
+        self.assertEqual(policy.count("\n## "), 5)
         self.assertEqual(policy.count("SPEC_KIT_GOVERNANCE_SOURCE:"), 1)
         self.assertEqual(policy.count("<ABSOLUTE_PATH_TO_SPEC_KIT_REFERENCE_REPOSITORY>"), 1)
 

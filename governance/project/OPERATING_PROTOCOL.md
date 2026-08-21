@@ -2,6 +2,8 @@
 
 确认项目根目录，读取本目录全部治理文件，检查 Git 状态、`.specify/`、manifest、config、adapter、CLI 版本和 integration status。只读命令不得创建 `.specify/`、plan、backup 或 binding。
 
+如果目标项目已有 `AGENTS.md`，先将其视为项目拥有的用户规则。Bootstrap 或 onboarding 只允许以 `append-managed-loader` 方式注入治理 loader；必须保留原有内容和字节顺序，禁止覆盖、删除、重排或全文件格式化。若文件不存在，才可在已批准 plan 中创建。
+
 # 治理包 bootstrap
 
 Portable artifact 解压到 `.spec-kit-governance/staging/<plan-id>/`，校验 manifest 和 SHA-256，从 staging manager 生成 `plan-governance-bootstrap`。Bootstrap 只写 `docs/spec-kit/`、根 Loader、manager、manifest 和 config，不安装当前 Agent integration。用户按精确 plan ID/hash 授权后运行 apply，再用项目 manager verify。
