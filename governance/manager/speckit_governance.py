@@ -325,8 +325,7 @@ def marker_loader(documentation_language: str | None = None) -> str:
         if not valid_language_tag(documentation_language):
             raise GovernanceError("documentation language must be a valid BCP 47 tag", "DOCUMENTATION_LANGUAGE_INVALID")
         language_rule = (
-            f"\n\n## Documentation language\n\n"
-            f"Project documentation language: `{documentation_language}`.\n\n"
+            f"\n\nProject documentation language: `{documentation_language}`.\n\n"
             "Write new and substantively rewritten project documentation, including Spec Kit artifacts, "
             "in this language unless an explicit user or more specific project instruction overrides it. "
             "Do not translate existing documentation solely because this setting was selected."
