@@ -3,6 +3,7 @@
 ## 2026-08-21 — Documentation normalization
 
 - Rewrote `README.md` around the current portable governance package, manager, release, deployment, and validation workflow.
+- Kept `README.md` as a complete English-and-Chinese mirror: every English section now has a corresponding Chinese section with the same commands, paths, statuses, and constraints.
 - Translated every Markdown document under `docs/` to English while preserving commands, paths, hashes, statuses, and normative constraints.
 
 ## 2026-08-21 — Portable project governance implementation

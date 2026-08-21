@@ -1,51 +1,14 @@
-# 中文说明
-
-Spec-Kit-Reference 是经过审查的 GitHub Spec Kit 兼容性与治理层。它把持续变化的上游项目转化为稳定的本地 Policy、运行时 Reference，以及可随业务项目提交的治理包。本仓库不是 github/spec-kit 的 fork、镜像或 submodule；`origin` 是本仓库，`upstream` 只用于 fetch、diff 和影响审查，绝不合并上游历史。
-
-## 核心文件
-
-- `AGENTS.md`：本仓库维护规则。
-- `GLOBAL_POLICY.md`：唯一可部署、与 Agent 无关的全局 Policy 模板。
-- `SPEC_KIT_REFERENCE.md`：经过审查的运行事实和运行时发现指南。
-- `UPSTREAM_BASELINE`：最近一次完成语义影响审查的上游提交。
-- `governance/`：生成业务项目可移植治理包、schema、resolver 和 manager 的源目录。
-- `docs/`：持续维护文档；一次性实施快照位于 `docs/archive/`，不会复制进业务项目。
-
-## 项目治理要点
-
-实质性工程工作应先确定项目根目录、读取项目本地规则、检查 `.specify/` 并理解 brownfield 状态。未治理项目通过已审查 operation plan 安装 `docs/spec-kit/`，再用显式 runtime ID 和准确 integration key 接入当前 Agent。存在 native integration 时必须使用 native；不可写、权限、sandbox、修复或 CLI 安装失败都是 blocker，不得静默降级为 `generic`。
-
-项目包不会预先登记 Codex、Claude、Gemini、Trae、Workbuddy 或其他固定品牌。未知 Agent 不猜测映射；只有显式 runtime 声明或已验证 binding 才能建立身份。只有显示名称而没有准确 key 时返回 `KEY_REQUIRED`。
-
-## 全局 Policy 部署
-
-人工选择实际使用的 Agent 产品全局规则文件，把 `GLOBAL_POLICY.md` 中的 `SPEC_KIT_GOVERNANCE_SOURCE` 占位符替换为本仓库绝对路径，生成临时副本，然后只复制 marker 区块；区块外内容必须保留。不得猜测全局规则位置、另行追加 locator，也不得把个人路径永久写回已提交模板。精确协议见 [`docs/GLOBAL_POLICY_DEPLOYMENT.md`](docs/GLOBAL_POLICY_DEPLOYMENT.md)；普通项目工作不需要读取该协议。
-
-## 本地验证与真实项目验证
-
-~~~bash
-python3 -m unittest discover -s tests -p 'test*.py'
-python3 -m compileall -q governance scripts tests
-git diff --check
-~~~
-
-本地测试全绿不代表真实 Agent 已加载 context anchor 或已生成正确的 native managed files；跨 Agent、跨平台推广前仍需使用真实项目、真实 CLI、真实 Agent 会话和目标平台权限进行受控验证。
-
-下方英文部分提供完整操作说明；`docs/` 下的维护文档统一使用英文，以便跨 Agent 协作时只有一份规范文本。
-
 # Purpose
 
-Spec-Kit-Reference is a reviewed compatibility and governance layer for
-[GitHub Spec Kit](https://github.com/github/spec-kit). It converts a moving
-upstream project into stable local policy, operational reference material, and
-a portable project governance package for coding Agents.
+Spec-Kit-Reference is a reviewed compatibility and governance layer for [GitHub Spec Kit](https://github.com/github/spec-kit). It converts a moving upstream project into stable local Policy, runtime reference material, and a portable governance package that can be committed with a business project.
 
-This repository is not a fork, mirror, or submodule of github/spec-kit.
-Never merge the upstream history into this repository.
+This repository is not a fork, mirror, or submodule of `github/spec-kit`. `origin` is this governance repository; `upstream` is the official Spec Kit repository and is used only for fetch, diff, and impact review. Never merge upstream history into this repository.
 
-- origin is this governance repository.
-- upstream is the official Spec Kit repository and is used for fetch, diff,
-  and impact review only.
+# 用途
+
+Spec-Kit-Reference 是经过审查的 [GitHub Spec Kit](https://github.com/github/spec-kit) 兼容性与治理层。它将持续变化的上游项目转化为稳定的本地 Policy、运行时参考资料，以及可随业务项目一同提交的可移植治理包。
+
+本仓库不是 `github/spec-kit` 的 fork、镜像或 submodule。`origin` 是本治理仓库；`upstream` 是官方 Spec Kit 仓库，仅用于 fetch、diff 和影响审查。绝不得把上游历史合并到本仓库。
 
 # Repository layout
 
@@ -54,114 +17,130 @@ The repository has three distinct layers.
 ## Central policy and reference
 
 - [AGENTS.md](AGENTS.md) contains maintenance rules for this repository.
-- [GLOBAL_POLICY.md](GLOBAL_POLICY.md) is the single deployable, Agent-neutral
-  global Policy template.
-- [SPEC_KIT_REFERENCE.md](SPEC_KIT_REFERENCE.md) records reviewed operational
-  facts and runtime discovery guidance.
-- [UPSTREAM_BASELINE](UPSTREAM_BASELINE) records the latest upstream commit
-  whose semantic impact has been reviewed.
+- [GLOBAL_POLICY.md](GLOBAL_POLICY.md) is the single deployable, Agent-neutral global Policy template.
+- [SPEC_KIT_REFERENCE.md](SPEC_KIT_REFERENCE.md) records reviewed operational facts and runtime discovery guidance.
+- [UPSTREAM_BASELINE](UPSTREAM_BASELINE) records the latest upstream commit whose semantic impact has been reviewed.
 
 ## Portable project governance
 
-The governance/ tree is the source for the package committed into a business
-project. A project receives a self-contained docs/spec-kit/ package and a
-project-local tools/spec-kit-governance/governance.py manager. The package is
-the collaborator's offline baseline; it does not depend on a maintainer's
-global rules or local Reference directory.
+The `governance/` tree is the source for the package committed into a business project. A project receives a self-contained `docs/spec-kit/` package and a project-local `tools/spec-kit-governance/governance.py` manager. It is a collaborator's offline baseline and does not depend on a maintainer's global rules or local Reference directory.
 
-The package is deliberately Agent-neutral. A concrete Agent supplies its own
-runtime identity, exact Spec Kit integration key, and project context anchor
-during onboarding. The package never pre-registers a fixed list of Agent
-brands.
+The package is deliberately Agent-neutral. During onboarding, a concrete Agent supplies its runtime identity, exact Spec Kit integration key, and project context anchor. The package never pre-registers a fixed list of Agent brands.
 
 ## Central implementation and maintenance material
 
-The docs/ directory contains the English implementation, deployment,
-migration, operations, security, test, upstream-review, and history documents.
-These documents are central maintenance contracts. They are not copied into
-business projects; only the portable package under docs/spec-kit/ is.
+The `docs/` directory contains central English implementation, deployment, migration, operations, security, test, upstream-review, and history documents. They are maintenance contracts and are not copied into business projects; only the portable package under `docs/spec-kit/` is copied.
+
+# 仓库结构
+
+本仓库由三个彼此分离的层组成。
+
+## 中央 Policy 与 Reference
+
+- [AGENTS.md](AGENTS.md) 包含本仓库的维护规则。
+- [GLOBAL_POLICY.md](GLOBAL_POLICY.md) 是唯一可部署、与 Agent 无关的全局 Policy 模板。
+- [SPEC_KIT_REFERENCE.md](SPEC_KIT_REFERENCE.md) 记录已审查的运行事实和运行时发现指南。
+- [UPSTREAM_BASELINE](UPSTREAM_BASELINE) 记录最近一次已完成语义影响审查的上游提交。
+
+## 可移植项目治理
+
+`governance/` 目录树是要提交到业务项目中的治理包源代码。项目会获得自包含的 `docs/spec-kit/` 包，以及项目本地的 `tools/spec-kit-governance/governance.py` manager。它是协作者的离线基线，不依赖维护者的全局规则或本地 Reference 目录。
+
+该包刻意保持 Agent-neutral。onboarding 时，具体 Agent 提供其 runtime identity、精确的 Spec Kit integration key 和项目 context anchor。该包绝不预先登记固定的 Agent 品牌列表。
+
+## 中央实施与维护材料
+
+`docs/` 目录包含中央维护所用的英文实施、部署、迁移、运维、安全、测试、上游审查和历史文档。它们是维护契约，不会复制到业务项目；只有 `docs/spec-kit/` 下的可移植包会被复制。
 
 # Prerequisites
 
-For repository maintenance, use Git and Python 3. The specify CLI is needed
-for runtime discovery and real-project validation. The installed CLI and the
-current project state are authoritative for behavior; this repository never
-assumes that the installed version matches the reviewed Reference.
+Repository maintenance requires Git and Python 3. The `specify` CLI is needed for runtime discovery and real-project validation. The installed CLI and current project state are authoritative; do not assume that its version matches the reviewed Reference.
 
-If the CLI is missing, an Agent must ask for authorization before installing
-it. The approved V1 install form is pinned to an immutable upstream commit
-recorded by the release manifest:
+If the CLI is missing, an Agent must request authorization before installation. The approved V1 form is pinned to the immutable upstream commit recorded in the release manifest:
 
 ~~~bash
 uv tool install specify-cli --from git+https://github.com/github/spec-kit.git@<approved-40-character-commit-sha>
 ~~~
 
-Do not silently install the CLI, use a floating main branch, or treat a
-global CLI installation as proof that Agent-specific project Skills exist.
+Do not silently install the CLI, use a floating `main` branch, or treat a global CLI installation as proof that Agent-specific project Skills exist.
+
+# 前置条件
+
+维护仓库需要 Git 和 Python 3。运行时发现和真实项目验证需要 `specify` CLI。已安装的 CLI 和当前项目状态是权威；不得假定其版本与经审查的 Reference 一致。
+
+如果 CLI 缺失，Agent 必须先请求授权，才能安装。获准的 V1 形式固定到 release manifest 中记录的不可变上游提交：
+
+~~~bash
+uv tool install specify-cli --from git+https://github.com/github/spec-kit.git@<approved-40-character-commit-sha>
+~~~
+
+不得静默安装 CLI，不得使用浮动的 `main` 分支，也不得把全局 CLI 安装视为 Agent 专属项目 Skills 已存在的证明。
 
 # Runtime authority
 
-When sources disagree, use this order for operational mechanics:
+When sources disagree, operational mechanics use this order:
 
 1. Current project Spec Kit state and project-local rules.
-2. The installed project integration and its managed-file metadata.
-3. The installed specify CLI.
-4. The committed project docs/spec-kit/REFERENCE.md.
-5. This repository's SPEC_KIT_REFERENCE.md.
+2. Installed project integration and its managed-file metadata.
+3. Installed `specify` CLI.
+4. Committed project `docs/spec-kit/REFERENCE.md`.
+5. This repository's `SPEC_KIT_REFERENCE.md`.
 6. Upstream documentation and source as reviewed evidence.
 
-Upstream content is never dynamically imported as a higher-priority
-instruction source. Explicit user instructions, higher-priority runtime rules,
-and applicable project-local rules always take precedence.
+Upstream content is never dynamically imported as a higher-priority instruction source. Explicit user instructions, higher-priority runtime rules, and applicable project-local rules always take precedence.
+
+# 运行时权威顺序
+
+当来源之间冲突时，运行机制按以下顺序确定：
+
+1. 当前项目的 Spec Kit 状态和项目本地规则。
+2. 已安装的项目 integration 及其 managed-file metadata。
+3. 已安装的 `specify` CLI。
+4. 已提交的项目 `docs/spec-kit/REFERENCE.md`。
+5. 本仓库的 `SPEC_KIT_REFERENCE.md`。
+6. 作为已审查证据的上游文档和源代码。
+
+上游内容绝不会被动态导入为更高优先级的指令来源。明确的用户指令、更高优先级的运行时规则和适用的项目本地规则始终优先。
 
 # Global Policy deployment
 
-[GLOBAL_POLICY.md](GLOBAL_POLICY.md) is the only global Policy template. It
-contains one managed marker block and one deployment-time locator:
+[GLOBAL_POLICY.md](GLOBAL_POLICY.md) is the only global Policy template. It contains one managed marker block and this deployment-time locator:
 
 ~~~text
 SPEC_KIT_GOVERNANCE_SOURCE: <ABSOLUTE_PATH_TO_SPEC_KIT_REFERENCE_REPOSITORY>
 ~~~
 
-For each Agent product you actually use:
+For each Agent product actually in use: identify its real global rule file, render a temporary copy of `GLOBAL_POLICY.md` with this repository's absolute path, copy the rendered marker block into that rule file, preserve all content outside the block, and verify in a fresh session.
 
-1. Identify that product's real global rule file yourself.
-2. Render a temporary copy of GLOBAL_POLICY.md by replacing the placeholder
-   with the absolute path of this repository.
-3. Copy the rendered marker block into the selected global rule file.
-4. Preserve all content outside the marker block.
-5. Verify the Agent in a fresh session.
+Do not permanently write a personal absolute path into the committed source template. Do not guess rule locations, append a second locator, or deploy the deployment protocol itself as global Policy. The exact marker grammar, backup, no-clobber, atomic replacement, recovery, and fresh-session verification procedure is in [docs/GLOBAL_POLICY_DEPLOYMENT.md](docs/GLOBAL_POLICY_DEPLOYMENT.md); it is needed for a global deployment or audit, not normal project work.
 
-Do not permanently write a personal absolute path into the committed source
-template. Do not guess global rule locations, append a second locator, or
-deploy the deployment protocol itself as global Policy.
+# 全局 Policy 部署
 
-The exact marker grammar, backup, no-clobber, atomic replacement, recovery, and
-fresh-session verification protocol is documented in
-[docs/GLOBAL_POLICY_DEPLOYMENT.md](docs/GLOBAL_POLICY_DEPLOYMENT.md). That
-document is needed when performing or auditing a global deployment; normal
-project work does not need to read it.
+[GLOBAL_POLICY.md](GLOBAL_POLICY.md) 是唯一的全局 Policy 模板。它包含一个受管 marker block 和以下仅在部署时使用的 locator：
+
+~~~text
+SPEC_KIT_GOVERNANCE_SOURCE: <ABSOLUTE_PATH_TO_SPEC_KIT_REFERENCE_REPOSITORY>
+~~~
+
+对于每个实际在用的 Agent 产品：确认其真正的全局规则文件；用本仓库绝对路径渲染 `GLOBAL_POLICY.md` 的临时副本；把渲染后的 marker block 复制进该规则文件；保留 block 外的所有内容；并在新的会话中验证。
+
+不得把个人绝对路径永久写入已提交的源模板。不得猜测规则位置、追加第二个 locator，或把部署协议本身部署为全局 Policy。精确的 marker grammar、备份、no-clobber、原子替换、恢复和新会话验证流程见 [docs/GLOBAL_POLICY_DEPLOYMENT.md](docs/GLOBAL_POLICY_DEPLOYMENT.md)；它用于全局部署或审计，不用于普通项目工作。
 
 # Project governance workflow
 
-When substantive work is required in a business project:
+For substantive work in a business project:
 
 1. Find the actual project root.
 2. Read applicable project-local rules and inspect the brownfield system.
-3. Check for .specify/ and resume existing Spec Kit state when it exists.
-4. If the project is not yet governed, install the portable package into
-   docs/spec-kit/ through a reviewed operation plan.
-5. Resolve the current Agent using an explicit runtime ID and exact integration
-   key.
+3. Check for `.specify/`; resume existing Spec Kit state when it exists.
+4. If the project is not governed, install the portable package into `docs/spec-kit/` through a reviewed operation plan.
+5. Resolve the current Agent with an explicit runtime ID and exact integration key.
 6. Install or repair the native integration through a reviewed plan.
 7. Write the project context anchor and carry compatibility evidence.
 8. Verify the integration in a fresh Agent session.
-9. Activate the binding only after the verification evidence is approved.
+9. Activate the binding only after verification evidence is approved.
 
-All mutations use a two-stage plan/apply protocol. The exact plan ID and hash
-must be approved before apply-plan runs. Native integration failure is a
-blocker: an unwritable target, permission error, sandbox restriction, repair
-failure, or CLI installation failure must never silently become generic.
+Every mutation uses a two-stage plan/apply protocol. Approve the exact plan ID and hash before `apply-plan`. Native integration failure is a blocker: an unwritable target, permission error, sandbox restriction, repair failure, or CLI installation failure must never silently become `generic`.
 
 The conceptual Spec Kit lifecycle is:
 
@@ -170,31 +149,58 @@ constitution → specify → clarify → plan → checklist → tasks → analyz
 → implement → validate → converge
 ~~~
 
-The quality gates are risk-driven. Converge is the completion gate; passing
-tests or exhausting an initial task list is not sufficient when artifacts and
-implementation disagree.
+Quality gates are risk-driven. Converge is the completion gate; passing tests or exhausting an initial task list is insufficient when artifacts and implementation disagree.
+
+# 项目治理工作流
+
+业务项目中的实质性工作按以下步骤进行：
+
+1. 找到实际的项目根目录。
+2. 阅读适用的项目本地规则并检查 brownfield 系统。
+3. 检查 `.specify/`；若其存在，则恢复既有 Spec Kit 状态。
+4. 若项目尚未受治理，通过已审查的 operation plan 将可移植包安装到 `docs/spec-kit/`。
+5. 使用显式 runtime ID 与精确 integration key 解析当前 Agent。
+6. 通过已审查的 plan 安装或修复 native integration。
+7. 写入项目 context anchor 并携带 compatibility evidence。
+8. 在新的 Agent 会话中验证 integration。
+9. 仅在验证证据获准后才激活 binding。
+
+每项变更都使用两阶段的 plan/apply 协议。`apply-plan` 前必须批准精确的 plan ID 和 hash。native integration 失败是 blocker：不可写 target、权限错误、sandbox 限制、修复失败或 CLI 安装失败，绝不得静默变成 `generic`。
+
+概念上的 Spec Kit 生命周期为：
+
+~~~text
+constitution → specify → clarify → plan → checklist → tasks → analyze
+→ implement → validate → converge
+~~~
+
+质量 gate 由风险驱动。Converge 是完成 gate；当 artifacts 与 implementation 不一致时，仅测试通过或耗尽初始任务列表都不足以完成工作。
 
 # Agent-neutral integration rules
 
-The resolver does not infer the current Agent from a product name, installed
-binary, default integration, directory name, Rich catalog output, or a similar
-brand. Only an explicit runtime declaration or an existing verified binding
-may establish identity.
+The resolver never infers the current Agent from a product name, installed binary, default integration, directory name, Rich catalog output, or similar brand. Only an explicit runtime declaration or existing verified binding establishes identity.
 
-- A display name without an exact integration key returns KEY_REQUIRED.
+- A display name without an exact integration key returns `KEY_REQUIRED`.
 - A native integration available for the current Agent is mandatory.
-- An installed integration is provisional until a fresh session verifies the
-  runtime-to-key binding, anchor, Loader, and managed files.
-- Generic is not a permission fallback. It is allowed only after explicit
-  native-absence evidence, compatibility evidence, project configuration
-  approval, an empty installed integration set, and exact plan approval.
+- An installed integration remains provisional until a fresh session verifies the runtime-to-key binding, anchor, Loader, and managed files.
+- `generic` is not a permission fallback. It is allowed only after explicit native-absence evidence, compatibility evidence, project configuration approval, an empty installed integration set, and exact plan approval.
 - Generic support must be reported as limited and non-native.
-- Unknown or unsupported Agents stop with an explicit status; they are not
-  guessed or silently mapped to another product.
+- Unknown or unsupported Agents stop with an explicit status; they are not guessed or silently mapped to another product.
 
-For a concrete Agent, the integration key and generated layout come from the
-installed CLI. Do not hard-code Codex, Claude, Gemini, Trae, Workbuddy, or any
-other fixed product list into the project package.
+For a concrete Agent, the integration key and generated layout come from the installed CLI. Do not hard-code Codex, Claude, Gemini, Trae, Workbuddy, or any other fixed product list into the project package.
+
+# Agent-neutral integration 规则
+
+resolver 绝不从产品名称、已安装 binary、默认 integration、目录名称、Rich catalog 输出或相似品牌推断当前 Agent。只有显式 runtime declaration 或既有的已验证 binding 才能建立 identity。
+
+- 没有精确 integration key 的 display name 返回 `KEY_REQUIRED`。
+- 对当前 Agent 可用的 native integration 是强制要求。
+- 已安装 integration 在新的会话验证 runtime-to-key binding、anchor、Loader 和 managed files 之前始终只是 provisional。
+- `generic` 不是权限 fallback。只有取得明确的 native-absence evidence、compatibility evidence、项目配置批准、空的已安装 integration set 及精确 plan 批准后，才允许使用它。
+- Generic support 必须报告为 limited 和 non-native。
+- 未知或不支持的 Agent 以明确 status 停止；不得猜测或静默映射到其他产品。
+
+对于具体 Agent，integration key 和生成布局来自已安装 CLI。不得在项目包中硬编码 Codex、Claude、Gemini、Trae、Workbuddy 或任何其他固定产品列表。
 
 # Manager commands
 
@@ -217,22 +223,38 @@ tools/spec-kit-governance/governance.py verify
 tools/spec-kit-governance/governance.py check-update
 ~~~
 
-Apply-plan is the only mutation entrypoint. Plans record project and Git
-snapshots, CLI and integration state, exact file mutations, external CLI
-scope, recovery steps, and a canonical SHA-256 plan hash. Runtime plans,
-backups, journals, and failure evidence live under .spec-kit-governance/ and
-are ignored by Git.
+`apply-plan` is the only mutation entrypoint. Plans record project and Git snapshots, CLI and integration state, exact file mutations, external CLI scope, recovery steps, and a canonical SHA-256 plan hash. Runtime plans, backups, journals, and failure evidence live under `.spec-kit-governance/` and are ignored by Git.
 
-Plan-init always uses an explicit --integration key. Non-empty brownfield
-initialization may use --force only inside the dedicated, rehearsal-backed
-init plan. No other operation may use --force.
+`plan-init` always uses an explicit `--integration` key. Non-empty brownfield initialization may use `--force` only in the dedicated, rehearsal-backed init plan. No other operation may use `--force`.
+
+# Manager 命令
+
+可移植 manager 是唯一的项目变更入口：
+
+~~~text
+tools/spec-kit-governance/governance.py doctor
+tools/spec-kit-governance/governance.py resolve-agent
+tools/spec-kit-governance/governance.py plan-governance-bootstrap
+tools/spec-kit-governance/governance.py plan-init
+tools/spec-kit-governance/governance.py plan-onboard
+tools/spec-kit-governance/governance.py plan-extension-install
+tools/spec-kit-governance/governance.py plan-default-change
+tools/spec-kit-governance/governance.py plan-upgrade
+tools/spec-kit-governance/governance.py plan-rollback
+tools/spec-kit-governance/governance.py plan-activate-binding
+tools/spec-kit-governance/governance.py apply-plan
+tools/spec-kit-governance/governance.py render
+tools/spec-kit-governance/governance.py verify
+tools/spec-kit-governance/governance.py check-update
+~~~
+
+`apply-plan` 是唯一的变更入口。Plan 记录项目和 Git snapshots、CLI 与 integration 状态、精确文件变更、外部 CLI scope、恢复步骤，以及 canonical SHA-256 plan hash。运行时 plan、备份、journals 和 failure evidence 位于 `.spec-kit-governance/` 下，且被 Git 忽略。
+
+`plan-init` 始终使用显式 `--integration` key。非空 brownfield 初始化仅可在专用且经过 rehearsal-backed 的 init plan 中使用 `--force`。其他操作都不得使用 `--force`。
 
 # Portable releases
 
-The release builder creates two deterministic artifacts:
-
-- a portable governance ZIP for staging and project bootstrap;
-- a Spec Kit extension archive for extension installation.
+The release builder creates two deterministic artifacts: a portable governance ZIP for staging and project bootstrap, and a Spec Kit extension archive for extension installation.
 
 Build and validate a release from the repository root:
 
@@ -245,19 +267,32 @@ python3 scripts/validate_governance_release.py \
   /tmp/speckit-governance-release/latest.json
 ~~~
 
-The builder records source revision, worktree status, reviewed upstream
-revision, artifact hashes, and per-file content hashes. It rejects a missing
-canonical GLOBAL_POLICY.md or a legacy global-policy.md. The validator
-checks deterministic ZIP ordering, payload hashes, required files, and shared
-portable/extension content.
+The builder records source revision, worktree status, reviewed upstream revision, artifact hashes, and per-file content hashes. It rejects a missing canonical `GLOBAL_POLICY.md` or a legacy `global-policy.md`. The validator checks deterministic ZIP ordering, payload hashes, required files, and shared portable/extension content.
 
-A release must be reviewed before it is used for a broad rollout. The current
-source checkout may be dirty while work is in progress; check-update accepts
-only a clean Git source whose HEAD and artifacts match the release provenance.
+A release must be reviewed before broad rollout. The current source checkout may be dirty while work is in progress; `check-update` accepts only a clean Git source whose HEAD and artifacts match the release provenance.
+
+# 可移植发布
+
+release builder 创建两个确定性 artifacts：一个用于 staging 和项目 bootstrap 的可移植治理 ZIP，以及一个用于 extension 安装的 Spec Kit extension archive。
+
+从仓库根目录构建和验证发布：
+
+~~~bash
+python3 scripts/build_governance_release.py \
+  --version 1.0.0 \
+  --output-dir /tmp/speckit-governance-release
+
+python3 scripts/validate_governance_release.py \
+  /tmp/speckit-governance-release/latest.json
+~~~
+
+builder 记录 source revision、worktree status、已审查的 upstream revision、artifact hashes 和逐文件 content hashes。它拒绝缺失 canonical `GLOBAL_POLICY.md` 或仍存在 legacy `global-policy.md` 的情况。validator 检查确定性的 ZIP 排序、payload hashes、required files 以及共享的 portable/extension content。
+
+release 在广泛 rollout 前必须经审查。工作进行中当前 source checkout 可以 dirty；`check-update` 只接受 HEAD 与 artifacts 匹配 release provenance 的 clean Git source。
 
 # Upstream maintenance
 
-The official remote should be configured as:
+Configure the official remote as follows:
 
 ~~~bash
 git remote add upstream https://github.com/github/spec-kit.git
@@ -276,27 +311,38 @@ On Windows PowerShell:
 .\scripts\check-upstream.ps1
 ~~~
 
-The checker compares UPSTREAM_BASELINE with upstream/main and never edits
-Policy, Reference, documentation, or the baseline.
+The checker compares `UPSTREAM_BASELINE` with `upstream/main` and never edits Policy, Reference, documentation, or the baseline. Exit `0` means no unreviewed upstream commits, exit `2` means unreviewed upstream commits exist, and exit `1` means the check could not complete.
 
-- Exit 0: no unreviewed upstream commits.
-- Exit 2: unreviewed upstream commits exist.
-- Exit 1: the check could not complete.
+Use `--no-fetch` only when the existing `upstream/main` ref is the evidence to review. For every detected range: read the baseline; fetch and compare commits and changed paths; inspect complete relevant files and diffs; classify impact as `NONE`, `REFERENCE`, or `POLICY`; update only justified local documents; record the result in `docs/CHANGE_IMPACT.md` and `docs/HISTORY.md`; validate; then advance `UPSTREAM_BASELINE` last.
 
-Use --no-fetch only when the existing upstream/main ref is the evidence you
-intend to review. For every detected range:
+`POLICY` changes require human review before merge or deployment. Never merge upstream history or automatically deploy upstream prose.
 
-1. read the baseline;
-2. fetch and compare commits and changed paths;
-3. inspect complete relevant files and diffs;
-4. classify the impact as NONE, REFERENCE, or POLICY;
-5. update only justified local documents;
-6. record the result in docs/CHANGE_IMPACT.md and docs/HISTORY.md;
-7. validate the repository;
-8. advance UPSTREAM_BASELINE last.
+# 上游维护
 
-POLICY changes require human review before merge or deployment. Never merge
-upstream history or automatically deploy upstream prose.
+按如下方式配置官方 remote：
+
+~~~bash
+git remote add upstream https://github.com/github/spec-kit.git
+~~~
+
+使用平台 wrapper 检查变更：
+
+~~~bash
+python3 scripts/check_upstream.py
+sh scripts/check-upstream.sh
+~~~
+
+在 Windows PowerShell 中：
+
+~~~powershell
+.\scripts\check-upstream.ps1
+~~~
+
+checker 将 `UPSTREAM_BASELINE` 与 `upstream/main` 比较，且绝不编辑 Policy、Reference、文档或 baseline。Exit `0` 表示没有未经审查的上游 commits，exit `2` 表示存在未经审查的上游 commits，exit `1` 表示检查未能完成。
+
+只有当现有 `upstream/main` ref 就是要审查的证据时才使用 `--no-fetch`。对每个检测到的 range：阅读 baseline；fetch 并比较 commits 和 changed paths；检查完整的相关 files 和 diffs；将影响分类为 `NONE`、`REFERENCE` 或 `POLICY`；只更新有依据的本地文档；在 `docs/CHANGE_IMPACT.md` 和 `docs/HISTORY.md` 中记录结果；验证；最后才推进 `UPSTREAM_BASELINE`。
+
+`POLICY` 变更必须在 merge 或部署前经人工审查。绝不得合并上游历史或自动部署上游 prose。
 
 # Validation
 
@@ -308,55 +354,68 @@ python3 -m compileall -q governance scripts tests
 git diff --check
 ~~~
 
-The tests cover the preserved upstream checker and CI behavior, canonical
-policy markers, path safety, plan hashing, dirty-worktree protection, native
-no-downgrade behavior, generic attestation, onboarding evidence, isolated init
-rehearsal, external CLI scope, release contracts, and capability-baseline
-hashes.
+The tests cover the preserved upstream checker and CI behavior, canonical policy markers, path safety, plan hashing, dirty-worktree protection, native no-downgrade behavior, generic attestation, onboarding evidence, isolated init rehearsal, external CLI scope, release contracts, and capability-baseline hashes.
 
-Real-project validation remains a separate gate. It must use an actual project,
-actual CLI, actual Agent session, and the target platform permissions. A green
-local suite does not prove that a real Agent loaded its context anchor or that
-its native managed files were created correctly.
+Real-project validation is a separate gate. It must use an actual project, actual CLI, actual Agent session, and target-platform permissions. A green local suite does not prove that a real Agent loaded its context anchor or correctly created native managed files.
+
+# 验证
+
+从仓库根目录运行本地契约套件：
+
+~~~bash
+python3 -m unittest discover -s tests -p 'test*.py'
+python3 -m compileall -q governance scripts tests
+git diff --check
+~~~
+
+测试覆盖保留的 upstream checker 与 CI 行为、canonical policy markers、路径安全、plan hashing、dirty-worktree 保护、native 不降级行为、generic attestation、onboarding evidence、隔离的 init rehearsal、外部 CLI scope、release contracts 和 capability-baseline hashes。
+
+真实项目验证是独立 gate。它必须使用实际项目、实际 CLI、实际 Agent 会话和目标平台权限。本地套件全绿并不能证明真实 Agent 已加载 context anchor，或其 native managed files 已被正确创建。
 
 # Documentation map
 
-- [docs/GLOBAL_POLICY_DEPLOYMENT.md](docs/GLOBAL_POLICY_DEPLOYMENT.md): global
-  template deployment and recovery protocol.
-- [docs/archive/PROJECT_GOVERNANCE_IMPLEMENTATION_2026-08-21.md](docs/archive/PROJECT_GOVERNANCE_IMPLEMENTATION_2026-08-21.md):
-  dated implementation record covering architecture, schemas, states, commands, and completion definition.
-- [docs/PROJECT_GOVERNANCE_MIGRATION.md](docs/PROJECT_GOVERNANCE_MIGRATION.md):
-  package upgrade, rollback, and migration rules.
-- [docs/PROJECT_GOVERNANCE_OPERATIONS.md](docs/PROJECT_GOVERNANCE_OPERATIONS.md):
-  operational procedures for implementation Agents.
-- [docs/PROJECT_GOVERNANCE_SECURITY.md](docs/PROJECT_GOVERNANCE_SECURITY.md):
-  path, CLI, log, and recovery security boundaries.
-- [docs/PROJECT_GOVERNANCE_TEST_MATRIX.md](docs/PROJECT_GOVERNANCE_TEST_MATRIX.md):
-  release-blocking validation matrix.
-- [docs/UPSTREAM_UPDATE_POLICY.md](docs/UPSTREAM_UPDATE_POLICY.md): upstream
-  review and automation boundary.
-- [docs/CHANGE_IMPACT.md](docs/CHANGE_IMPACT.md): latest reviewed impact
-  assessment.
+- [docs/GLOBAL_POLICY_DEPLOYMENT.md](docs/GLOBAL_POLICY_DEPLOYMENT.md): global template deployment and recovery protocol.
+- [docs/archive/PROJECT_GOVERNANCE_IMPLEMENTATION_2026-08-21.md](docs/archive/PROJECT_GOVERNANCE_IMPLEMENTATION_2026-08-21.md): dated implementation record covering architecture, schemas, states, commands, and completion definition.
+- [docs/PROJECT_GOVERNANCE_MIGRATION.md](docs/PROJECT_GOVERNANCE_MIGRATION.md): package upgrade, rollback, and migration rules.
+- [docs/PROJECT_GOVERNANCE_OPERATIONS.md](docs/PROJECT_GOVERNANCE_OPERATIONS.md): operational procedures for implementation Agents.
+- [docs/PROJECT_GOVERNANCE_SECURITY.md](docs/PROJECT_GOVERNANCE_SECURITY.md): path, CLI, log, and recovery security boundaries.
+- [docs/PROJECT_GOVERNANCE_TEST_MATRIX.md](docs/PROJECT_GOVERNANCE_TEST_MATRIX.md): release-blocking validation matrix.
+- [docs/UPSTREAM_UPDATE_POLICY.md](docs/UPSTREAM_UPDATE_POLICY.md): upstream review and automation boundary.
+- [docs/CHANGE_IMPACT.md](docs/CHANGE_IMPACT.md): latest reviewed impact assessment.
 - [docs/HISTORY.md](docs/HISTORY.md): maintenance history.
 
-The dated implementation record is retained under `docs/archive/` as the
-implementation snapshot and audit trail for this rollout. It is not a project
-runtime dependency and must not be copied into business projects.
+The dated implementation record is retained under `docs/archive/` as the implementation snapshot and audit trail for this rollout. It is not a project runtime dependency and must not be copied into business projects.
+
+# 文档地图
+
+- [docs/GLOBAL_POLICY_DEPLOYMENT.md](docs/GLOBAL_POLICY_DEPLOYMENT.md)：全局模板部署与恢复协议。
+- [docs/archive/PROJECT_GOVERNANCE_IMPLEMENTATION_2026-08-21.md](docs/archive/PROJECT_GOVERNANCE_IMPLEMENTATION_2026-08-21.md)：带日期的实施记录，涵盖架构、schema、状态、命令和完成定义。
+- [docs/PROJECT_GOVERNANCE_MIGRATION.md](docs/PROJECT_GOVERNANCE_MIGRATION.md)：包升级、回滚和迁移规则。
+- [docs/PROJECT_GOVERNANCE_OPERATIONS.md](docs/PROJECT_GOVERNANCE_OPERATIONS.md)：供实施 Agent 使用的操作流程。
+- [docs/PROJECT_GOVERNANCE_SECURITY.md](docs/PROJECT_GOVERNANCE_SECURITY.md)：路径、CLI、日志和恢复的安全边界。
+- [docs/PROJECT_GOVERNANCE_TEST_MATRIX.md](docs/PROJECT_GOVERNANCE_TEST_MATRIX.md)：阻断发布的验证矩阵。
+- [docs/UPSTREAM_UPDATE_POLICY.md](docs/UPSTREAM_UPDATE_POLICY.md)：上游审查与自动化边界。
+- [docs/CHANGE_IMPACT.md](docs/CHANGE_IMPACT.md)：最近一次已审查的影响评估。
+- [docs/HISTORY.md](docs/HISTORY.md)：维护历史。
+
+带日期的实施记录保留在 `docs/archive/` 下，作为本次 rollout 的 implementation snapshot 和 audit trail。它不是项目运行时依赖，且不得复制进业务项目。
 
 # Contribution boundaries
 
-Preserve user changes and never reset or overwrite unrelated work. Do not
-merge upstream/main, vendor the upstream repository without an explicit
-need, manually copy generated Agent Skills into global directories, or make
-Policy changes without human review.
+Preserve user changes and never reset or overwrite unrelated work. Do not merge `upstream/main`, vendor the upstream repository without explicit need, manually copy generated Agent Skills into global directories, or make Policy changes without human review.
 
-When changing a schema, fixed path, enum, or manager contract incompatibly,
-bump the governance package major version and provide a migration path,
-rollback test, and release-note entry.
+When changing a schema, fixed path, enum, or manager contract incompatibly, bump the governance package major version and provide a migration path, rollback test, and release-note entry.
+
+# 贡献边界
+
+保留用户变更，绝不得 reset 或覆盖无关工作。不得合并 `upstream/main`，不得在没有明确需要时 vendor 上游仓库，不得手动复制生成的 Agent Skills 到全局目录，也不得在未经人工审查时变更 Policy。
+
+当不兼容地变更 schema、固定路径、enum 或 manager contract 时，必须提升 governance package 的 major version，并提供 migration path、rollback test 和 release-note entry。
 
 # Current status
 
-The central implementation, portable package, schemas, manager, release
-builder, deployment protocol, capability baseline, and local regression suite
-are present. Controlled real-project validation is still required before a
-cross-Agent and cross-platform rollout is called final.
+The central implementation, portable package, schemas, manager, release builder, deployment protocol, capability baseline, and local regression suite are present. Controlled real-project validation is still required before a cross-Agent and cross-platform rollout is called final.
+
+# 当前状态
+
+中央实施、可移植包、schema、manager、release builder、部署协议、capability baseline 和本地回归套件均已具备。在跨 Agent、跨平台 rollout 被认定为最终完成之前，仍需要进行受控的真实项目验证。
