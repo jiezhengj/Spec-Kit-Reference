@@ -4,8 +4,7 @@
 
 - Rewrote `README.md` around the current portable governance package, manager, release, deployment, and validation workflow.
 - Kept `README.md` as a complete English-and-Chinese mirror: every English section now has a corresponding Chinese section with the same commands, paths, statuses, and constraints.
-- Translated every Markdown document under `docs/` to English while preserving commands, paths, hashes, statuses, and normative constraints.
-- Changed `GLOBAL_POLICY.md` to a clean H1/H2 Markdown source without surrounding HTML-comment markers; deployment rendering adds markers only to the target block.
+- Standardized global and project-level governance markers with unified hyphen/colon delimiters: wrapped `GLOBAL_POLICY.md` with `SPEC-KIT-GLOBAL-POLICY` markers and updated the project anchor loader with `PROJECT-SPEC-KIT-GOVERNANCE` markers and an H1/H2 heading hierarchy.
 - Made the runtime-selected project context anchor append-only for the governance loader and added regression coverage for byte-preserving injection and protected replace/create mutations.
 - Added explicit user-selected BCP-47 documentation-language capture during `plan-init`, including managed-anchor injection and project configuration persistence.
 

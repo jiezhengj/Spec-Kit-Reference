@@ -65,8 +65,8 @@
       "required": ["path", "marker_start", "marker_end"],
       "properties": {
         "path": { "$ref": "#/$defs/projectRelativePath" },
-        "marker_start": { "const": "<!-- PROJECT SPEC-KIT GOVERNANCE START -->" },
-        "marker_end": { "const": "<!-- PROJECT SPEC-KIT GOVERNANCE END -->" }
+        "marker_start": { "const": "<!-- PROJECT-SPEC-KIT-GOVERNANCE:START -->" },
+        "marker_end": { "const": "<!-- PROJECT-SPEC-KIT-GOVERNANCE:END -->" }
       }
     }
   },

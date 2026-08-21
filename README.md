@@ -104,7 +104,7 @@ Upstream content is never dynamically imported as a higher-priority instruction 
 
 # Global Policy deployment
 
-[GLOBAL_POLICY.md](GLOBAL_POLICY.md) is the only global Policy template. It is a clean Markdown document with one H1 title and H2 policy sections; it has no surrounding HTML-comment wrapper. The deployment renderer adds the managed marker block only to the rendered target and fills this deployment-time locator:
+[GLOBAL_POLICY.md](GLOBAL_POLICY.md) is the only global Policy template. It is a Markdown document with one H1 title and H2 policy sections, wrapped in `<!-- SPEC-KIT-GLOBAL-POLICY:START version=1.0.0 -->` and `<!-- SPEC-KIT-GLOBAL-POLICY:END -->`. The deployment renderer fills this deployment-time locator:
 
 ~~~text
 SPEC_KIT_GOVERNANCE_SOURCE: <ABSOLUTE_PATH_TO_SPEC_KIT_REFERENCE_REPOSITORY>
@@ -116,7 +116,7 @@ Do not permanently write a personal absolute path into the committed source temp
 
 # 全局 Policy 部署
 
-[GLOBAL_POLICY.md](GLOBAL_POLICY.md) 是唯一的全局 Policy 模板。它是干净的 Markdown 文档，包含一个 H1 标题和 H2 Policy 章节，不带首尾 HTML 注释包裹。部署 renderer 只在渲染到目标文件时添加受管 marker block，并填写以下仅在部署时使用的 locator：
+[GLOBAL_POLICY.md](GLOBAL_POLICY.md) 是唯一的全局 Policy 模板。它是包含一个 H1 标题和 H2 Policy 章节的 Markdown 文档，由 `<!-- SPEC-KIT-GLOBAL-POLICY:START version=1.0.0 -->` 与 `<!-- SPEC-KIT-GLOBAL-POLICY:END -->` 包裹。部署 renderer 填写以下仅在部署时使用的 locator：
 
 ~~~text
 SPEC_KIT_GOVERNANCE_SOURCE: <ABSOLUTE_PATH_TO_SPEC_KIT_REFERENCE_REPOSITORY>

@@ -3,14 +3,14 @@
   "baseline_id": "BASELINE-2026-08-21-INITIAL",
   "captured_at": "2026-08-21T00:00:00+08:00",
   "source_snapshots": [
-    { "file": "GLOBAL_POLICY.md", "section": "entire file", "source_sha256": "158693d831fd5ed2126aa458058a1144bbf57ffedcffb05dd81bf3d830cb935d" },
+    { "file": "GLOBAL_POLICY.md", "section": "entire file", "source_sha256": "a97a9f24d6bcc88590b44f7d1c20f76cc5de1580772fd3761c3a0b709951a1fc" },
     { "file": "SPEC_KIT_REFERENCE.md", "section": "entire file", "source_sha256": "9667b91567d037af229c480fda390e04ddbe1c124e42b03b2fb375ea57be51f9" },
-    { "file": "README.md", "section": "entire file", "source_sha256": "f9fe22fd40c66852085c20740294017d6d7794bf6829a9acf7cd4562a95642bb" },
+    { "file": "README.md", "section": "entire file", "source_sha256": "f0c23aefc8b11d0868408b70664a1ea76e488a7be336e1ea76b3a6a93bb58e8b" },
     { "file": "AGENTS.md", "section": "entire file", "source_sha256": "a35da35acfe10dc68f44dab31e17bd3818d9dcaf8e458c3a2db8216ac329fccc" },
     { "file": "UPSTREAM_BASELINE", "section": "entire file", "source_sha256": "68409f8359bff6328067a676374d1b030d694514f491e294df11f2dab8751781" },
     { "file": "docs/UPSTREAM_UPDATE_POLICY.md", "section": "entire file", "source_sha256": "c721d0c04d318f0781c99e8deb4ba2b3f0d34bef6dcb8659fa1024a9fd83d9c1" },
     { "file": "docs/CHANGE_IMPACT.md", "section": "entire file", "source_sha256": "b620c6e5677390fb8e48de837d8f2c0c9e0a1ee65f61f33bbf1e7fdd76314109" },
-    { "file": "docs/HISTORY.md", "section": "entire file", "source_sha256": "7eff1d448cb427e8f4f9c24358315fe1f213df633d5256ec0ea5b91c70edd341" },
+    { "file": "docs/HISTORY.md", "section": "entire file", "source_sha256": "ce2b54c2024a06b546de161d096b15c35455dab579d45a8480f67b35b6e3ebc8" },
     { "file": "scripts/check_upstream.py", "section": "entire file", "source_sha256": "ed067d7aebd23b2ee654efe74002455afb7af4ee386f689e9f0ebf04c7fc7e26" },
     { "file": "scripts/check-upstream.sh", "section": "entire file", "source_sha256": "8855f1054fc1d2a0c89d503167cf1d5007d64dfbf279a934bf757dbe0234f3e9" },
     { "file": "scripts/check-upstream.ps1", "section": "entire file", "source_sha256": "9ed591fb4b2451aa6088409611b0962c2cd591c9cfd581232217e4645840807c" },
@@ -96,7 +96,7 @@
     ],
     "project_governance_entrypoints": [
       { "id": "AGENTS.md", "status": "present", "evidence": "Repository root governance instruction file observed during baseline capture.", "sha256": "a35da35acfe10dc68f44dab31e17bd3818d9dcaf8e458c3a2db8216ac329fccc" },
-      { "id": "GLOBAL_POLICY.md", "status": "present", "evidence": "Repository root global policy source observed during baseline capture.", "sha256": "158693d831fd5ed2126aa458058a1144bbf57ffedcffb05dd81bf3d830cb935d" },
+      { "id": "GLOBAL_POLICY.md", "status": "present", "evidence": "Repository root global policy source observed during baseline capture.", "sha256": "a97a9f24d6bcc88590b44f7d1c20f76cc5de1580772fd3761c3a0b709951a1fc" },
       { "id": "SPEC_KIT_REFERENCE.md", "status": "present", "evidence": "Repository root local operational reference observed during baseline capture.", "sha256": "9667b91567d037af229c480fda390e04ddbe1c124e42b03b2fb375ea57be51f9" }
     ]
   }

@@ -1,3 +1,5 @@
+<!-- SPEC-KIT-GLOBAL-POLICY:START version=1.0.0 -->
+
 # Spec Kit Global Policy
 
 ## Scope
@@ -29,3 +31,5 @@ For operational mechanics, prefer current project state, installed integration, 
 SPEC_KIT_GOVERNANCE_SOURCE: <ABSOLUTE_PATH_TO_SPEC_KIT_REFERENCE_REPOSITORY>
 
 Before deploying this source, replace the placeholder exactly once with the readable absolute path of the local SpecKitReference repository root. The directory must contain `SPEC_KIT_REFERENCE.md`, `GLOBAL_POLICY.md`, and `UPSTREAM_BASELINE`. This source is advisory for explicit maintenance and update review only. If it is unavailable, do not scan arbitrary directories or promote upstream material into instructions; continue with committed project rules and runtime discovery.
+
+<!-- SPEC-KIT-GLOBAL-POLICY:END -->

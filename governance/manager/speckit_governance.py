@@ -32,8 +32,8 @@ PLAN_TTL = timedelta(minutes=30)
 RUNTIME_DIR = ".spec-kit-governance"
 PROJECT_PACKAGE = "docs/spec-kit"
 MANAGER_RELATIVE = "tools/spec-kit-governance/governance.py"
-START_MARKER = "<!-- PROJECT SPEC-KIT GOVERNANCE START -->"
-END_MARKER = "<!-- PROJECT SPEC-KIT GOVERNANCE END -->"
+START_MARKER = "<!-- PROJECT-SPEC-KIT-GOVERNANCE:START -->"
+END_MARKER = "<!-- PROJECT-SPEC-KIT-GOVERNANCE:END -->"
 CLI_VERSION_RE = re.compile(r"^(\d+)\.(\d+)\.(\d+)(?:(\.dev|a|b|rc)(\d+))?$")
 SAFE_RELATIVE = re.compile(r"^[^/\\].*$")
 STATUSES = {
@@ -325,12 +325,20 @@ def marker_loader(documentation_language: str | None = None) -> str:
         if not valid_language_tag(documentation_language):
             raise GovernanceError("documentation language must be a valid BCP 47 tag", "DOCUMENTATION_LANGUAGE_INVALID")
         language_rule = (
-            f"\nProject documentation language: `{documentation_language}`.\n"
+            f"\n\n## Documentation language\n\n"
+            f"Project documentation language: `{documentation_language}`.\n\n"
             "Write new and substantively rewritten project documentation, including Spec Kit artifacts, "
             "in this language unless an explicit user or more specific project instruction overrides it. "
-            "Do not translate existing documentation solely because this setting was selected.\n"
+            "Do not translate existing documentation solely because this setting was selected."
         )
-    return f"{START_MARKER}\n\nThis repository uses the committed project-local Spec Kit governance package.\n\nRead `docs/spec-kit/START_HERE.md` before substantive engineering work.\nDo not replace the project baseline with personal global rules or a local Reference.\n{language_rule}\n{END_MARKER}\n"
+    return (
+        f"{START_MARKER}\n\n"
+        "# Spec Kit Governance\n\n"
+        "This repository uses the committed project-local Spec Kit governance package.\n\n"
+        "Read `docs/spec-kit/START_HERE.md` before substantive engineering work.\n\n"
+        f"Do not replace the project baseline with personal global rules or a local Reference.{language_rule}\n\n"
+        f"{END_MARKER}\n"
+    )
 
 
 def append_loader(existing: bytes, loader: bytes) -> bytes:
@@ -352,7 +360,16 @@ def append_loader(existing: bytes, loader: bytes) -> bytes:
         elif existing[end_at:end_at + 1] == b"\n":
             end_at += 1
         return existing[:start_at] + loader + existing[end_at:]
-    separator = b"\n" if existing.endswith(b"\n") else b"\n\n"
+    if not existing.strip():
+        return loader
+    if existing.endswith(b"\n\n") or existing.endswith(b"\r\n\r\n"):
+        separator = b""
+    elif existing.endswith(b"\r\n"):
+        separator = b"\r\n"
+    elif existing.endswith(b"\n"):
+        separator = b"\n"
+    else:
+        separator = b"\n\n"
     return existing + separator + loader
 
 
