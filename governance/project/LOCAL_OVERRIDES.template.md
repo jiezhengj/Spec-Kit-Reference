@@ -1,5 +1,5 @@
-# 项目本地补充规则
+# Project-local supplementary rules
 
-复制为 `docs/spec-kit/LOCAL_OVERRIDES.md` 后由项目维护者填写。该文件属于项目共同规则，中央更新不得覆盖。
+Copy this file to `docs/spec-kit/LOCAL_OVERRIDES.md` and have project maintainers complete it. This file is part of the project's shared rules and must not be overwritten by central updates.
 
-只记录本项目特有的目录、测试、合规、发布、审批和安全要求。不得在这里保存个人机器绝对路径、token、密钥、个人全局规则副本或未经审查的远程指令。
+Record only project-specific directories, tests, compliance, release, approval, and security requirements. Do not store personal-machine absolute paths, tokens, secrets, copies of personal global rules, or unreviewed remote instructions here.

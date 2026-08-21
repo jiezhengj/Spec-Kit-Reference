@@ -142,7 +142,9 @@ For substantive work in a business project:
 
 Every mutation uses a two-stage plan/apply protocol. Approve the exact plan ID and hash before `apply-plan`. Native integration failure is a blocker: an unwritable target, permission error, sandbox restriction, repair failure, or CLI installation failure must never silently become `generic`.
 
-If the project already has an `AGENTS.md`, it is project-owned instruction content. The governance loader may only be appended through the reviewed manager plan; it must preserve all existing bytes and must never replace, delete, reorder, normalize, or overwrite the file. The manager may create `AGENTS.md` only when it does not already exist.
+If the project already has the runtime-selected project context anchor, it is project-owned instruction content. The governance loader may only be appended or updated inside its managed region through the reviewed manager plan; every byte outside that region must remain byte-identical. The manager may create only the exact anchor path supplied and evidence-validated by the current Agent runtime or user; it never guesses a filename.
+
+Before first-time `plan-init`, the current Agent asks the user for the BCP-47 language tag for new or substantially rewritten project documentation. It passes that exact value as `--documentation-language <tag>`, and the manager persists it in `PROJECT_CONFIG.json` and the selected context-anchor loader. The language is never inferred from locale, Agent product, existing documents, or a default.
 
 The conceptual Spec Kit lifecycle is:
 
@@ -169,7 +171,9 @@ Quality gates are risk-driven. Converge is the completion gate; passing tests or
 
 每项变更都使用两阶段的 plan/apply 协议。`apply-plan` 前必须批准精确的 plan ID 和 hash。native integration 失败是 blocker：不可写 target、权限错误、sandbox 限制、修复失败或 CLI 安装失败，绝不得静默变成 `generic`。
 
-如果项目已经有 `AGENTS.md`，它属于项目拥有的规则内容。治理 loader 只能通过已审查的 manager plan 追加注入，必须保留全部既有字节，绝不得替换、删除、重排、规范化或覆盖该文件。只有文件不存在时，manager 才能创建 `AGENTS.md`。
+如果项目已经有运行时选定的项目上下文锚点文件，它属于项目拥有的规则内容。治理 loader 只能通过已审查的 manager plan 追加或更新其受管区块；区块之外的每个字节都必须保持完全一致。manager 只能创建当前 Agent 运行时或用户明确提供并完成证据校验的精确路径，绝不猜测文件名。
+
+首次执行 `plan-init` 前，当前 Agent 必须询问用户：新建或实质性重写的项目文档使用哪个 BCP-47 语言标签。它必须把该值作为 `--documentation-language <tag>` 原样传给 manager，由 manager 写入 `PROJECT_CONFIG.json` 和选定的上下文锚点 loader。语言不得从地区设置、Agent 产品、现有文档或默认值推断。
 
 概念上的 Spec Kit 生命周期为：
 
@@ -229,7 +233,7 @@ tools/spec-kit-governance/governance.py check-update
 
 `apply-plan` is the only mutation entrypoint. Plans record project and Git snapshots, CLI and integration state, exact file mutations, external CLI scope, recovery steps, and a canonical SHA-256 plan hash. Runtime plans, backups, journals, and failure evidence live under `.spec-kit-governance/` and are ignored by Git.
 
-`plan-init` always uses an explicit `--integration` key. Non-empty brownfield initialization may use `--force` only in the dedicated, rehearsal-backed init plan. No other operation may use `--force`.
+`plan-governance-bootstrap` requires the exact runtime-selected `--context-anchor <project-relative-path>`. `plan-init` additionally requires `--runtime-id <id>`, `--integration-key <key>`, and the user's explicit `--documentation-language <BCP-47-tag>`; it records the language in project configuration and the selected anchor. For native external operations, pass runtime-reported targets as repeated `--allowed-path-prefix <project-relative-prefix>` values. The manager never guesses Agent filenames or generated Skills/Commands directories. Non-empty brownfield initialization may use `--force` only in the dedicated, rehearsal-backed init plan. No other operation may use `--force`.
 
 # Manager 命令
 
@@ -254,7 +258,7 @@ tools/spec-kit-governance/governance.py check-update
 
 `apply-plan` 是唯一的变更入口。Plan 记录项目和 Git snapshots、CLI 与 integration 状态、精确文件变更、外部 CLI scope、恢复步骤，以及 canonical SHA-256 plan hash。运行时 plan、备份、journals 和 failure evidence 位于 `.spec-kit-governance/` 下，且被 Git 忽略。
 
-`plan-init` 始终使用显式 `--integration` key。非空 brownfield 初始化仅可在专用且经过 rehearsal-backed 的 init plan 中使用 `--force`。其他操作都不得使用 `--force`。
+`plan-governance-bootstrap` 必须接收运行时选定的精确 `--context-anchor <项目相对路径>`。`plan-init` 还必须接收 `--runtime-id <id>`、`--integration-key <key>` 和用户明确选择的 `--documentation-language <BCP-47-tag>`；manager 会把语言写入项目配置和选定的 anchor。对于 native 外部操作，必须把运行时报告的 target 作为可重复的 `--allowed-path-prefix <项目相对前缀>` 传入。manager 绝不猜测 Agent 文件名或生成的 Skills/Commands 目录。非空 brownfield 初始化仅可在专用且经过 rehearsal-backed 的 init plan 中使用 `--force`。其他操作都不得使用 `--force`。
 
 # Portable releases
 

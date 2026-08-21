@@ -90,13 +90,26 @@ def validate_plan_shape(plan: dict[str, Any]) -> None:
         raise GovernanceError("plan-init cannot use generic integration", "UNSUPPORTED_INCOMPATIBLE")
     if plan.get("operation_type") == "plan-init" and not isinstance(plan.get("rehearsal"), dict):
         raise GovernanceError("plan-init requires isolated init rehearsal evidence", "STATE_BROKEN")
+    if plan.get("operation_type") == "plan-init" and not valid_language_tag(plan.get("documentation_language")):
+        raise GovernanceError("plan-init requires an explicit documentation language", "DOCUMENTATION_LANGUAGE_REQUIRED")
+    if plan.get("operation_type") == "plan-init" and not plan.get("current_agent", {}).get("runtime_id"):
+        raise GovernanceError("plan-init requires an explicit runtime identity", "IDENTITY_UNKNOWN")
+    if plan.get("operation_type") == "plan-init" and not plan.get("context_anchor"):
+        raise GovernanceError("plan-init requires an explicit project context anchor", "CONTEXT_ANCHOR_UNKNOWN")
+    if plan.get("operation_type") in {"plan-governance-bootstrap", "plan-onboard"} and not plan.get("context_anchor"):
+        raise GovernanceError("an explicit project context anchor is required", "CONTEXT_ANCHOR_UNKNOWN")
     if plan.get("operation_type") == "plan-onboard" and plan.get("context_anchor") and not plan.get("anchor_compatibility_evidence"):
         raise GovernanceError("onboarding requires anchor compatibility evidence", "CONTEXT_ANCHOR_UNKNOWN")
+    context_anchor = plan.get("context_anchor")
     for item in plan.get("manager_file_mutations", []):
         if item.get("path") == "" or item.get("old_sha256") is not None and not re.fullmatch(r"[0-9a-f]{64}", item["old_sha256"]):
             raise GovernanceError("malformed manager mutation", "STATE_BROKEN")
         if item.get("expected_new_sha256") and not re.fullmatch(r"[0-9a-f]{64}", item["expected_new_sha256"]):
             raise GovernanceError("malformed manager mutation checksum", "STATE_BROKEN")
+        if item.get("protected_anchor") is True and item.get("path") != context_anchor:
+            raise GovernanceError("protected anchor mutation does not match the declared context anchor", "STATE_BROKEN")
+        if item.get("path") == context_anchor and (item.get("action") != "append-managed-loader" or item.get("protected_anchor") is not True):
+            raise GovernanceError("the declared project rules anchor accepts only a managed Loader append", "PROJECT_RULES_PROTECTED")
     for item in plan.get("external_cli_mutations", []):
         argv = item.get("argv", [])
         if not argv or argv[0] != "specify":
@@ -227,7 +240,7 @@ def validate_project_package(root: Path) -> list[str]:
     manifest_path = root / PROJECT_PACKAGE / "MANIFEST.json"
     if config_path.is_file():
         config = read_json(config_path)
-        required = {"schema_version", "default_integration", "onboarding", "generic", "catalogs", "context", "upgrade", "quality_gates"}
+        required = {"schema_version", "default_integration", "onboarding", "generic", "catalogs", "context", "documentation", "upgrade", "quality_gates"}
         errors.extend(f"PROJECT_CONFIG missing {name}" for name in sorted(required - set(config)))
         if config.get("schema_version") != 1:
             errors.append("PROJECT_CONFIG schema_version must be 1")
@@ -235,6 +248,11 @@ def validate_project_package(root: Path) -> list[str]:
             errors.append("default integration policy must be pinned")
         if config.get("onboarding", {}).get("allow_unsafe_multi_install") is not False:
             errors.append("unsafe multi-install must remain disabled")
+        language_tag = config.get("documentation", {}).get("language_tag")
+        if language_tag is not None and not valid_language_tag(language_tag):
+            errors.append("documentation language_tag must be null or a valid BCP 47 tag")
+        if (root / ".specify").is_dir() and language_tag is None:
+            errors.append("initialized Spec Kit projects require an explicit documentation language")
     if adapter_path.is_file():
         registry = read_json(adapter_path)
         if registry.get("schema_version") != 1 or not isinstance(registry.get("anchors"), list) or not isinstance(registry.get("bindings"), list):
@@ -296,8 +314,46 @@ def source_root(value: str | None) -> Path:
     return root
 
 
-def marker_loader() -> str:
-    return f"{START_MARKER}\n\nThis repository uses the committed project-local Spec Kit governance package.\n\nRead `docs/spec-kit/START_HERE.md` before substantive engineering work.\nDo not replace the project baseline with personal global rules or a local Reference.\n\n{END_MARKER}\n"
+def valid_language_tag(value: Any) -> bool:
+    """Accept a structurally valid BCP 47 language tag without a product-specific list."""
+    return isinstance(value, str) and re.fullmatch(r"[A-Za-z]{2,8}(?:-[A-Za-z0-9]{1,8})*", value) is not None
+
+
+def marker_loader(documentation_language: str | None = None) -> str:
+    language_rule = ""
+    if documentation_language is not None:
+        if not valid_language_tag(documentation_language):
+            raise GovernanceError("documentation language must be a valid BCP 47 tag", "DOCUMENTATION_LANGUAGE_INVALID")
+        language_rule = (
+            f"\nProject documentation language: `{documentation_language}`.\n"
+            "Write new and substantively rewritten project documentation, including Spec Kit artifacts, "
+            "in this language unless an explicit user or more specific project instruction overrides it. "
+            "Do not translate existing documentation solely because this setting was selected.\n"
+        )
+    return f"{START_MARKER}\n\nThis repository uses the committed project-local Spec Kit governance package.\n\nRead `docs/spec-kit/START_HERE.md` before substantive engineering work.\nDo not replace the project baseline with personal global rules or a local Reference.\n{language_rule}\n{END_MARKER}\n"
+
+
+def append_loader(existing: bytes, loader: bytes) -> bytes:
+    """Upsert one managed Loader while preserving every byte outside its markers."""
+    start = START_MARKER.encode("utf-8")
+    end = END_MARKER.encode("utf-8")
+    start_count = existing.count(start)
+    end_count = existing.count(end)
+    if start_count != end_count or start_count > 1:
+        raise GovernanceError("project context anchor has malformed or duplicate governance markers", "STATE_BROKEN")
+    if start_count == 1:
+        start_at = existing.index(start)
+        end_at = existing.index(end, start_at) + len(end)
+        current_block = existing[start_at:end_at]
+        if current_block == loader.rstrip(b"\n"):
+            return existing
+        if existing[end_at:end_at + 2] == b"\r\n":
+            end_at += 2
+        elif existing[end_at:end_at + 1] == b"\n":
+            end_at += 1
+        return existing[:start_at] + loader + existing[end_at:]
+    separator = b"\n" if existing.endswith(b"\n") else b"\n\n"
+    return existing + separator + loader
 
 
 def preflight_writable(root: Path, rel: str) -> dict[str, Any]:
@@ -313,20 +369,16 @@ def preflight_writable(root: Path, rel: str) -> dict[str, Any]:
     return {"path": rel, "writable": True, "evidence": "os.access(parent,target,W_OK)"}
 
 
-def file_mutation(root: Path, rel: str, content: bytes, action: str = "create") -> dict[str, Any]:
+def file_mutation(root: Path, rel: str, content: bytes, action: str = "create", *, protected_anchor: bool = False) -> dict[str, Any]:
     safe_relative(root, rel)
-    if rel == "AGENTS.md" and action != "append-managed-loader":
-        raise GovernanceError("project-owned AGENTS.md accepts only append-managed-loader", "PROJECT_RULES_PROTECTED")
+    if protected_anchor and action != "append-managed-loader":
+        raise GovernanceError("the project-owned context anchor accepts only append-managed-loader", "PROJECT_RULES_PROTECTED")
     target = root / rel
     actual_action = action if action == "append-managed-loader" or target.exists() else "create"
     expected_content = content
     if actual_action == "append-managed-loader" and target.is_file():
-        existing = target.read_bytes()
-        if START_MARKER.encode() not in existing:
-            expected_content = existing + (b"\n" if existing.endswith(b"\n") else b"\n\n") + content
-        else:
-            expected_content = existing
-    return {
+        expected_content = append_loader(target.read_bytes(), content)
+    mutation = {
         "action": actual_action,
         "path": rel,
         "old_sha256": sha256_file(target) if target.is_file() else None,
@@ -334,11 +386,17 @@ def file_mutation(root: Path, rel: str, content: bytes, action: str = "create") 
         "mode": stat.S_IMODE(target.stat().st_mode) if target.exists() else 0o644,
         "content_b64": base64.b64encode(content).decode("ascii"),
     }
+    if protected_anchor:
+        mutation["protected_anchor"] = True
+    return mutation
 
 
 def onboarding_mutations(root: Path, runtime_id: str, display_name: str, key: str, anchor_path: str, evidence_rel: str, *, integration_mode: str = "native", attestation_hash: str | None = None, attestation_rel: str | None = None, commands_dir: str | None = None, delivery_mode: str = "loader") -> tuple[list[dict[str, Any]], dict[str, Any], str]:
     preflight_writable(root, anchor_path)
-    anchor_mutation = file_mutation(root, anchor_path, marker_loader().encode("utf-8"), "append-managed-loader")
+    anchor_mutation = file_mutation(
+        root, anchor_path, marker_loader().encode("utf-8"),
+        "append-managed-loader", protected_anchor=True,
+    )
     evidence = {
         "schema_version": 1,
         "runtime_id": runtime_id,
@@ -454,7 +512,7 @@ def activate_binding_mutations(root: Path, runtime_id: str, key: str, evidence_r
     return mutations
 
 
-def make_plan(root: Path, operation: str, mutations: list[dict[str, Any]], *, external: list[dict[str, Any]] | None = None, identity: dict[str, Any] | None = None, claimed_key: str | None = None, context_anchor: str | None = None, write_preflight: list[dict[str, Any]] | None = None, anchor_compatibility_evidence: list[dict[str, Any]] | None = None, rehearsal: dict[str, Any] | None = None) -> dict[str, Any]:
+def make_plan(root: Path, operation: str, mutations: list[dict[str, Any]], *, external: list[dict[str, Any]] | None = None, identity: dict[str, Any] | None = None, claimed_key: str | None = None, context_anchor: str | None = None, write_preflight: list[dict[str, Any]] | None = None, anchor_compatibility_evidence: list[dict[str, Any]] | None = None, rehearsal: dict[str, Any] | None = None, documentation_language: str | None = None) -> dict[str, Any]:
     now = utc_now()
     config_path = root / PROJECT_PACKAGE / "PROJECT_CONFIG.json"
     manifest_path = root / PROJECT_PACKAGE / "MANIFEST.json"
@@ -487,6 +545,7 @@ def make_plan(root: Path, operation: str, mutations: list[dict[str, Any]], *, ex
         "anchor": context_anchor,
         "context_anchor": context_anchor,
         "anchor_compatibility_evidence": anchor_compatibility_evidence or [],
+        "documentation_language": documentation_language,
         "rehearsal": rehearsal,
         "capability_inventory_before": runtime_capability_inventory(root),
         "manager_file_mutations": mutations,
@@ -520,7 +579,8 @@ def save_plan(root: Path, plan: dict[str, Any]) -> Path:
     return path
 
 
-def bootstrap_mutations(root: Path, source: Path) -> list[dict[str, Any]]:
+def bootstrap_mutations(root: Path, source: Path, context_anchor: str) -> list[dict[str, Any]]:
+    preflight_writable(root, context_anchor)
     mapping = {
         "START_HERE.md": source / "governance/project/START_HERE.md",
         "POLICY.md": source / "governance/project/POLICY.md",
@@ -558,13 +618,16 @@ def bootstrap_mutations(root: Path, source: Path) -> list[dict[str, Any]]:
         },
         "content_sha256": {},
         "project_owned_files": [f"{PROJECT_PACKAGE}/LOCAL_OVERRIDES.md", f"{PROJECT_PACKAGE}/PROJECT_CONFIG.json", f"{PROJECT_PACKAGE}/ADAPTERS.json"],
-        "portable_anchor": {"path": "AGENTS.md", "marker_start": START_MARKER, "marker_end": END_MARKER},
+        "portable_anchor": {"path": context_anchor, "marker_start": START_MARKER, "marker_end": END_MARKER},
     }
     for item in mutations:
         manifest_content["content_sha256"][item["path"]] = item["expected_new_sha256"]
     manifest_bytes = canonical_json(manifest_content) + b"\n"
     mutations.append(file_mutation(root, f"{PROJECT_PACKAGE}/MANIFEST.json", manifest_bytes))
-    mutations += [file_mutation(root, "AGENTS.md", marker_loader().encode("utf-8"), "append-managed-loader")]
+    mutations += [file_mutation(
+        root, context_anchor, marker_loader().encode("utf-8"),
+        "append-managed-loader", protected_anchor=True,
+    )]
     return mutations
 
 
@@ -729,6 +792,27 @@ def tree_digest(root: Path, relative: str) -> str | None:
     return sha256_bytes(b"".join(entries))
 
 
+def runtime_reported_prefixes(status: dict[str, Any] | None) -> set[str]:
+    """Extract only path-like values explicitly reported by the installed runtime."""
+    prefixes: set[str] = set()
+    path_key = re.compile(r"(?:path|file|directory|dir|skill|command|managed)", re.IGNORECASE)
+
+    def visit(value: Any, key: str = "") -> None:
+        if isinstance(value, dict):
+            for child_key, child in value.items():
+                visit(child, str(child_key))
+        elif isinstance(value, list):
+            for child in value:
+                visit(child, key)
+        elif isinstance(value, str) and path_key.search(key):
+            candidate = Path(value)
+            if not candidate.is_absolute() and ".." not in candidate.parts and value not in {".", ""}:
+                prefixes.add(candidate.as_posix().rstrip("/") + "/")
+
+    visit(status)
+    return prefixes
+
+
 def runtime_capability_inventory(root: Path) -> dict[str, Any]:
     """Return a deterministic, path-relative inventory for upgrade gates.
 
@@ -738,6 +822,15 @@ def runtime_capability_inventory(root: Path) -> dict[str, Any]:
     """
     status = command_status(root)
     status_copy = status if isinstance(status, dict) else None
+    registry = adapters(root)
+    anchor_paths = {
+        item.get("path") for item in registry.get("anchors", [])
+        if isinstance(item, dict) and isinstance(item.get("path"), str)
+    }
+    agent_artifacts = {
+        rel: digest for rel, digest in project_inventory(root).items()
+        if rel in anchor_paths or any(rel.startswith(prefix) for prefix in runtime_reported_prefixes(status_copy))
+    }
     return {
         "schema_version": 1,
         "specify_project": (root / ".specify").is_dir(),
@@ -747,10 +840,7 @@ def runtime_capability_inventory(root: Path) -> dict[str, Any]:
             ".specify": tree_digest(root, ".specify"),
             "constitution": tree_digest(root, ".specify/memory/constitution.md"),
             "specs": tree_digest(root, "specs"),
-            "agent_skills_or_commands": sha256_bytes(canonical_json({
-                rel: digest for rel, digest in project_inventory(root).items()
-                if rel.startswith((".agents/", ".claude/", ".gemini/", ".trae/", ".codebuddy/", ".specify/commands/"))
-            })) or None,
+            "agent_skills_or_commands": sha256_bytes(canonical_json(agent_artifacts)) if agent_artifacts else None,
             "project_governance": sha256_bytes(canonical_json({rel: digest for rel, digest in project_inventory(root).items() if rel.startswith("docs/spec-kit/") or rel == MANAGER_RELATIVE})) or None,
         },
         "default_integration": (status_copy or {}).get("default_integration") if status_copy else None,
@@ -872,8 +962,11 @@ def apply_manager_mutations(root: Path, plan: dict[str, Any]) -> list[str]:
             rel = item["path"]
             safe_relative(root, rel)
             target = root / rel
-            if rel == "AGENTS.md" and item.get("action") != "append-managed-loader":
-                raise GovernanceError("project-owned AGENTS.md accepts only append-managed-loader", "PROJECT_RULES_PROTECTED")
+            context_anchor = plan.get("context_anchor")
+            if item.get("protected_anchor") is True and rel != context_anchor:
+                raise GovernanceError("protected anchor mutation does not match the declared context anchor", "STATE_BROKEN")
+            if rel == context_anchor and (item.get("action") != "append-managed-loader" or item.get("protected_anchor") is not True):
+                raise GovernanceError("the declared project rules anchor accepts only append-managed-loader", "PROJECT_RULES_PROTECTED")
             if target.is_symlink():
                 raise GovernanceError(f"refusing to mutate symlink: {rel}", "STATE_BROKEN")
             old = target.read_bytes() if target.is_file() else None
@@ -884,15 +977,7 @@ def apply_manager_mutations(root: Path, plan: dict[str, Any]) -> list[str]:
             content = base64.b64decode(item["content_b64"])
             target.parent.mkdir(parents=True, exist_ok=True)
             if item.get("action") == "append-managed-loader" and target.exists():
-                existing = target.read_bytes()
-                if START_MARKER.encode() not in existing:
-                    content = existing + (b"\n" if not existing.endswith(b"\n") else b"\n") + content
-                else:
-                    # The managed loader is already present.  The mutation is
-                    # deliberately idempotent and must not replace unrelated
-                    # user content or the existing managed block with the
-                    # short loader payload.
-                    content = existing
+                content = append_loader(target.read_bytes(), content)
             temp = target.with_name(f".{target.name}.{plan['plan_id']}.tmp")
             temp.write_bytes(content)
             with temp.open("rb") as handle:
@@ -967,12 +1052,19 @@ def create_plan_command(root: Path, operation: str, args: argparse.Namespace) ->
     if key and env_key and key != env_key:
         raise GovernanceError("integration key declarations conflict", "IDENTITY_CONFLICT")
     key = key or env_key
+    requested_anchor = getattr(args, "context_anchor", None)
+    env_anchor = os.environ.get("SPEC_KIT_CONTEXT_ANCHOR")
+    if requested_anchor and env_anchor and requested_anchor != env_anchor:
+        raise GovernanceError("context anchor declarations conflict", "IDENTITY_CONFLICT")
+    context_anchor = requested_anchor or env_anchor
+    if context_anchor:
+        context_anchor = safe_relative(root, context_anchor).as_posix()
     delivery_mode = getattr(args, "delivery_mode", "loader")
     anchor_evidence: list[dict[str, Any]] = []
     if operation == "plan-onboard":
         if not runtime_id:
             raise GovernanceError("runtime ID is required for onboarding", "IDENTITY_UNKNOWN")
-        if not args.context_anchor:
+        if not context_anchor:
             raise GovernanceError("context anchor is required for onboarding", "CONTEXT_ANCHOR_UNKNOWN")
         if not (root / ".specify").is_dir():
             raise GovernanceError("onboarding requires an existing .specify project; run plan-init first", "PROJECT_NOT_INITIALIZED")
@@ -985,7 +1077,7 @@ def create_plan_command(root: Path, operation: str, args: argparse.Namespace) ->
             raise GovernanceError("anchor compatibility evidence is missing", "CONTEXT_ANCHOR_UNKNOWN")
         anchor_record = read_json(anchor_evidence_path)
         evidence_hash = sha256_file(anchor_evidence_path)
-        if anchor_record.get("anchor_path") not in {None, args.context_anchor}:
+        if anchor_record.get("anchor_path") not in {None, context_anchor}:
             raise GovernanceError("anchor compatibility evidence targets a different path", "CONTEXT_ANCHOR_UNKNOWN")
         if anchor_record.get("format") not in {None, "markdown", "text"}:
             raise GovernanceError("anchor format is unsupported", "ANCHOR_FORMAT_UNSUPPORTED")
@@ -1047,13 +1139,38 @@ def create_plan_command(root: Path, operation: str, args: argparse.Namespace) ->
             raise GovernanceError("generic transition requires plan-onboard and an explicit commands directory", "UNSUPPORTED_INCOMPATIBLE")
         safe_relative(root, args.commands_dir)
     if operation == "plan-governance-bootstrap":
-        mutations = bootstrap_mutations(root, source_root(getattr(args, "source", None)))
+        if not context_anchor:
+            raise GovernanceError(
+                "bootstrap requires the current Agent runtime or user to provide the project context anchor",
+                "CONTEXT_ANCHOR_UNKNOWN",
+            )
+        mutations = bootstrap_mutations(root, source_root(getattr(args, "source", None)), context_anchor)
     else:
         mutations = []
     rehearsal = None
     if operation == "plan-init":
         if not key:
             raise GovernanceError("integration key is required", "KEY_REQUIRED")
+        if not runtime_id:
+            raise GovernanceError("ask the user for the current Agent runtime identity before initialization", "IDENTITY_UNKNOWN")
+        if not context_anchor:
+            raise GovernanceError("the current Agent runtime must provide its project context anchor", "CONTEXT_ANCHOR_UNKNOWN")
+        documentation_language = getattr(args, "documentation_language", None)
+        if not documentation_language:
+            raise GovernanceError(
+                "ask the user which language future project documentation should use, then pass --documentation-language",
+                "DOCUMENTATION_LANGUAGE_REQUIRED",
+            )
+        if not valid_language_tag(documentation_language):
+            raise GovernanceError("documentation language must be a valid BCP 47 tag", "DOCUMENTATION_LANGUAGE_INVALID")
+        config_path = root / PROJECT_PACKAGE / "PROJECT_CONFIG.json"
+        manifest_path = root / PROJECT_PACKAGE / "MANIFEST.json"
+        if not config_path.is_file() or not manifest_path.is_file():
+            raise GovernanceError("plan-init requires the project governance bootstrap package", "PROJECT_NOT_INITIALIZED")
+        manifest_anchor = read_json(manifest_path).get("portable_anchor", {}).get("path")
+        if manifest_anchor != context_anchor:
+            raise GovernanceError("plan-init context anchor does not match the bootstrapped runtime anchor", "CONTEXT_ANCHOR_UNKNOWN")
+        preflight_writable(root, context_anchor)
         rehearsal = init_rehearsal(root, key, bool(args.force))
     if operation in {"plan-upgrade", "plan-rollback"} and not key:
         if not args.source:
@@ -1064,7 +1181,7 @@ def create_plan_command(root: Path, operation: str, args: argparse.Namespace) ->
     if operation == "plan-onboard" and key:
         evidence_rel = f"{PROJECT_PACKAGE}/evidence/onboard-{uuid.uuid4().hex}.json"
         onboarding, preflight, _anchor_id = onboarding_mutations(
-            root, runtime_id, args.display_name or runtime_id, key, args.context_anchor, evidence_rel,
+            root, runtime_id, args.display_name or runtime_id, key, context_anchor, evidence_rel,
             integration_mode="explicit-generic-transition" if key == "generic" else "native",
             attestation_hash=sha256_file(root / safe_relative(root, args.attestation)) if key == "generic" and args.attestation else None,
             attestation_rel=generic_attestation_rel,
@@ -1081,14 +1198,23 @@ def create_plan_command(root: Path, operation: str, args: argparse.Namespace) ->
         if config_path.is_file():
             config = project_config(root) or {}
             config.setdefault("default_integration", {})["key"] = key
+            config["documentation"] = {
+                "language_tag": documentation_language,
+                "selection_source": "explicit-user-selection",
+                "scope": "new-and-substantively-rewritten-project-documentation",
+            }
             config_bytes = canonical_json(config) + b"\n"
-            config_mutation = file_mutation(root, f"{PROJECT_PACKAGE}/PROJECT_CONFIG.json", config_bytes)
+            config_mutation = file_mutation(root, f"{PROJECT_PACKAGE}/PROJECT_CONFIG.json", config_bytes, "replace")
             mutations.append(config_mutation)
             manifest_path = root / PROJECT_PACKAGE / "MANIFEST.json"
             if manifest_path.is_file():
                 manifest = read_json(manifest_path)
                 manifest.setdefault("content_sha256", {})[f"{PROJECT_PACKAGE}/PROJECT_CONFIG.json"] = config_mutation["expected_new_sha256"]
-                mutations.append(file_mutation(root, f"{PROJECT_PACKAGE}/MANIFEST.json", canonical_json(manifest) + b"\n"))
+                mutations.append(file_mutation(root, f"{PROJECT_PACKAGE}/MANIFEST.json", canonical_json(manifest) + b"\n", "replace"))
+            mutations.append(file_mutation(
+                root, context_anchor, marker_loader(documentation_language).encode("utf-8"),
+                "append-managed-loader", protected_anchor=True,
+            ))
     if operation in {"plan-onboard", "plan-init", "plan-extension-install", "plan-default-change", "plan-upgrade", "plan-rollback"} and operation != "plan-governance-bootstrap":
         if operation == "plan-onboard" and not key:
             raise GovernanceError("integration key is required", "KEY_REQUIRED")
@@ -1135,7 +1261,11 @@ def create_plan_command(root: Path, operation: str, args: argparse.Namespace) ->
                 previous = previous.get("key")
             if isinstance(previous, str) and previous:
                 rollback_argv = ["specify", "integration", "use", previous]
-        allowed_prefixes = [".specify/", ".agents/", ".claude/", ".gemini/", ".trae/", ".codebuddy/"]
+        allowed_prefixes = [".specify/"]
+        for prefix in getattr(args, "allowed_path_prefix", []) or []:
+            allowed_prefixes.append(safe_relative(root, prefix).as_posix().rstrip("/") + "/")
+        if operation == "plan-init" and rehearsal:
+            allowed_prefixes = list(rehearsal.get("allowed_path_prefixes", allowed_prefixes))
         if operation == "plan-onboard" and key == "generic":
             allowed_prefixes.append(args.commands_dir.rstrip("/") + "/")
         external = [] if not argv else [{"argv": argv, "working_directory": ".", "allowed_path_prefixes": allowed_prefixes, "rollback_argv": rollback_argv, "pre_apply_snapshot": [], "postconditions": [], "changed_file_inventory": f"{RUNTIME_DIR}/plans/<plan-id>.changed.json"}]
@@ -1158,10 +1288,11 @@ def create_plan_command(root: Path, operation: str, args: argparse.Namespace) ->
             item["changed_file_inventory_path"] = f"{RUNTIME_DIR}/plans/<plan-id>.changed.json"
     plan = make_plan(
         root, operation, mutations, external=external, identity=identity, claimed_key=key,
-        context_anchor=getattr(args, "context_anchor", None),
-        write_preflight=[{"path": args.context_anchor, "writable": True, "evidence": "preflight_writable"}] if getattr(args, "context_anchor", None) else [],
+        context_anchor=context_anchor,
+        write_preflight=[{"path": context_anchor, "writable": True, "evidence": "preflight_writable"}] if context_anchor else [],
         anchor_compatibility_evidence=anchor_evidence,
         rehearsal=rehearsal,
+        documentation_language=getattr(args, "documentation_language", None) if operation == "plan-init" else None,
     )
     path = save_plan(root, plan)
     return {"status": "plan-created", "plan_id": plan["plan_id"], "plan_sha256": plan["plan_sha256"], "path": str(path), "operation_type": operation}
@@ -1236,7 +1367,9 @@ def parser() -> argparse.ArgumentParser:
         item.add_argument("--version", default="VERSION_REQUIRED")
         item.add_argument("--attestation")
         item.add_argument("--commands-dir")
+        item.add_argument("--allowed-path-prefix", action="append", default=[])
         item.add_argument("--context-anchor")
+        item.add_argument("--documentation-language")
         item.add_argument("--anchor-evidence")
         item.add_argument("--loader-failure-evidence")
         item.add_argument("--verification-evidence")

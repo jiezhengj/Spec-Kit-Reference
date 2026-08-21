@@ -1,37 +1,39 @@
-# 只读预检
+# Read-only preflight
 
-确认项目根目录，读取本目录全部治理文件，检查 Git 状态、`.specify/`、manifest、config、adapter、CLI 版本和 integration status。只读命令不得创建 `.specify/`、plan、backup 或 binding。
+Confirm the project root, read every governance file in this directory, and inspect the Git state, `.specify/`, manifest, configuration, adapter, CLI version, and integration status. Read-only commands must not create `.specify/`, a plan, a backup, or a binding.
 
-如果目标项目已有 `AGENTS.md`，先将其视为项目拥有的用户规则。Bootstrap 或 onboarding 只允许以 `append-managed-loader` 方式注入治理 loader；必须保留原有内容和字节顺序，禁止覆盖、删除、重排或全文件格式化。若文件不存在，才可在已批准 plan 中创建。
+If the target project already has the runtime-selected project context anchor, first treat it as project-owned user rules. Bootstrap or onboarding may inject or update the governance loader only through `append-managed-loader`; every byte outside the managed region and its byte order must be preserved. Overwriting, deleting, reordering, normalizing, or whole-file formatting is prohibited. A missing anchor may be created only at the exact path supplied and evidence-validated in an approved plan.
 
-# 治理包 bootstrap
+Before `plan-init`, the current Agent must ask the user for the BCP-47 language tag for new or substantially rewritten project documentation. Supply it as `--documentation-language <tag>`; the manager must reject a missing or invalid value. Persist the explicit selection in project configuration and the selected context-anchor loader. Do not infer a language or translate existing documents automatically.
 
-Portable artifact 解压到 `.spec-kit-governance/staging/<plan-id>/`，校验 manifest 和 SHA-256，从 staging manager 生成 `plan-governance-bootstrap`。Bootstrap 只写 `docs/spec-kit/`、根 Loader、manager、manifest 和 config，不安装当前 Agent integration。用户按精确 plan ID/hash 授权后运行 apply，再用项目 manager verify。
+# Governance package bootstrap
 
-# 新项目
+Extract the portable artifact to `.spec-kit-governance/staging/<plan-id>/`, validate the manifest and SHA-256, and generate `plan-governance-bootstrap` from the staging manager. Bootstrap writes only the committed governance package, manager, manifest, and configuration, plus the Loader at the exact runtime-selected context-anchor path. It does not install the current Agent integration. Apply only after the user authorizes the exact plan ID/hash, then verify with the project manager.
 
-没有 `.specify/` 时，先取得明确 approved key，在临时目录用同 CLI/key rehearsal，生成 external mutation scope。非空 brownfield 只允许专用 `plan-init` 使用 `specify init --here --force --non-interactive --integration <key>`；空项目使用无 force 命令。实际变更后比较 scope inventory、status 和 managed files；逃逸或恢复不完整返回 `RECOVERY_REQUIRED`。
+# New projects
 
-# 已有项目
+When `.specify/` does not exist, first obtain a clear approved key, rehearse with the same CLI/key in a temporary directory, and generate an external mutation scope. A non-empty brownfield may use `specify init --here --force --non-interactive --integration <key>` only through a dedicated `plan-init`; an empty project uses the command without force. After the actual change, compare the scope inventory, status, and managed files; an escape or incomplete recovery returns `RECOVERY_REQUIRED`.
 
-运行 `specify integration status --json`。缺失、modified、invalid 或阻断 finding 返回 `STATE_BROKEN`；当前 runtime 对应 native repair 不可写时返回 `NATIVE_INSTALL_BLOCKED`。不得重跑 init 制造重复规范。
+# Existing projects
+
+Run `specify integration status --json`. A missing, modified, invalid, or blocking finding returns `STATE_BROKEN`; an unwritable native repair for the current runtime returns `NATIVE_INSTALL_BLOCKED`. Do not rerun init to create duplicate specifications.
 
 # Native onboarding
 
-候选 key 安装健康只产生 `NATIVE_CANDIDATE_INSTALLED_UNVERIFIED`。必须写入用户提供的 anchor，并在 `plan-onboard` 中提供 `--anchor-evidence <project-relative-json>`；随后执行 fresh-session loader 验证，并确认 runtime ID 与 key 一致；验证前不得 active、READY 或宣称完整。
+Installation health for a candidate key yields only `NATIVE_CANDIDATE_INSTALLED_UNVERIFIED`. Write the user-provided anchor and supply `--anchor-evidence <project-relative-json>` in `plan-onboard`; then perform fresh-session Loader validation and confirm that the runtime ID and key match. Before validation, it must not be active, `READY`, or represented as complete.
 
-Fresh-session 证据必须是项目相对 JSON，至少证明 runtime ID、integration key、fresh session、Loader 已加载和 managed files 已验证。使用 `plan-activate-binding` 及精确 approval hash 后，binding 才能变成 `active`。
+Fresh-session evidence must be project-relative JSON that proves at least the runtime ID, integration key, fresh session, Loader loading, and managed-file verification. The binding may become `active` only after `plan-activate-binding` is applied with the exact approval hash.
 
-只有 Loader fresh-session 明确失败且用户主动选择时，才允许 Materialized；此时 `plan-onboard` 必须同时提供 `--delivery-mode materialized --loader-failure-evidence <project-relative-json>`。不得把 Materialized 当作 native 写入失败时的降级路径。
+Materialized delivery is allowed only when Loader fresh-session validation explicitly fails and the user actively chooses it; `plan-onboard` must also provide `--delivery-mode materialized --loader-failure-evidence <project-relative-json>`. Do not use Materialized as a fallback when native writes fail.
 
 # Generic
 
-`generic` 不得进入 native 分支。V1 只允许在 project config 允许、current-version native-absence attestation 有效、installed integration set 为空、Markdown Commands 兼容性已验证且用户批准时使用。项目已有任一 integration 时返回 `INTEGRATION_CONFLICT`；V1 不实现迁移到 generic。
+`generic` must not enter the native branch. V1 permits it only when project configuration allows it, the current-version native-absence attestation is valid, the installed integration set is empty, Markdown Commands compatibility has been verified, and the user approves it. Return `INTEGRATION_CONFLICT` when the project already has any integration; V1 does not implement migration to generic.
 
 # Native blocker
 
-Native init target、integration target、managed file repair、anchor 或父目录不可写，权限拒绝，sandbox 阻断或部分安装失败时：保留并清点现有状态；返回 `NATIVE_INSTALL_BLOCKED`；请求可写 checkout 或权限；修复后使用同一 claimed key 重新生成 plan。不得 generic fallback、切换其他 key 或删除已有产物。
+When the native init target, integration target, managed-file repair, anchor, or parent directory is unwritable; permission is denied; a sandbox blocks the work; or an installation partially fails: preserve and inventory the existing state, return `NATIVE_INSTALL_BLOCKED`, request a writable checkout or permission, and regenerate the plan with the same claimed key after remediation. Do not fall back to generic, switch to another key, or delete existing artifacts.
 
-# 升级与回滚
+# Upgrade and rollback
 
-中央 source 只读读取固定 release index。先生成 `plan-upgrade`，审查 Policy、Reference、manager、adapter、manifest 和 capability inventory，再用 apply。升级前后 inventory 必须等价，除非每项变化都有批准的 `REPLACE`。回滚不卸载 integration、不删除用户工作；失败恢复不完整返回 `RECOVERY_REQUIRED`。
+Read the fixed release index from the central source in read-only mode. First generate `plan-upgrade`, review Policy, Reference, manager, adapter, manifest, and capability inventory, then apply it. The inventory before and after the upgrade must be equivalent unless every change has an approved `REPLACE`. Rollback must not uninstall integrations or delete user work; incomplete failure recovery returns `RECOVERY_REQUIRED`.

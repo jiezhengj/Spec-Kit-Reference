@@ -8,7 +8,9 @@ Use GitHub Spec Kit for substantive software engineering. Do not require the ful
 
 Determine the actual project root, read all applicable project-local rules, inspect the brownfield system, and preserve existing user work before changing it. If `.specify/` exists, resume that project state instead of routinely reinitializing it. If `docs/spec-kit/MANIFEST.json` exists, read the committed project governance package; it is the shared project baseline.
 
-If the project already has an `AGENTS.md`, it is project-owned instruction content. The Spec Kit governance loader may be appended to that file only through the reviewed manager plan; it must never replace, delete, reorder, normalize, or overwrite the existing bytes. If no `AGENTS.md` exists, the manager may create the loader file through the same reviewed plan.
+If the project already has the runtime-selected project context anchor, that file is project-owned instruction content. The Spec Kit governance loader may be appended to or updated inside that file only through the reviewed manager plan; every byte outside the managed loader region must remain unchanged. Never replace, delete, reorder, normalize, or overwrite the anchor. If no anchor exists, create only the exact project-relative path supplied and evidence-validated by the current Agent runtime or the user; never guess a filename.
+
+During first-time Spec Kit initialization, the current Agent must ask the user which BCP-47 language tag to use for new or substantially rewritten project documentation. Pass that exact user selection to the manager and persist it in the project configuration and managed context-anchor loader. Do not infer the language from locale, Agent product, existing documents, or a default.
 
 ## Agent integration
 

@@ -28,7 +28,10 @@ class ManagerContractTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             project = Path(directory)
             subprocess.run(["git", "init", "-q", str(project)], check=True)
-            result = self.run_manager(project, "plan-governance-bootstrap", "--source", str(ROOT))
+            result = self.run_manager(
+                project, "plan-governance-bootstrap", "--source", str(ROOT),
+                "--context-anchor", "runtime/project-rules.txt",
+            )
             plan_info = json.loads(result.stdout)
             plan = Path(plan_info["path"])
             applied = self.run_manager(
@@ -44,6 +47,8 @@ class ManagerContractTests(unittest.TestCase):
             self.assertEqual(json.loads(applied.stdout)["status"], "applied")
             manifest = json.loads((project / "docs/spec-kit/MANIFEST.json").read_text())
             self.assertIn("docs/spec-kit/ADAPTERS.json", manifest["content_sha256"])
+            self.assertEqual(manifest["portable_anchor"]["path"], "runtime/project-rules.txt")
+            self.assertTrue((project / "runtime/project-rules.txt").is_file())
             verified = json.loads(self.run_manager(project, "verify").stdout)
             self.assertEqual(verified["status"], "READY")
 
@@ -51,33 +56,92 @@ class ManagerContractTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             project = Path(directory)
             subprocess.run(["git", "init", "-q", str(project)], check=True)
+            anchor = project / ".unlisted-agent/rules.txt"
+            anchor.parent.mkdir()
             existing = b"# project rules\n\n" + manager.marker_loader().encode("utf-8")
-            (project / "AGENTS.md").write_bytes(existing)
-            bootstrap = json.loads(self.run_manager(project, "plan-governance-bootstrap", "--source", str(ROOT)).stdout)
+            anchor.write_bytes(existing)
+            bootstrap = json.loads(self.run_manager(
+                project, "plan-governance-bootstrap", "--source", str(ROOT),
+                "--context-anchor", ".unlisted-agent/rules.txt",
+            ).stdout)
             self.run_manager(project, "apply-plan", "--plan", bootstrap["path"], "--approve-plan-id", bootstrap["plan_id"], "--approve-plan-sha256", bootstrap["plan_sha256"])
-            self.assertEqual((project / "AGENTS.md").read_bytes(), existing)
+            self.assertEqual(anchor.read_bytes(), existing)
 
-    def test_bootstrap_only_appends_to_existing_unmanaged_agents(self):
+    def test_bootstrap_only_appends_to_existing_unmanaged_anchor(self):
         with tempfile.TemporaryDirectory() as directory:
             project = Path(directory)
             subprocess.run(["git", "init", "-q", str(project)], check=True)
-            existing = b"# Project-owned rules\n\nKeep this exact text and byte order.\n"
-            (project / "AGENTS.md").write_bytes(existing)
-            bootstrap = json.loads(self.run_manager(project, "plan-governance-bootstrap", "--source", str(ROOT)).stdout)
+            anchor = project / "vendor/context.rules"
+            anchor.parent.mkdir()
+            existing = b"# Project-owned rules\n\nKeep this exact text and byte order."
+            anchor.write_bytes(existing)
+            bootstrap = json.loads(self.run_manager(
+                project, "plan-governance-bootstrap", "--source", str(ROOT),
+                "--context-anchor", "vendor/context.rules",
+            ).stdout)
             self.run_manager(project, "apply-plan", "--plan", bootstrap["path"], "--approve-plan-id", bootstrap["plan_id"], "--approve-plan-sha256", bootstrap["plan_sha256"])
-            result = (project / "AGENTS.md").read_bytes()
+            result = anchor.read_bytes()
             self.assertTrue(result.startswith(existing))
             self.assertEqual(result.count(manager.START_MARKER.encode("utf-8")), 1)
             self.assertEqual(result.count(manager.END_MARKER.encode("utf-8")), 1)
 
-    def test_agents_file_rejects_replace_or_create_mutations(self):
+    def test_any_declared_anchor_rejects_replace_or_create_mutations(self):
         with tempfile.TemporaryDirectory() as directory:
             project = Path(directory)
-            (project / "AGENTS.md").write_text("project rules\n", encoding="utf-8")
+            anchor = project / "custom-agent.instructions"
+            anchor.write_text("project rules\n", encoding="utf-8")
             for action in ("create", "replace"):
                 with self.assertRaises(manager.GovernanceError) as raised:
-                    manager.file_mutation(project, "AGENTS.md", b"replacement\n", action)
+                    manager.file_mutation(
+                        project, "custom-agent.instructions", b"replacement\n", action,
+                        protected_anchor=True,
+                    )
                 self.assertEqual(raised.exception.status, "PROJECT_RULES_PROTECTED")
+
+    def test_bootstrap_requires_runtime_or_user_supplied_anchor(self):
+        with tempfile.TemporaryDirectory() as directory:
+            project = Path(directory)
+            subprocess.run(["git", "init", "-q", str(project)], check=True)
+            result = self.run_manager(project, "plan-governance-bootstrap", "--source", str(ROOT), check=False)
+            self.assertEqual(result.returncode, 2)
+            self.assertEqual(json.loads(result.stderr)["status"], "CONTEXT_ANCHOR_UNKNOWN")
+
+    def test_runtime_supplied_anchor_is_supported_without_product_catalog(self):
+        with tempfile.TemporaryDirectory() as directory:
+            project = Path(directory)
+            subprocess.run(["git", "init", "-q", str(project)], check=True)
+            env = os.environ.copy()
+            env["SPEC_KIT_CONTEXT_ANCHOR"] = ".unknown-runtime/project.instructions"
+            result = self.run_manager(project, "plan-governance-bootstrap", "--source", str(ROOT), env=env)
+            plan = json.loads(Path(json.loads(result.stdout)["path"]).read_text())
+            anchor_mutation = next(item for item in plan["manager_file_mutations"] if item.get("protected_anchor"))
+            self.assertEqual(anchor_mutation["path"], ".unknown-runtime/project.instructions")
+            self.assertEqual(anchor_mutation["action"], "append-managed-loader")
+
+    def test_plan_validation_protects_declared_anchor_without_filename_knowledge(self):
+        with tempfile.TemporaryDirectory() as directory:
+            project = Path(directory)
+            mutation = manager.file_mutation(project, "vendor/rules.conf", b"replacement\n")
+            plan = manager.make_plan(
+                project, "plan-governance-bootstrap", [mutation],
+                context_anchor="vendor/rules.conf",
+            )
+            with self.assertRaises(manager.GovernanceError) as raised:
+                manager.validate_plan_shape(plan)
+            self.assertEqual(raised.exception.status, "PROJECT_RULES_PROTECTED")
+
+    def test_explicit_and_runtime_anchor_conflict_fails_closed(self):
+        with tempfile.TemporaryDirectory() as directory:
+            project = Path(directory)
+            subprocess.run(["git", "init", "-q", str(project)], check=True)
+            env = os.environ.copy()
+            env["SPEC_KIT_CONTEXT_ANCHOR"] = "runtime/rules.txt"
+            result = self.run_manager(
+                project, "plan-governance-bootstrap", "--source", str(ROOT),
+                "--context-anchor", "user/rules.txt", check=False, env=env,
+            )
+            self.assertEqual(result.returncode, 2)
+            self.assertEqual(json.loads(result.stderr)["status"], "IDENTITY_CONFLICT")
 
     def test_unknown_identity_requires_exact_key_and_generic_is_not_native(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -156,7 +220,10 @@ class ManagerContractTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             project = Path(directory)
             subprocess.run(["git", "init", "-q", str(project)], check=True)
-            bootstrap = json.loads(self.run_manager(project, "plan-governance-bootstrap", "--source", str(ROOT)).stdout)
+            bootstrap = json.loads(self.run_manager(
+                project, "plan-governance-bootstrap", "--source", str(ROOT),
+                "--context-anchor", "project.runtime-rules",
+            ).stdout)
             self.run_manager(project, "apply-plan", "--plan", bootstrap["path"], "--approve-plan-id", bootstrap["plan_id"], "--approve-plan-sha256", bootstrap["plan_sha256"])
             upgrade = json.loads(self.run_manager(project, "plan-upgrade", "--source", str(ROOT)).stdout)
             plan = json.loads(Path(upgrade["path"]).read_text())
@@ -176,27 +243,120 @@ class ManagerContractTests(unittest.TestCase):
                 "#!/bin/sh\n"
                 "if [ \"$1\" = \"--version\" ] || [ \"$1\" = \"version\" ]; then echo 0.16.6.dev0; exit 0; fi\n"
                 "if [ \"$1\" = \"init\" ]; then mkdir -p .specify; printf '%s\\n' initialized > .specify/state.txt; exit 0; fi\n"
+                "if [ \"$1\" = \"integration\" ] && [ \"$2\" = \"status\" ]; then printf '%s\\n' '{\"installed_integrations\":[{\"key\":\"native-key\"}],\"default_integration\":{\"key\":\"native-key\"}}'; exit 0; fi\n"
                 "exit 0\n",
                 encoding="utf-8",
             )
             fake.chmod(0o755)
             env = os.environ.copy()
             env["PATH"] = f"{fake_bin}:{env['PATH']}"
-            result = self.run_manager(project, "plan-init", "--integration-key", "native-key", env=env)
+            anchor_path = project / ".workbuddy/context.md"
+            anchor_path.parent.mkdir()
+            original_anchor = b"# Workbuddy project rules\n\nPreserve these bytes exactly.\n"
+            anchor_path.write_bytes(original_anchor)
+            bootstrap = json.loads(self.run_manager(
+                project, "plan-governance-bootstrap", "--source", str(ROOT),
+                "--context-anchor", ".workbuddy/context.md", env=env,
+            ).stdout)
+            self.run_manager(
+                project, "apply-plan", "--plan", bootstrap["path"],
+                "--approve-plan-id", bootstrap["plan_id"],
+                "--approve-plan-sha256", bootstrap["plan_sha256"], env=env,
+            )
+            result = self.run_manager(
+                project, "plan-init",
+                "--runtime-id", "workbuddy.runtime",
+                "--integration-key", "native-key",
+                "--context-anchor", ".workbuddy/context.md",
+                "--documentation-language", "mi-NZ",
+                "--force",
+                env=env,
+            )
             info = json.loads(result.stdout)
             plan = json.loads(Path(info["path"]).read_text())
             self.assertEqual(plan["rehearsal"]["argv"][-1], "native-key")
             self.assertIn(".specify/state.txt", plan["rehearsal"]["changed_files"])
+            self.assertEqual(plan["documentation_language"], "mi-NZ")
+            anchor_mutation = next(
+                item for item in plan["manager_file_mutations"]
+                if item["path"] == ".workbuddy/context.md"
+            )
+            self.assertTrue(anchor_mutation["protected_anchor"])
+            self.assertIn(
+                "Project documentation language: `mi-NZ`.",
+                base64.b64decode(anchor_mutation["content_b64"]).decode("utf-8"),
+            )
             self.assertFalse((project / ".specify").exists())
+            applied = self.run_manager(
+                project, "apply-plan", "--plan", info["path"],
+                "--approve-plan-id", info["plan_id"],
+                "--approve-plan-sha256", info["plan_sha256"], check=False, env=env,
+            )
+            self.assertEqual(applied.returncode, 0, applied.stderr)
+            self.assertEqual(json.loads(applied.stdout)["status"], "applied")
+            config = json.loads((project / "docs/spec-kit/PROJECT_CONFIG.json").read_text())
+            self.assertEqual(config["documentation"]["language_tag"], "mi-NZ")
+            self.assertEqual(config["documentation"]["selection_source"], "explicit-user-selection")
+            manifest = json.loads((project / "docs/spec-kit/MANIFEST.json").read_text())
+            self.assertEqual(
+                manifest["content_sha256"]["docs/spec-kit/PROJECT_CONFIG.json"],
+                manager.sha256_file(project / "docs/spec-kit/PROJECT_CONFIG.json"),
+            )
+            self.assertTrue(anchor_path.read_bytes().startswith(original_anchor))
+            anchor = anchor_path.read_text()
+            self.assertIn("Project documentation language: `mi-NZ`.", anchor)
+            self.assertFalse((project / "AGENTS.md").exists())
             for child in fake_bin.iterdir():
                 child.unlink()
             fake_bin.rmdir()
+
+    def test_plan_init_requires_user_selected_documentation_language(self):
+        with tempfile.TemporaryDirectory() as directory:
+            project = Path(directory)
+            subprocess.run(["git", "init", "-q", str(project)], check=True)
+            fake_bin = project / "bin"
+            fake_bin.mkdir()
+            fake = fake_bin / "specify"
+            fake.write_text(
+                "#!/bin/sh\n"
+                "if [ \"$1\" = \"--version\" ] || [ \"$1\" = \"version\" ]; then echo 0.16.6.dev0; exit 0; fi\n"
+                "exit 0\n",
+                encoding="utf-8",
+            )
+            fake.chmod(0o755)
+            env = os.environ.copy()
+            env["PATH"] = f"{fake_bin}:{env['PATH']}"
+            common = (
+                "plan-init", "--runtime-id", "unlisted.runtime",
+                "--integration-key", "native-key", "--context-anchor", "rules/context.md",
+            )
+            missing = self.run_manager(project, *common, check=False, env=env)
+            self.assertEqual(json.loads(missing.stderr)["status"], "DOCUMENTATION_LANGUAGE_REQUIRED")
+            invalid = self.run_manager(
+                project, *common, "--documentation-language", "not a language", check=False, env=env,
+            )
+            self.assertEqual(json.loads(invalid.stderr)["status"], "DOCUMENTATION_LANGUAGE_INVALID")
+            no_runtime = self.run_manager(
+                project, "plan-init", "--integration-key", "native-key",
+                "--context-anchor", "rules/context.md",
+                "--documentation-language", "en", check=False, env=env,
+            )
+            self.assertEqual(json.loads(no_runtime.stderr)["status"], "IDENTITY_UNKNOWN")
+            no_anchor = self.run_manager(
+                project, "plan-init", "--runtime-id", "unlisted.runtime",
+                "--integration-key", "native-key",
+                "--documentation-language", "en", check=False, env=env,
+            )
+            self.assertEqual(json.loads(no_anchor.stderr)["status"], "CONTEXT_ANCHOR_UNKNOWN")
 
     def test_generic_transition_requires_attestation_and_stays_non_native(self):
         with tempfile.TemporaryDirectory() as directory:
             project = Path(directory)
             subprocess.run(["git", "init", "-q", str(project)], check=True)
-            bootstrap = json.loads(self.run_manager(project, "plan-governance-bootstrap", "--source", str(ROOT)).stdout)
+            bootstrap = json.loads(self.run_manager(
+                project, "plan-governance-bootstrap", "--source", str(ROOT),
+                "--context-anchor", "project.runtime-rules",
+            ).stdout)
             self.run_manager(project, "apply-plan", "--plan", bootstrap["path"], "--approve-plan-id", bootstrap["plan_id"], "--approve-plan-sha256", bootstrap["plan_sha256"])
             config_path = project / "docs/spec-kit/PROJECT_CONFIG.json"
             config = json.loads(config_path.read_text())
@@ -219,7 +379,7 @@ class ManagerContractTests(unittest.TestCase):
             }) + "\n")
             anchor_evidence = evidence_dir / "anchor.json"
             anchor_evidence.write_text(json.dumps({
-                "anchor_path": "AGENTS.md",
+                "anchor_path": ".unknown-runtime/project.instructions",
                 "format": "markdown",
                 "review_conclusion": "markdown loader anchor reviewed",
             }) + "\n")
@@ -237,7 +397,7 @@ class ManagerContractTests(unittest.TestCase):
                 "--integration-key", "generic",
                 "--attestation", "docs/spec-kit/evidence/no-native.json",
                 "--commands-dir", ".example-commands",
-                "--context-anchor", "AGENTS.md",
+                "--context-anchor", ".unknown-runtime/project.instructions",
                 "--anchor-evidence", "docs/spec-kit/evidence/anchor.json",
                 check=False,
                 env=env,

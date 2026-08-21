@@ -6,19 +6,20 @@
 - Kept `README.md` as a complete English-and-Chinese mirror: every English section now has a corresponding Chinese section with the same commands, paths, statuses, and constraints.
 - Translated every Markdown document under `docs/` to English while preserving commands, paths, hashes, statuses, and normative constraints.
 - Changed `GLOBAL_POLICY.md` to a clean H1/H2 Markdown source without surrounding HTML-comment markers; deployment rendering adds markers only to the target block.
-- Made project-owned `AGENTS.md` append-only for the governance loader and added regression coverage for byte-preserving injection and protected replace/create mutations.
+- Made the runtime-selected project context anchor append-only for the governance loader and added regression coverage for byte-preserving injection and protected replace/create mutations.
+- Added explicit user-selected BCP-47 documentation-language capture during `plan-init`, including managed-anchor injection and project configuration persistence.
 
 ## 2026-08-21 — Portable project governance implementation
 
 - Added the Agent-neutral project governance package templates, schemas, capability baseline, resolver contract, and release metadata.
-- Added the portable governance manager with explicit plan/apply authorization, native-integration blocker semantics, explicit generic transition attestation, fresh-session binding activation, upgrade/rollback planning, and atomic manager writes with recovery evidence.
-- Added deterministic portable and extension release builders/validators and a 68-test governance contract suite covering the preserved upstream checker, CI, wrapper, policy, integration, lifecycle, deployment, and isolated-init rehearsal capabilities.
+- Added the portable governance manager with explicit plan/apply authorization, native-integration blocker semantics, explicit generic transition attestation, fresh-session binding activation, upgrade/rollback planning, dynamic runtime-reported target scopes, and atomic manager writes with recovery evidence.
+- Added deterministic portable and extension release builders/validators and a 76-test governance contract suite covering the preserved upstream checker, CI, wrapper, policy, integration, lifecycle, deployment, language-selection, anchor-protection, and isolated-init rehearsal capabilities.
 - Renamed the root policy source to `GLOBAL_POLICY.md`, added explicit documentation-language rationale, and kept the dated implementation snapshot as a non-portable maintenance artifact.
 - Moved the one-time implementation contract to `docs/archive/PROJECT_GOVERNANCE_IMPLEMENTATION_2026-08-21.md` so the live `docs/` directory contains only ongoing maintenance documents.
 
 ## 2026-08-21 — Native Agent integration requirement
 
-- Added a hard requirement to use the native Spec Kit integration whenever a concrete Agent, such as Codex, is in scope.
+- Added a hard requirement to use the native Spec Kit integration whenever a concrete Agent is in scope.
 - Defined permission, sandbox, and unwritable-path failures as blockers rather than reasons to downgrade to `generic`.
 - Required verification of the Agent-specific generated layout and managed-file status before migration completion or push.
 

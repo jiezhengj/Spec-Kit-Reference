@@ -1,5 +1,5 @@
 # Resolver contract
 
-Resolver 只使用 Python 标准库和当前项目 runtime。允许解析的 integration CLI 机器输出只有 `specify integration status --json`；不得解析 Rich list/search/info、导入私有 API、扫描磁盘或创建临时项目查询 registry。
+The resolver uses only the Python standard library and the current project's runtime. The only permitted integration CLI machine-readable output is `specify integration status --json`; it must not parse Rich list/search/info output, import private APIs, scan the filesystem, or create temporary projects to query the registry.
 
-身份声明优先级为：当前用户 key、宿主 runtime metadata、显式环境变量、Agent 自声明。任意冲突返回 `IDENTITY_CONFLICT`；只有 display name 返回 `KEY_REQUIRED`。安装健康不等于 runtime 匹配；fresh-session binding 验证后才是 `EXACT_NATIVE_INSTALLED`。
+Identity-claim precedence is: the current user's key, host runtime metadata, an explicit environment variable, and the Agent's self-declaration. Any conflict returns `IDENTITY_CONFLICT`; a display name without a key returns `KEY_REQUIRED`. Installation health does not prove a runtime match; only fresh-session binding verification yields `EXACT_NATIVE_INSTALLED`.

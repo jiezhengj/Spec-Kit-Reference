@@ -27,8 +27,8 @@ def read(rel: str) -> str:
 class CapabilityContractTests(unittest.TestCase):
     def test_lightweight_work_does_not_require_lifecycle(self):
         policy = read("governance/project/POLICY.md")
-        self.assertIn("极小 typo 修复", policy)
-        self.assertIn("不要求完整生命周期", policy)
+        self.assertIn("extremely small typo fixes", policy)
+        self.assertIn("do not require the full lifecycle", policy)
 
     def test_project_root_detection(self):
         source = read("governance/manager/speckit_governance.py")
@@ -37,7 +37,7 @@ class CapabilityContractTests(unittest.TestCase):
 
     def test_brownfield_discovery_required(self):
         protocol = read("governance/project/OPERATING_PROTOCOL.md")
-        self.assertIn("读取本目录全部治理文件", protocol)
+        self.assertIn("read every governance file in this directory", protocol)
         self.assertIn("brownfield", protocol)
 
     def test_dirty_worktree_is_preserved(self):
@@ -48,8 +48,8 @@ class CapabilityContractTests(unittest.TestCase):
 
     def test_existing_specify_state_is_resumed(self):
         protocol = read("governance/project/OPERATING_PROTOCOL.md")
-        self.assertIn("不得重跑 init 制造重复规范", protocol)
-        self.assertIn("已有项目", protocol)
+        self.assertIn("Do not rerun init", protocol)
+        self.assertIn("Existing projects", protocol)
 
     def test_controlled_brownfield_init_uses_backups(self):
         source = read("governance/manager/speckit_governance.py")
@@ -59,13 +59,13 @@ class CapabilityContractTests(unittest.TestCase):
 
     def test_runtime_identity_does_not_use_brand_allowlist(self):
         policy = read("governance/project/POLICY.md")
-        self.assertIn("不预先枚举 Agent 产品", policy)
-        self.assertIn("不得从 PATH、目录名", policy)
+        self.assertIn("does not enumerate Agent products in advance", policy)
+        self.assertIn("Do not infer identity from PATH, directory names", policy)
 
     def test_concrete_agent_uses_native_key(self):
         policy = read("governance/project/POLICY.md")
-        self.assertIn("原生 integration 是强制要求", policy)
-        self.assertIn("精确 integration key", policy)
+        self.assertIn("native integration is mandatory", policy)
+        self.assertIn("exact integration key", policy)
 
     def test_native_target_unwritable_is_blocker(self):
         source = read("governance/manager/speckit_governance.py")
@@ -74,9 +74,9 @@ class CapabilityContractTests(unittest.TestCase):
 
     def test_completion_rejected_without_native_managed_files(self):
         policy = read("governance/project/POLICY.md")
-        self.assertIn("原生 integration", policy)
+        self.assertIn("native integration", policy)
         self.assertIn("managed files", policy)
-        self.assertIn("不得报告完成", policy)
+        self.assertIn("Do not report completion", policy)
 
     def test_generic_requires_explicit_approval(self):
         config = json.loads(read("governance/project/PROJECT_CONFIG.default.json"))
@@ -85,7 +85,7 @@ class CapabilityContractTests(unittest.TestCase):
 
     def test_generic_never_claims_native_capability(self):
         policy = read("governance/project/POLICY.md")
-        self.assertIn("Generic 必须标记为非原生", policy)
+        self.assertIn("Generic must be marked as non-native", policy)
         source = read("governance/manager/speckit_governance.py")
         self.assertIn('"explicit-generic-transition"', source)
 
@@ -96,9 +96,9 @@ class CapabilityContractTests(unittest.TestCase):
 
     def test_runtime_authority_order(self):
         policy = read("governance/project/POLICY.md")
-        self.assertIn("当前项目 `.specify/`", policy)
-        self.assertIn("已安装 CLI", policy)
-        self.assertIn("upstream 文档", policy)
+        self.assertIn("current-project `.specify/`", policy)
+        self.assertIn("installed CLI", policy)
+        self.assertIn("upstream documentation", policy)
 
     def test_cli_is_runtime_authority(self):
         protocol = read("governance/project/OPERATING_PROTOCOL.md")
@@ -117,13 +117,13 @@ class CapabilityContractTests(unittest.TestCase):
 
     def test_artifact_divergence_blocks_completion(self):
         policy = read("governance/project/POLICY.md")
-        self.assertIn("实现必须与已接受 specification、plan、tasks", policy)
-        self.assertIn("存在 blocker", policy)
+        self.assertIn("Implementation must remain synchronized with the accepted specification, plan, tasks", policy)
+        self.assertIn("unplanned deletion, downgrade, invalid state, or default change", policy)
 
     def test_completion_requires_validation_and_convergence(self):
         policy = read("governance/project/POLICY.md")
-        self.assertIn("validation、convergence", policy)
-        self.assertIn("不得隐藏失败", policy)
+        self.assertIn("validation, and convergence", policy)
+        self.assertIn("failures must not be concealed", policy)
 
     def test_substantive_bug_requires_reproduction_and_validation(self):
         reference = read("governance/project/REFERENCE.md").lower()
@@ -132,8 +132,8 @@ class CapabilityContractTests(unittest.TestCase):
 
     def test_cli_upgrade_does_not_reinitialize_project(self):
         protocol = read("governance/project/OPERATING_PROTOCOL.md")
-        self.assertIn("升级前后 inventory 必须等价", protocol)
-        self.assertIn("不卸载 integration", protocol)
+        self.assertIn("inventory before and after the upgrade must be equivalent", protocol)
+        self.assertIn("must not uninstall integrations", protocol)
 
     def test_cli_install_does_not_claim_global_skills(self):
         reference = read("governance/project/REFERENCE.md")
@@ -141,8 +141,8 @@ class CapabilityContractTests(unittest.TestCase):
         self.assertIn("Do not manually copy generated Skills", reference)
 
     def test_completion_rejects_unresolved_blocker(self):
-        self.assertIn("存在 blocker", read("governance/project/POLICY.md"))
-        self.assertIn("不得报告完成", read("governance/project/POLICY.md"))
+        self.assertIn("unplanned deletion, downgrade, invalid state, or default change", read("governance/project/POLICY.md"))
+        self.assertIn("Do not report completion", read("governance/project/POLICY.md"))
 
     def test_upstream_review_sequence(self):
         policy = read("AGENTS.md")
@@ -268,8 +268,8 @@ class CapabilityContractTests(unittest.TestCase):
 
     def test_discovery_does_not_initialize_project(self):
         resolver = read("governance/resolver/resolver-contract.md")
-        self.assertIn("不得", resolver)
-        self.assertIn("创建临时项目", resolver)
+        self.assertIn("must not", resolver)
+        self.assertIn("create temporary projects", resolver)
         self.assertIn("status --json", resolver)
 
     def test_managed_layout_is_verified_from_runtime(self):
@@ -283,10 +283,10 @@ class CapabilityContractTests(unittest.TestCase):
         self.assertIn("generic", source)
 
     def test_runtime_authority_order_is_not_brand_specific(self):
-        self.assertIn("不预先枚举 Agent 产品", read("governance/project/POLICY.md"))
+        self.assertIn("does not enumerate Agent products in advance", read("governance/project/POLICY.md"))
 
     def test_substantive_work_requires_speckit(self):
-        self.assertIn("实质性软件工程工作", read("governance/project/POLICY.md"))
+        self.assertIn("substantive software engineering work", read("governance/project/POLICY.md"))
 
 
 if __name__ == "__main__":

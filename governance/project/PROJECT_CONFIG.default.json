@@ -20,6 +20,11 @@
     "default_delivery_mode": "loader",
     "allow_materialized_after_loader_failure": true
   },
+  "documentation": {
+    "language_tag": null,
+    "selection_source": null,
+    "scope": "new-and-substantively-rewritten-project-documentation"
+  },
   "upgrade": {
     "review_mode": "pull-request-required"
   },

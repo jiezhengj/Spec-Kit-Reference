@@ -28,7 +28,7 @@ class GovernanceSchemaContractTests(unittest.TestCase):
         policy = (ROOT / "governance/project/POLICY.md").read_text(encoding="utf-8").lower()
         for product in ("codex", "claude", "gemini", "trae"):
             self.assertNotIn(product, policy)
-        self.assertIn("不得因为方便、权限、路径或冲突降级 generic", policy)
+        self.assertIn("do not downgrade to generic", policy)
 
     def test_every_capability_has_a_named_regression(self):
         baseline = json.loads((ROOT / "governance/capability-baseline.json").read_text(encoding="utf-8"))
@@ -37,6 +37,16 @@ class GovernanceSchemaContractTests(unittest.TestCase):
         for path in (ROOT / "tests").rglob("*.py"):
             found.update(re.findall(r"\btest_[A-Za-z0-9_]+\b", path.read_text(encoding="utf-8")))
         self.assertEqual(required - found, set())
+
+    def test_context_anchor_contract_is_filename_neutral(self):
+        manager_source = (ROOT / "governance/manager/speckit_governance.py").read_text(encoding="utf-8")
+        manifest_schema = json.loads((ROOT / "governance/schemas/governance-manifest.schema.json").read_text(encoding="utf-8"))
+        plan_schema = json.loads((ROOT / "governance/schemas/operation-plan.schema.json").read_text(encoding="utf-8"))
+        self.assertNotIn('"AGENTS.md"', manager_source)
+        anchor_path = manifest_schema["properties"]["portable_anchor"]["properties"]["path"]
+        self.assertEqual(anchor_path, {"$ref": "#/$defs/projectRelativePath"})
+        protected = plan_schema["$defs"]["managerMutation"]["properties"]["protected_anchor"]
+        self.assertEqual(protected, {"const": True})
 
 
 if __name__ == "__main__":

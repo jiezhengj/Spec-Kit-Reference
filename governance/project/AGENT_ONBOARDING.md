@@ -1,15 +1,17 @@
-# 首次 Agent 入驻
+# First-time Agent onboarding
 
-1. 当前 Agent 必须提供 runtime ID 和精确 integration key。只有 display name 时返回 `KEY_REQUIRED`。
-2. 读取 `specify version`、`specify --help`；CLI 缺失时输出固定安装建议，等待授权，不静默安装。
-3. 运行只读 `doctor` 和 `resolve-agent`。不得把 default、PATH 工具、目录名或相似产品当身份。
-4. `.specify/` 已存在时运行 `specify integration status --json`。健康且已有 active binding 时复用；否则生成 onboarding plan。
-5. `.specify/` 不存在时先完成 Agent-neutral governance bootstrap，再生成显式 integration 的 `plan-init`。禁止省略 `--integration`。
-6. 原生 integration 未安装时，plan 使用 `specify integration install <claimed-key>`，不加 `--force`；multi-install safety 由 CLI gate 决定。
-7. 任何 native 目标不可写、权限、sandbox、repair 或安装错误均返回 `NATIVE_INSTALL_BLOCKED`，保留现有状态并停止。
-8. context anchor 只能来自 active binding 或用户显式提供的项目相对路径，并需通过 `plan-onboard --anchor-evidence <project-relative-json>` 携带 compatibility evidence。未知或不支持格式时停止。
-9. 仅 Loader fresh-session 失败且用户显式请求时才允许 Materialized；此时必须同时提供 `--loader-failure-evidence <project-relative-json>`。
-10. 用户使用 `apply-plan --approve-plan-id <id> --approve-plan-sha256 <hash>` 授权后，才执行唯一 apply。
-11. 新会话验证 anchor、Loader、Policy version、probe token、runtime ID、integration key、原生 workflow 和既有 inventory 后，保存项目相对 verification evidence，再生成 `plan-activate-binding`；在该计划 apply 前，binding 只能是 `provisional`，不能报告 `READY`。
+1. The current Agent must provide a runtime ID and an exact integration key. A display name without a key returns `KEY_REQUIRED`.
+2. Read `specify version` and `specify --help`; if the CLI is absent, request authorization and recommend `uv tool install specify-cli --from git+https://github.com/github/spec-kit.git@<approved-40-character-commit-sha>`. Do not install it silently, use a floating branch, or treat installation as proof that Agent-specific project files exist.
+3. Run read-only `doctor` and `resolve-agent`. Do not treat a default, a PATH tool, a directory name, or a similar product as an identity.
+4. When `.specify/` exists, run `specify integration status --json`. Reuse a healthy existing active binding; otherwise generate an onboarding plan.
+5. When `.specify/` does not exist, complete the Agent-neutral governance bootstrap first, then generate a `plan-init` with an explicit integration. Omitting `--integration` is prohibited.
+6. When the native integration is not installed, the plan uses `specify integration install <claimed-key>` without `--force`; multi-install safety is decided by the CLI gate.
+7. For an external native install, pass each project-relative target prefix explicitly from the current CLI/runtime's reported integration metadata as `--allowed-path-prefix <prefix>`. The manager never guesses a Skills, Commands, or context directory. A missing or incomplete scope must stop the plan rather than broaden the prefix.
+8. Any unwritable native target, permission, sandbox, repair, or installation error returns `NATIVE_INSTALL_BLOCKED`; preserve the existing state and stop.
+9. A context anchor may come only from an active binding or from a project-relative path explicitly supplied by the user, and it must carry compatibility evidence through `plan-onboard --anchor-evidence <project-relative-json>`. Stop for an unknown or unsupported format.
+10. Materialized delivery is allowed only when Loader fresh-session validation fails and the user explicitly requests it; `--loader-failure-evidence <project-relative-json>` must be supplied at the same time.
+11. Perform the sole apply only after the user authorizes it with `apply-plan --approve-plan-id <id> --approve-plan-sha256 <hash>`.
+12. In a new session, verify the anchor, Loader, Policy version, probe token, runtime ID, integration key, native workflow, and existing inventory; save project-relative verification evidence, then generate `plan-activate-binding`. Until that plan is applied, the binding may only be `provisional` and must not be reported as `READY`.
 
-12. 如果项目已有 `AGENTS.md`，onboarding 只能向其中注入 managed loader；必须保留原有项目规则的全部字节，禁止覆盖、删除、重排或全文件格式化。
+13. If the project already has the runtime-selected context anchor, onboarding may only inject or update the managed loader region; every byte outside that region must be preserved byte-for-byte. Overwriting, deleting, reordering, normalizing, or whole-file formatting is prohibited. If the anchor is absent, create only the exact runtime- or user-supplied path after evidence validation; never guess a filename.
+14. Before `plan-init`, ask the user for the BCP-47 language tag for new or substantially rewritten project documentation. Pass it as `--documentation-language <tag>`. The manager stores the explicit selection in `PROJECT_CONFIG.json` and the selected context-anchor loader; it must not infer a language or mass-translate existing documents.
