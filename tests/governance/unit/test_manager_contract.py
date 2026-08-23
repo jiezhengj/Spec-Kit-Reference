@@ -18,6 +18,8 @@ class ManagerContractTests(unittest.TestCase):
         return subprocess.run(
             [sys.executable, str(MANAGER), "--project-root", str(project), *args],
             text=True,
+            encoding="utf-8",
+            errors="replace",
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             check=check,
@@ -169,17 +171,27 @@ class ManagerContractTests(unittest.TestCase):
             self.assertEqual(response["status"], "UNSUPPORTED_INCOMPATIBLE")
             self.assertIsNone(response["integration"]["mode"])
 
+    def create_fake_specify(self, bin_dir: Path, py_body: str) -> None:
+        bin_dir.mkdir(parents=True, exist_ok=True)
+        py_script = bin_dir / "fake_specify.py"
+        py_script.write_text(py_body, encoding="utf-8")
+        sh_script = bin_dir / "specify"
+        sh_script.write_text(f"#!/bin/sh\nexec \"{sys.executable}\" \"{py_script}\" \"$@\"\n", encoding="utf-8")
+        sh_script.chmod(0o755)
+        if os.name == "nt":
+            cmd_script = bin_dir / "specify.cmd"
+            cmd_script.write_text(f'@"{sys.executable}" "{py_script}" %*\n', encoding="utf-8")
+            bat_script = bin_dir / "specify.bat"
+            bat_script.write_text(f'@"{sys.executable}" "{py_script}" %*\n', encoding="utf-8")
+
     def test_native_cli_failure_is_a_blocker_not_generic(self):
         with tempfile.TemporaryDirectory() as directory:
             project = Path(directory)
             (project / ".specify").mkdir()
             fake_bin = project / "bin"
-            fake_bin.mkdir()
-            fake = fake_bin / "specify"
-            fake.write_text("#!/bin/sh\nexit 7\n", encoding="utf-8")
-            fake.chmod(0o755)
+            self.create_fake_specify(fake_bin, "import sys\nsys.exit(7)\n")
             old_path = os.environ.get("PATH", "")
-            os.environ["PATH"] = f"{fake_bin}:{old_path}"
+            os.environ["PATH"] = f"{fake_bin}{os.pathsep}{old_path}"
             try:
                 plan = {
                     "plan_id": "native-failure-test",
@@ -238,18 +250,26 @@ class ManagerContractTests(unittest.TestCase):
             project = Path(directory)
             subprocess.run(["git", "init", "-q", str(project)], check=True)
             fake_bin = Path(tempfile.mkdtemp(prefix="specify-fixture-bin-"))
-            fake = fake_bin / "specify"
-            fake.write_text(
-                "#!/bin/sh\n"
-                "if [ \"$1\" = \"--version\" ] || [ \"$1\" = \"version\" ]; then echo 0.16.6.dev0; exit 0; fi\n"
-                "if [ \"$1\" = \"init\" ]; then mkdir -p .specify; printf '%s\\n' initialized > .specify/state.txt; exit 0; fi\n"
-                "if [ \"$1\" = \"integration\" ] && [ \"$2\" = \"status\" ]; then printf '%s\\n' '{\"installed_integrations\":[{\"key\":\"native-key\"}],\"default_integration\":{\"key\":\"native-key\"}}'; exit 0; fi\n"
-                "exit 0\n",
-                encoding="utf-8",
+            py_body = (
+                "import sys\n"
+                "from pathlib import Path\n\n"
+                "args = sys.argv[1:]\n"
+                "if not args or args[0] in ('--version', 'version'):\n"
+                "    print('0.16.6.dev0')\n"
+                "    sys.exit(0)\n"
+                "if args[0] == 'init':\n"
+                "    p = Path('.specify')\n"
+                "    p.mkdir(parents=True, exist_ok=True)\n"
+                "    (p / 'state.txt').write_text('initialized\\n', encoding='utf-8')\n"
+                "    sys.exit(0)\n"
+                "if len(args) >= 2 and args[0] == 'integration' and args[1] == 'status':\n"
+                "    print('{\"installed_integrations\":[{\"key\":\"native-key\"}],\"default_integration\":{\"key\":\"native-key\"}}')\n"
+                "    sys.exit(0)\n"
+                "sys.exit(0)\n"
             )
-            fake.chmod(0o755)
+            self.create_fake_specify(fake_bin, py_body)
             env = os.environ.copy()
-            env["PATH"] = f"{fake_bin}:{env['PATH']}"
+            env["PATH"] = f"{fake_bin}{os.pathsep}{env['PATH']}"
             anchor_path = project / ".workbuddy/context.md"
             anchor_path.parent.mkdir()
             original_anchor = b"# Workbuddy project rules\n\nPreserve these bytes exactly.\n"
@@ -315,17 +335,16 @@ class ManagerContractTests(unittest.TestCase):
             project = Path(directory)
             subprocess.run(["git", "init", "-q", str(project)], check=True)
             fake_bin = project / "bin"
-            fake_bin.mkdir()
-            fake = fake_bin / "specify"
-            fake.write_text(
-                "#!/bin/sh\n"
-                "if [ \"$1\" = \"--version\" ] || [ \"$1\" = \"version\" ]; then echo 0.16.6.dev0; exit 0; fi\n"
-                "exit 0\n",
-                encoding="utf-8",
+            py_body = (
+                "import sys\n"
+                "args = sys.argv[1:]\n"
+                "if not args or args[0] in ('--version', 'version'):\n"
+                "    print('0.16.6.dev0')\n"
+                "sys.exit(0)\n"
             )
-            fake.chmod(0o755)
+            self.create_fake_specify(fake_bin, py_body)
             env = os.environ.copy()
-            env["PATH"] = f"{fake_bin}:{env['PATH']}"
+            env["PATH"] = f"{fake_bin}{os.pathsep}{env['PATH']}"
             common = (
                 "plan-init", "--runtime-id", "unlisted.runtime",
                 "--integration-key", "native-key", "--context-anchor", "rules/context.md",
@@ -384,12 +403,26 @@ class ManagerContractTests(unittest.TestCase):
                 "review_conclusion": "markdown loader anchor reviewed",
             }) + "\n")
             fake_bin = project / "bin"
-            fake_bin.mkdir()
-            fake = fake_bin / "specify"
-            fake.write_text("#!/bin/sh\nif [ \"$1\" = \"--version\" ] || [ \"$1\" = \"version\" ]; then echo 0.16.6.dev0; elif [ \"$1\" = \"integration\" ] && [ \"$2\" = \"status\" ]; then printf '%s\\n' '{\"installed_integrations\":[]}'; elif [ \"$1\" = \"integration\" ] && [ \"$2\" = \"install\" ]; then mkdir -p .example-commands; echo command > .example-commands/workflow.md; fi\n", encoding="utf-8")
-            fake.chmod(0o755)
+            py_body = (
+                "import sys\n"
+                "from pathlib import Path\n\n"
+                "args = sys.argv[1:]\n"
+                "if not args or args[0] in ('--version', 'version'):\n"
+                "    print('0.16.6.dev0')\n"
+                "    sys.exit(0)\n"
+                "if len(args) >= 2 and args[0] == 'integration' and args[1] == 'status':\n"
+                "    print('{\"installed_integrations\":[]}')\n"
+                "    sys.exit(0)\n"
+                "if len(args) >= 2 and args[0] == 'integration' and args[1] == 'install':\n"
+                "    p = Path('.example-commands')\n"
+                "    p.mkdir(parents=True, exist_ok=True)\n"
+                "    (p / 'workflow.md').write_text('command\\n', encoding='utf-8')\n"
+                "    sys.exit(0)\n"
+                "sys.exit(0)\n"
+            )
+            self.create_fake_specify(fake_bin, py_body)
             env = os.environ.copy()
-            env["PATH"] = f"{fake_bin}:{env['PATH']}"
+            env["PATH"] = f"{fake_bin}{os.pathsep}{env['PATH']}"
             result = self.run_manager(
                 project,
                 "plan-onboard",

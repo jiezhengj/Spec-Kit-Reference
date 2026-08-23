@@ -155,7 +155,7 @@ def read_json(path: Path) -> dict[str, Any]:
 
 
 def git_value(root: Path, *args: str) -> str:
-    result = subprocess.run(["git", *args], cwd=root, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False)
+    result = subprocess.run(["git", *args], cwd=root, text=True, encoding="utf-8", errors="replace", stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False)
     return result.stdout.strip() if result.returncode == 0 else ""
 
 
@@ -184,12 +184,12 @@ def cli_version() -> str | None:
     executable = shutil.which("specify")
     if not executable:
         return None
-    result = subprocess.run([executable, "version"], text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False)
+    result = subprocess.run([executable, "version"], text=True, encoding="utf-8", errors="replace", stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False)
     output = (result.stdout or result.stderr)
     # Current Specify renders a rich information panel rather than a plain
     # version line.  Accept the machine-readable --version form first, then
     # extract the labelled CLI Version field from the panel.
-    simple = subprocess.run([executable, "--version"], text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False)
+    simple = subprocess.run([executable, "--version"], text=True, encoding="utf-8", errors="replace", stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False)
     simple_text = (simple.stdout or simple.stderr).strip()
     match = re.search(r"\b(\d+\.\d+\.\d+(?:(?:\.dev|a|b|rc)\d+)?)\b", simple_text)
     if match:
@@ -211,7 +211,7 @@ def command_status(root: Path) -> dict[str, Any] | None:
     executable = shutil.which("specify")
     if not executable or not (root / ".specify").is_dir():
         return None
-    result = subprocess.run([executable, "integration", "status", "--json"], cwd=root, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False)
+    result = subprocess.run([executable, "integration", "status", "--json"], cwd=root, text=True, encoding="utf-8", errors="replace", stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False)
     if result.returncode != 0:
         raise GovernanceError(result.stderr.strip() or "integration status failed", "STATE_BROKEN")
     try:
@@ -409,8 +409,10 @@ def file_mutation(root: Path, rel: str, content: bytes, action: str = "create", 
 
 def onboarding_mutations(root: Path, runtime_id: str, display_name: str, key: str, anchor_path: str, evidence_rel: str, *, integration_mode: str = "native", attestation_hash: str | None = None, attestation_rel: str | None = None, commands_dir: str | None = None, delivery_mode: str = "loader") -> tuple[list[dict[str, Any]], dict[str, Any], str]:
     preflight_writable(root, anchor_path)
+    config = project_config(root) or {}
+    doc_lang = config.get("documentation", {}).get("language_tag")
     anchor_mutation = file_mutation(
-        root, anchor_path, marker_loader().encode("utf-8"),
+        root, anchor_path, marker_loader(doc_lang).encode("utf-8"),
         "append-managed-loader", protected_anchor=True,
     )
     evidence = {
@@ -878,11 +880,11 @@ def init_rehearsal(root: Path, key: str, force: bool) -> dict[str, Any]:
     argv = ["specify", "init", "--here"]
     if force:
         argv.append("--force")
-    argv.extend(["--non-interactive", "--integration", key])
+    argv.extend(["--ignore-agent-tools", "--non-interactive", "--integration", key])
     with tempfile.TemporaryDirectory(prefix="spec-kit-rehearsal-") as directory:
         rehearsal_root = Path(directory)
         before = project_inventory(rehearsal_root)
-        result = subprocess.run(argv, cwd=rehearsal_root, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False)
+        result = subprocess.run([executable, *argv[1:]], cwd=rehearsal_root, text=True, encoding="utf-8", errors="replace", stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False)
         after = project_inventory(rehearsal_root)
         if result.returncode != 0:
             raise GovernanceError("Spec Kit init rehearsal failed; inspect CLI output before retrying", "NATIVE_INSTALL_BLOCKED")
@@ -913,7 +915,8 @@ def run_external_mutations(root: Path, plan: dict[str, Any]) -> list[str]:
         if rollback_argv[0] != "specify" or any(not isinstance(value, str) or not value for value in rollback_argv):
             return None, []
         before_rollback = project_inventory(root)
-        result = subprocess.run(rollback_argv, cwd=root, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False)
+        rollback_exec = shutil.which(rollback_argv[0]) or rollback_argv[0]
+        result = subprocess.run([rollback_exec, *rollback_argv[1:]], cwd=root, text=True, encoding="utf-8", errors="replace", stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False)
         after_rollback = project_inventory(root)
         return result.returncode, sorted(path for path in set(before_rollback) | set(after_rollback) if before_rollback.get(path) != after_rollback.get(path))
 
@@ -934,7 +937,8 @@ def run_external_mutations(root: Path, plan: dict[str, Any]) -> list[str]:
             target = root / rel
             if not target.is_file() or sha256_file(target) != snapshot.get("sha256"):
                 raise GovernanceError(f"external mutation input changed: {rel}", "RECOVERY_REQUIRED")
-        result = subprocess.run(argv, cwd=root, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False)
+        exec_path = shutil.which(argv[0]) or argv[0]
+        result = subprocess.run([exec_path, *argv[1:]], cwd=root, text=True, encoding="utf-8", errors="replace", stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False)
         after = project_inventory(root)
         delta = sorted(set(before) | set(after))
         changed_now = [path for path in delta if before.get(path) != after.get(path)]
@@ -996,8 +1000,11 @@ def apply_manager_mutations(root: Path, plan: dict[str, Any]) -> list[str]:
                 content = append_loader(target.read_bytes(), content)
             temp = target.with_name(f".{target.name}.{plan['plan_id']}.tmp")
             temp.write_bytes(content)
-            with temp.open("rb") as handle:
-                os.fsync(handle.fileno())
+            with temp.open("r+b") as handle:
+                try:
+                    os.fsync(handle.fileno())
+                except OSError:
+                    pass
             os.replace(temp, target)
             os.chmod(target, item.get("mode", 0o644))
             try:
@@ -1077,6 +1084,8 @@ def create_plan_command(root: Path, operation: str, args: argparse.Namespace) ->
         context_anchor = safe_relative(root, context_anchor).as_posix()
     delivery_mode = getattr(args, "delivery_mode", "loader")
     anchor_evidence: list[dict[str, Any]] = []
+    generic_attestation: dict[str, Any] | None = None
+    generic_attestation_rel: str | None = None
     if operation == "plan-onboard":
         if not runtime_id:
             raise GovernanceError("runtime ID is required for onboarding", "IDENTITY_UNKNOWN")
@@ -1238,7 +1247,7 @@ def create_plan_command(root: Path, operation: str, args: argparse.Namespace) ->
         if operation == "plan-init":
             if not key:
                 raise GovernanceError("integration key is required", "KEY_REQUIRED")
-            argv = ["specify", "init", "--here", "--non-interactive", "--integration", key]
+            argv = ["specify", "init", "--here", "--ignore-agent-tools", "--non-interactive", "--integration", key]
             if args.force:
                 argv.insert(3, "--force")
         elif operation == "plan-onboard":

@@ -72,8 +72,11 @@ def main() -> int:
         backup.write_bytes(target.read_bytes())
     temp = target.with_name(f".{target.name}.{plan['plan_id']}.updater.tmp")
     temp.write_bytes(content)
-    with temp.open("rb") as handle:
-        os.fsync(handle.fileno())
+    with temp.open("r+b") as handle:
+        try:
+            os.fsync(handle.fileno())
+        except OSError:
+            pass
     os.replace(temp, target)
     print(json.dumps({"status": "manager-updated", "path": str(target), "backup": str(backup)}, ensure_ascii=False))
     return 0
