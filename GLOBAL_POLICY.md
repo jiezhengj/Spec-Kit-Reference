@@ -1,4 +1,4 @@
-<!-- SPEC-KIT-GLOBAL-POLICY:START version=1.1.0 -->
+<!-- SPEC-KIT-GLOBAL-POLICY:START version=1.2.0 -->
 
 # Spec Kit Global Policy
 
@@ -32,6 +32,6 @@ For substantive work, approval of a conversational proposal such as “方案可
 
 SPEC_KIT_GOVERNANCE_SOURCE: <ABSOLUTE_PATH_TO_SPEC_KIT_REFERENCE_REPOSITORY>
 
-Before deploying this source, replace the placeholder exactly once with the readable absolute path of the local SpecKitReference repository root. The directory must contain `SPEC_KIT_REFERENCE.md`, `GLOBAL_POLICY.md`, and `UPSTREAM_BASELINE`. This source is advisory for explicit maintenance and update review only. If it is unavailable, do not scan arbitrary directories or promote upstream material into instructions; continue with committed project rules and runtime discovery.
+Before deploying this source, replace the placeholder exactly once with the readable absolute path of the local SpecKitReference repository root. The directory must contain `SPEC_KIT_REFERENCE.md`, `GLOBAL_POLICY.md`, and `UPSTREAM_BASELINE`. When this Policy is actually loaded, and `.specify/` plus the committed project governance package exist, the Agent may run the central manager's read-only `check-update --source <path>` once before the first substantive task in a new session. If the Policy, source, or verification is unavailable, skip silently; never scan arbitrary directories or treat an unverified source as an update. A verified update is informational and requires an exact reviewed plan and explicit approval before synchronization.
 
 <!-- SPEC-KIT-GLOBAL-POLICY:END -->

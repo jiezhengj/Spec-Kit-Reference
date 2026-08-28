@@ -33,7 +33,7 @@ The active feature comes from `.specify/feature.json` or the `SPECIFY_FEATURE_DI
 
 The upstream Spec Kit CLI owns `.specify/**`, `specs/**`, and the native Agent integration files it generates. This governance package may inspect those artifacts and may invoke supported upstream CLI commands, but it must not directly edit or replace them.
 
-The Reference-owned additions in a target project are `docs/spec-kit/**`, `tools/spec-kit-governance/governance.py`, `.spec-kit-governance/**`, and the managed governance loader block inside the selected context anchor. The central Reference repository and a globally deployed Policy are maintenance conveniences, not runtime prerequisites.
+The Reference-owned additions in a target project are `docs/spec-kit/**`, `tools/spec-kit-governance/governance.py`, `.spec-kit-governance/**`, and the separately managed governance-loader and Reference-update-check blocks inside the selected context anchor. The central Reference repository and a globally deployed Policy are maintenance conveniences, not runtime prerequisites.
 
 User approval such as “方案可以” is not an implementation bypass. For substantive work, first align the proposal with the current upstream Spec Kit specification, plan, and tasks; this approval does not authorize direct code edits before that alignment. Then implement through the upstream workflow. `verify` validates only the Reference-owned package, not feature completion.
 
@@ -70,6 +70,14 @@ specify self upgrade
 specify integration upgrade <key>
 specify extension update
 ```
+
+# Central Reference update check
+
+For a project that carries the committed governance package, the central Reference check is enabled only when the current Agent has loaded the global Policy and that Policy provides a readable `SPEC_KIT_GOVERNANCE_SOURCE` path. Before the first substantive task in a new session, run the local manager's read-only `check-update --source <central-reference-path>` at most once. If the Policy or locator is absent, skip silently; do not search the machine for a Reference directory.
+
+`UP_TO_DATE` means the target manifest source revision matches the clean central Reference checkout. `UPDATE_AVAILABLE` means a clean, ancestor central source has newer Reference content. `REVIEW_REQUIRED` means the baseline is divergent or the change includes Policy content. These statuses never authorize mutation. The user must approve an exact `plan-upgrade` and `apply-plan` before Reference-owned files are synchronized.
+
+Reference synchronization updates only `docs/spec-kit/**`, the local governance manager, and the managed block in the explicit context anchor. It does not update `.specify/**`, `specs/**`, native Agent files, or business code. After synchronization, the upstream Spec Kit workflow decides whether any specification, plan, or task artifacts need updating.
 
 # Optional CLI update reminder
 

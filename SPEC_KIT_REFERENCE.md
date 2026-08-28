@@ -67,6 +67,14 @@ specify integration upgrade <key>
 specify extension update
 ```
 
+## Central Reference update check
+
+For a project that carries the committed governance package, the central Reference check is enabled only when the current Agent has loaded the global Policy and that Policy provides a readable `SPEC_KIT_GOVERNANCE_SOURCE` path. Before the first substantive task in a new session, run the local manager's read-only `check-update --source <central-reference-path>` at most once. If the Policy or locator is absent, skip silently; do not search the machine for a Reference directory.
+
+`UP_TO_DATE` means the target manifest source revision matches the clean central Reference checkout. `UPDATE_AVAILABLE` means a clean, ancestor central source has newer Reference content. `REVIEW_REQUIRED` means the baseline is divergent or the change includes Policy content. These statuses never authorize mutation. The user must approve an exact `plan-upgrade` and `apply-plan` before Reference-owned files are synchronized.
+
+Reference synchronization updates only `docs/spec-kit/**`, the local governance manager, and the managed block in the explicit context anchor. It does not update `.specify/**`, `specs/**`, native Agent files, or business code. After synchronization, the upstream Spec Kit workflow decides whether any specification, plan, or task artifacts need updating.
+
 If an existing Spec Kit project intentionally has no global Policy and no `docs/spec-kit/**` package, the optional Reference operation `plan-install-update-reminder` can append a separate managed reminder to the exact existing Agent context anchor. It requires only the installed CLI, an existing `.specify/` project, and the explicit anchor path; it does not copy the manager or modify `.specify/**`, `specs/**`, or native integration files. The reminder delegates detection to upstream `specify self check` and never upgrades the CLI without explicit user approval.
 
 The actual installed CLI and project integration are authoritative if this reference differs from runtime behavior.
@@ -87,7 +95,7 @@ Convergence checks implementation completeness against accepted feature artifact
 
 ## Ownership and runtime independence
 
-The upstream Spec Kit CLI owns `.specify/**`, `specs/**`, and native Agent integration files. This Reference may inspect them and invoke supported CLI commands, but it must not directly edit or replace them. Its target-project additions are the committed `docs/spec-kit/**` package, the local governance manager, `.spec-kit-governance/**` runtime state, and the managed loader block in the explicitly selected context anchor.
+The upstream Spec Kit CLI owns `.specify/**`, `specs/**`, and native Agent integration files. This Reference may inspect them and invoke supported CLI commands, but it must not directly edit or replace them. Its target-project additions are the committed `docs/spec-kit/**` package, the local governance manager, `.spec-kit-governance/**` runtime state, and the separately managed loader and Reference-update-check blocks in the explicitly selected context anchor.
 
 A conversational approval such as “方案可以” advances a direction into the upstream Spec Kit workflow; it does not authorize direct code edits before the specification, plan, and tasks are aligned. The central Reference and global Policy are not runtime prerequisites for a target project whose local governance package and loader are present.
 

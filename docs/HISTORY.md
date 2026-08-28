@@ -1,5 +1,13 @@
 # Maintenance history
 
+## 2026-08-28 — Central Reference update handoff
+
+- Added a source-gated, session-scoped read-only check for a newer central Reference when the loaded global Policy provides the explicit source locator.
+- Made missing Policy, missing central source, dirty source, and unverifiable source silent and non-blocking during normal target-project work.
+- Extended the approved governance upgrade path to update the target governance package, manager, and managed context-anchor Reference check block only.
+- Preserved the upstream ownership boundary: `.specify/**`, `specs/**`, native Agent files, specification, plan, and tasks remain outside the Reference synchronizer.
+- Published the policy-affecting governance package update as `1.2.0`.
+
 ## 2026-08-28 — Optional CLI update reminder
 
 - Added `plan-install-update-reminder` for already Spec Kit projects that want a CLI update reminder without global Policy or `docs/spec-kit/**`.

@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.2.0
+
+- Added source-gated, session-scoped central Reference update detection.
+- Reference synchronization now updates the governance and Agent-context layer
+  through the existing plan/apply workflow and never edits `.specify/**`,
+  `specs/**`, or native Agent-generated files.
+- Kept specification, plan, and task alignment as a separate upstream Spec Kit
+  handoff after governance synchronization.
+
 ## 1.1.1
 
 - Added an optional `plan-install-update-reminder` operation for existing

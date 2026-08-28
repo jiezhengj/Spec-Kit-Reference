@@ -1,6 +1,7 @@
 import base64
 import json
 import os
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -25,6 +26,26 @@ class ManagerContractTests(unittest.TestCase):
             check=check,
             env=env,
         )
+
+    def make_source_fixture(self, directory: Path) -> Path:
+        source = directory / "central-reference"
+        shutil.copytree(
+            ROOT / "governance",
+            source / "governance",
+            ignore=shutil.ignore_patterns("__pycache__", "*.pyc", ".DS_Store"),
+        )
+        for rel in ("GLOBAL_POLICY.md", "SPEC_KIT_REFERENCE.md", "UPSTREAM_BASELINE"):
+            target = source / rel
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(ROOT / rel, target)
+        subprocess.run(["git", "init", "-q", str(source)], check=True)
+        subprocess.run(["git", "add", "-A"], cwd=source, check=True)
+        subprocess.run(
+            ["git", "-c", "user.name=Spec Kit Test", "-c", "user.email=test@example.com", "commit", "-qm", "fixture"],
+            cwd=source,
+            check=True,
+        )
+        return source
 
     def test_bootstrap_plan_apply_is_self_describing(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -64,7 +85,11 @@ class ManagerContractTests(unittest.TestCase):
             subprocess.run(["git", "init", "-q", str(project)], check=True)
             anchor = project / ".unlisted-agent/rules.txt"
             anchor.parent.mkdir()
-            existing = b"# project rules\n\n" + manager.marker_loader().encode("utf-8")
+            existing = (
+                b"# project rules\n\n"
+                + manager.marker_loader().encode("utf-8")
+                + manager.reference_update_loader().encode("utf-8")
+            )
             anchor.write_bytes(existing)
             bootstrap = json.loads(self.run_manager(
                 project, "plan-governance-bootstrap", "--source", str(ROOT),
@@ -90,6 +115,8 @@ class ManagerContractTests(unittest.TestCase):
             self.assertTrue(result.startswith(existing))
             self.assertEqual(result.count(manager.START_MARKER.encode("utf-8")), 1)
             self.assertEqual(result.count(manager.END_MARKER.encode("utf-8")), 1)
+            self.assertEqual(result.count(manager.REFERENCE_UPDATE_START_MARKER.encode("utf-8")), 1)
+            self.assertEqual(result.count(manager.REFERENCE_UPDATE_END_MARKER.encode("utf-8")), 1)
 
     def test_update_reminder_requires_only_specify_project_and_preserves_upstream_files(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -155,6 +182,7 @@ class ManagerContractTests(unittest.TestCase):
             self.assertIn("specify self check", reminder)
             self.assertIn("specify self upgrade", reminder)
             self.assertNotIn(manager.START_MARKER, reminder)
+            self.assertNotIn(manager.REFERENCE_UPDATE_START_MARKER, reminder)
 
     def test_update_reminder_upsert_preserves_existing_governance_loader(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -202,7 +230,7 @@ class ManagerContractTests(unittest.TestCase):
             plan = json.loads(Path(json.loads(result.stdout)["path"]).read_text())
             anchor_mutation = next(item for item in plan["manager_file_mutations"] if item.get("protected_anchor"))
             self.assertEqual(anchor_mutation["path"], ".unknown-runtime/project.instructions")
-            self.assertEqual(anchor_mutation["action"], "append-managed-loader")
+            self.assertEqual(anchor_mutation["action"], "append-managed-bootstrap")
 
     def test_plan_validation_protects_declared_anchor_without_filename_knowledge(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -368,6 +396,138 @@ class ManagerContractTests(unittest.TestCase):
             rollback = json.loads(self.run_manager(project, "plan-rollback", "--source", str(ROOT), "--version", "1.0.0").stdout)
             rollback_plan = json.loads(Path(rollback["path"]).read_text())
             self.assertEqual(rollback_plan["external_cli_mutations"], [])
+
+    def test_reference_check_compares_target_manifest_with_clean_central_source(self):
+        with tempfile.TemporaryDirectory() as directory:
+            workspace = Path(directory)
+            source = self.make_source_fixture(workspace)
+            project = workspace / "target"
+            project.mkdir()
+            subprocess.run(["git", "init", "-q", str(project)], check=True)
+            bootstrap = json.loads(self.run_manager(
+                project, "plan-governance-bootstrap", "--source", str(source),
+                "--context-anchor", "AGENTS.md",
+            ).stdout)
+            self.run_manager(project, "apply-plan", "--plan", bootstrap["path"], "--approve-plan-id", bootstrap["plan_id"], "--approve-plan-sha256", bootstrap["plan_sha256"])
+            up_to_date = json.loads(self.run_manager(project, "check-update", "--source", str(source)).stdout)
+            self.assertEqual(up_to_date["status"], "UP_TO_DATE")
+            (source / "governance/project/REFERENCE.md").write_text(
+                (source / "governance/project/REFERENCE.md").read_text(encoding="utf-8") + "\ncentral change\n",
+                encoding="utf-8",
+            )
+            subprocess.run(["git", "add", "-A"], cwd=source, check=True)
+            subprocess.run(
+                ["git", "-c", "user.name=Spec Kit Test", "-c", "user.email=test@example.com", "commit", "-qm", "reference change"],
+                cwd=source,
+                check=True,
+            )
+            available = json.loads(self.run_manager(project, "check-update", "--source", str(source)).stdout)
+            self.assertEqual(available["status"], "UPDATE_AVAILABLE")
+            self.assertIn("governance/project/REFERENCE.md", available["changed_paths"])
+            dirty = source / "governance/project/REFERENCE.md"
+            dirty.write_text(dirty.read_text(encoding="utf-8") + "\nlocal uncommitted change\n", encoding="utf-8")
+            unverified = json.loads(self.run_manager(project, "check-update", "--source", str(source)).stdout)
+            self.assertEqual(unverified["status"], "CENTRAL_SOURCE_UNVERIFIED")
+
+    def test_portable_bootstrap_uses_release_source_metadata(self):
+        with tempfile.TemporaryDirectory() as directory:
+            workspace = Path(directory)
+            source = self.make_source_fixture(workspace)
+            staged = workspace / "portable-stage"
+            shutil.copytree(source, staged, ignore=shutil.ignore_patterns(".git"))
+            revision = manager.git_value(source, "rev-parse", "HEAD")
+            reviewed_upstream = (source / "UPSTREAM_BASELINE").read_text(encoding="utf-8").strip()
+            (staged / "UPSTREAM_BASELINE").unlink()
+            metadata = {
+                "schema_version": 1,
+                "repository": "https://github.com/jiezhengj/Spec-Kit-Reference",
+                "revision": revision,
+                "version": "1.2.0",
+                "reviewed_upstream_revision": reviewed_upstream,
+            }
+            metadata_path = staged / "governance/release/SOURCE_METADATA.json"
+            metadata_path.parent.mkdir(parents=True, exist_ok=True)
+            metadata_path.write_bytes(manager.canonical_json(metadata) + b"\n")
+            project = workspace / "target"
+            project.mkdir()
+            subprocess.run(["git", "init", "-q", str(project)], check=True)
+            bootstrap = json.loads(self.run_manager(
+                project, "plan-governance-bootstrap", "--source", str(staged),
+                "--context-anchor", "AGENTS.md",
+            ).stdout)
+            self.run_manager(project, "apply-plan", "--plan", bootstrap["path"], "--approve-plan-id", bootstrap["plan_id"], "--approve-plan-sha256", bootstrap["plan_sha256"])
+            manifest = json.loads((project / "docs/spec-kit/MANIFEST.json").read_text(encoding="utf-8"))
+            self.assertEqual(manifest["source"]["revision"], revision)
+            self.assertEqual(manifest["source"]["reviewed_upstream_revision"], reviewed_upstream)
+
+    def test_reference_upgrade_updates_context_layer_only(self):
+        with tempfile.TemporaryDirectory() as directory:
+            workspace = Path(directory)
+            source = self.make_source_fixture(workspace)
+            project = workspace / "target"
+            project.mkdir()
+            subprocess.run(["git", "init", "-q", str(project)], check=True)
+            anchor = project / "CLAUDE.md"
+            bootstrap = json.loads(self.run_manager(
+                project, "plan-governance-bootstrap", "--source", str(source),
+                "--context-anchor", "CLAUDE.md",
+            ).stdout)
+            self.run_manager(project, "apply-plan", "--plan", bootstrap["path"], "--approve-plan-id", bootstrap["plan_id"], "--approve-plan-sha256", bootstrap["plan_sha256"])
+            old_anchor = anchor.read_bytes()
+            reference_block = manager.reference_update_loader(source).encode("utf-8")
+            anchor.write_bytes(old_anchor.replace(reference_block, b""))
+            (project / ".specify").mkdir()
+            (project / ".specify/feature.json").write_text('{"feature":"demo"}\n', encoding="utf-8")
+            (project / "specs").mkdir()
+            (project / "specs/demo.md").write_text("upstream spec\n", encoding="utf-8")
+            fake_bin = project / "bin"
+            self.create_fake_specify(
+                fake_bin,
+                "import json\n"
+                "import sys\n"
+                "args = sys.argv[1:]\n"
+                "if not args or args[0] in ('--version', 'version'):\n"
+                "    print('1.0.0')\n"
+                "    sys.exit(0)\n"
+                "if len(args) >= 2 and args[0] == 'integration' and args[1] == 'status':\n"
+                "    print(json.dumps({'installed_integrations': [], 'default_integration': None}))\n"
+                "    sys.exit(0)\n"
+                "sys.exit(0)\n",
+            )
+            env = os.environ.copy()
+            env["PATH"] = f"{fake_bin}{os.pathsep}{env['PATH']}"
+            before_spec = (project / ".specify/feature.json").read_bytes()
+            before_specs = (project / "specs/demo.md").read_bytes()
+            changed_reference = source / "governance/project/REFERENCE.md"
+            changed_reference.write_text(changed_reference.read_text(encoding="utf-8") + "\nreference release change\n", encoding="utf-8")
+            changed_loader = source / "governance/project/GOVERNANCE_LOADER.md"
+            changed_loader.write_text(
+                changed_loader.read_text(encoding="utf-8").replace(
+                    "<!-- PROJECT-SPEC-KIT-GOVERNANCE:END -->",
+                    "Central loader release change.\n\n<!-- PROJECT-SPEC-KIT-GOVERNANCE:END -->",
+                ),
+                encoding="utf-8",
+            )
+            subprocess.run(["git", "add", "-A"], cwd=source, check=True)
+            subprocess.run(
+                ["git", "-c", "user.name=Spec Kit Test", "-c", "user.email=test@example.com", "commit", "-qm", "reference release"],
+                cwd=source,
+                check=True,
+            )
+            upgrade = json.loads(self.run_manager(project, "plan-upgrade", "--source", str(source), env=env).stdout)
+            plan = json.loads(Path(upgrade["path"]).read_text(encoding="utf-8"))
+            self.assertEqual(plan["external_cli_mutations"], [])
+            self.assertTrue(any(item["path"] == "CLAUDE.md" and item["action"] == "append-managed-bootstrap" for item in plan["manager_file_mutations"]))
+            self.assertFalse(any(item["path"] == ".specify" or item["path"].startswith(".specify/") or item["path"] == "specs" or item["path"].startswith("specs/") for item in plan["manager_file_mutations"]))
+            self.run_manager(project, "apply-plan", "--plan", upgrade["path"], "--approve-plan-id", upgrade["plan_id"], "--approve-plan-sha256", upgrade["plan_sha256"], env=env)
+            self.assertEqual((project / ".specify/feature.json").read_bytes(), before_spec)
+            self.assertEqual((project / "specs/demo.md").read_bytes(), before_specs)
+            self.assertEqual(anchor.read_bytes().count(manager.REFERENCE_UPDATE_START_MARKER.encode("utf-8")), 1)
+            self.assertIn("upstream Spec Kit workflow", anchor.read_text(encoding="utf-8"))
+            self.assertIn("Central loader release change.", anchor.read_text(encoding="utf-8"))
+            manifest = json.loads((project / "docs/spec-kit/MANIFEST.json").read_text(encoding="utf-8"))
+            self.assertEqual(manifest["source"]["revision"], manager.git_value(source, "rev-parse", "HEAD"))
+            self.assertIn("reference release change", (project / "docs/spec-kit/REFERENCE.md").read_text(encoding="utf-8"))
 
     def test_plan_init_records_isolated_rehearsal(self):
         with tempfile.TemporaryDirectory() as directory:

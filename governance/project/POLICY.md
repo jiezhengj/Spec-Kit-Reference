@@ -55,3 +55,11 @@ The runtime-fact order is: current-project `.specify/`, installed integrations a
 Relevant tests, builds, linting, schemas, reproductions, validation, and convergence must be run; failures must not be concealed. The CLI, integrations, extensions, governance package, and Skills are separate layers, and upgrading one layer must not assume that the others upgrade automatically. Central upstream changes must be classified as `NONE`, `REFERENCE`, or `POLICY`; the checker is read-only, the baseline advances last after review, and upstream history must not be merged or Policy automatically deployed.
 
 Completion requires agreement among user intent, accepted artifacts, implementation, project constraints, validation, convergence, the native integration, adapter verification, and capability-inventory conservation. Approval of a conversational proposal is not completion evidence. Do not report completion when a blocker, unmapped legacy capability, unplanned deletion, downgrade, invalid state, or default change exists; artifact drift is also unresolved work.
+
+# Central Reference maintenance
+
+When the global Policy is actually loaded and provides a readable `SPEC_KIT_GOVERNANCE_SOURCE`, an existing `.specify/` project with this committed governance package may perform one read-only central Reference check before the first substantive task in a new Agent session. If the global Policy, source locator, or source verification is absent, skip the check silently and never scan the computer for a Reference directory.
+
+A verified Reference update is a notification, not permission to edit the project. After explicit approval, synchronize only the Reference-owned governance package, manager, and managed context-anchor block through `plan-upgrade` and `apply-plan`. Never update `.specify/**`, `specs/**`, native Agent files, or business code as part of this sync.
+
+After synchronization, inspect the current upstream Spec Kit artifacts and let the upstream workflow decide whether a specification, plan, task list, or other Spec artifact needs updating. A Reference update is not evidence that any such artifact is stale.

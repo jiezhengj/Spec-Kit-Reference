@@ -52,6 +52,12 @@ Materialized delivery is allowed only when Loader fresh-session validation expli
 
 When the native init target, integration target, managed-file repair, anchor, or parent directory is unwritable; permission is denied; a sandbox blocks the work; or an installation partially fails: preserve and inventory the existing state, return `NATIVE_INSTALL_BLOCKED`, request a writable checkout or permission, and regenerate the plan with the same claimed key after remediation. Do not fall back to generic, switch to another key, or delete existing artifacts.
 
+# Central Reference update check
+
+The central check is session-gated and source-gated: it runs only when the current Agent has loaded the global Policy, the Policy exposes `SPEC_KIT_GOVERNANCE_SOURCE`, and the target carries the committed governance package. Missing Policy, missing source, unavailable source, dirty source, or failed verification is silent and non-blocking during normal project work; no arbitrary directory scan is allowed.
+
+When the check reports `UPDATE_AVAILABLE`, present the source revision and changed paths to the user. Do not modify the project until the user approves the exact Reference synchronization plan. `REVIEW_REQUIRED` requires human review before any Policy-related deployment.
+
 # Upgrade and rollback
 
-Read the fixed release index from the central source in read-only mode. First generate `plan-upgrade`, review Policy, Reference, manager, adapter, manifest, and capability inventory, then apply it. The inventory before and after the upgrade must be equivalent unless every change has an approved `REPLACE`. Rollback must not uninstall integrations or delete user work; incomplete failure recovery returns `RECOVERY_REQUIRED`.
+Read the clean central Reference checkout in read-only mode and compare its Git revision with the target manifest. First generate `plan-upgrade --source <central-or-staged-source>`, review Policy, Reference, manager, anchor, adapter, manifest, and capability inventory, then apply it. The inventory before and after the upgrade must be equivalent unless every change has an approved `REPLACE`. Rollback must not uninstall integrations or delete user work; incomplete failure recovery returns `RECOVERY_REQUIRED`. Reference synchronization must not modify `.specify/**`, `specs/**`, or native Agent-generated files.

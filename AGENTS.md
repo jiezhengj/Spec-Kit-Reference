@@ -43,7 +43,9 @@ For runtime behavior, prefer the current project state, installed integration, a
 
 This repository must not modify, replace, patch, or redesign artifacts produced by the upstream `specify` CLI or Spec Kit. In a target project, treat `.specify/**`, `specs/**`, and native Agent-generated Skills/Commands or other integration output as upstream- or user-owned artifacts. They may be inspected and the upstream CLI may create or update them through its normal supported commands, but this repository must not edit their contents to enforce Reference policy.
 
-The only target-project artifacts this repository may add or modify are its own governance additions: `docs/spec-kit/**`, `tools/spec-kit-governance/governance.py`, `.spec-kit-governance/**`, and the managed governance loader block inside the explicitly selected context anchor. The surrounding anchor file and any project-owned local overrides must be preserved byte-for-byte outside the managed block.
+The only target-project artifacts this repository may add or modify are its own governance additions: `docs/spec-kit/**`, `tools/spec-kit-governance/governance.py`, `.spec-kit-governance/**`, and the separately managed governance-loader or Reference-update-check blocks inside the explicitly selected context anchor. The surrounding anchor file and any project-owned local overrides must be preserved byte-for-byte outside those managed blocks.
+
+Reference update detection is session-gated and source-gated. It may run once before the first substantive task only when the current Agent actually loaded the global Policy and that Policy provides a readable `SPEC_KIT_GOVERNANCE_SOURCE` path. If the global Policy or central source is absent, unavailable, dirty, or unverified, skip silently and never scan the computer for another Reference directory. Detection is read-only; synchronization still requires an exact reviewed plan and explicit user approval.
 
 The target project must remain usable with its committed local governance package, installed `specify` CLI, and existing Spec Kit state; the central Reference repository and a globally deployed Policy are not runtime prerequisites.
 
@@ -59,4 +61,4 @@ Do not:
 - manually copy generated Agent Skills into global directories;
 - automatically merge or deploy `POLICY` changes.
 
-The goal is to convert upstream change into stable, reviewed local Agent engineering policy rather than dynamically follow a moving remote target.
+The goal is to convert upstream change into stable, reviewed local Agent engineering policy rather than dynamically follow a moving remote target. A central Reference synchronization updates only the governance and Agent-context layer; it never directly updates a target project's specification, plan, tasks, `.specify/**`, `specs/**`, or native integration artifacts. After synchronization, the upstream Spec Kit workflow decides whether those artifacts need alignment.

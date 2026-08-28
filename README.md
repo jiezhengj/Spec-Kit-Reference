@@ -104,7 +104,7 @@ Upstream content is never dynamically imported as a higher-priority instruction 
 
 # Global Policy deployment
 
-[GLOBAL_POLICY.md](GLOBAL_POLICY.md) is the only global Policy template. It is a Markdown document with one H1 title and H2 policy sections, wrapped in `<!-- SPEC-KIT-GLOBAL-POLICY:START version=1.1.0 -->` and `<!-- SPEC-KIT-GLOBAL-POLICY:END -->`. The deployment renderer fills this deployment-time locator:
+[GLOBAL_POLICY.md](GLOBAL_POLICY.md) is the only global Policy template. It is a Markdown document with one H1 title and H2 policy sections, wrapped in `<!-- SPEC-KIT-GLOBAL-POLICY:START version=1.2.0 -->` and `<!-- SPEC-KIT-GLOBAL-POLICY:END -->`. The deployment renderer fills this deployment-time locator:
 
 ~~~text
 SPEC_KIT_GOVERNANCE_SOURCE: <ABSOLUTE_PATH_TO_SPEC_KIT_REFERENCE_REPOSITORY>
@@ -116,7 +116,7 @@ Do not permanently write a personal absolute path into the committed source temp
 
 # 全局 Policy 部署
 
-[GLOBAL_POLICY.md](GLOBAL_POLICY.md) 是唯一的全局 Policy 模板。它是包含一个 H1 标题和 H2 Policy 章节的 Markdown 文档，由 `<!-- SPEC-KIT-GLOBAL-POLICY:START version=1.1.0 -->` 与 `<!-- SPEC-KIT-GLOBAL-POLICY:END -->` 包裹。部署 renderer 填写以下仅在部署时使用的 locator：
+[GLOBAL_POLICY.md](GLOBAL_POLICY.md) 是唯一的全局 Policy 模板。它是包含一个 H1 标题和 H2 Policy 章节的 Markdown 文档，由 `<!-- SPEC-KIT-GLOBAL-POLICY:START version=1.2.0 -->` 与 `<!-- SPEC-KIT-GLOBAL-POLICY:END -->` 包裹。部署 renderer 填写以下仅在部署时使用的 locator：
 
 ~~~text
 SPEC_KIT_GOVERNANCE_SOURCE: <ABSOLUTE_PATH_TO_SPEC_KIT_REFERENCE_REPOSITORY>
@@ -242,6 +242,10 @@ tools/spec-kit-governance/governance.py check-update
 
 For an already Spec Kit project that has no global Policy and no `docs/spec-kit/**` package, `plan-install-update-reminder` can append only a separate managed reminder block to the exact existing Agent context anchor. It requires the installed `specify` CLI, an existing `.specify/` directory, and the explicit anchor path; it does not create a governance package, copy the manager, or modify `.specify/**`, `specs/**`, or native integration files. The reminder asks the Agent to run the upstream read-only `specify self check` once per session and never upgrades the CLI without explicit user approval.
 
+For a project that has the committed governance package, the central Reference check is enabled only when the current Agent has actually loaded the global Policy and its `SPEC_KIT_GOVERNANCE_SOURCE` locator resolves to a readable central checkout. The Agent performs the manager's read-only `check-update --source <central-reference-path>` at most once before the first substantive task in a new session. Without the loaded Policy or central source, the check is skipped silently and no directory scan is attempted. `UP_TO_DATE` produces no notice; `UPDATE_AVAILABLE` produces an informational prompt; `REVIEW_REQUIRED` stops ordinary synchronization until a human reviews the policy or divergent-history impact.
+
+After explicit approval, stage the central source and generate `plan-upgrade --source <staged-source>`. The resulting plan may update only the committed `docs/spec-kit/**` governance package, the project manager, and the managed block in the exact context anchor. It must not modify `.specify/**`, `specs/**`, native Agent-generated files, or business code. After this governance sync, the upstream Spec Kit workflow—not this manager—decides whether specifications, plans, tasks, or other Spec Kit artifacts need updating.
+
 Run it from the portable manager or a staged release, using the target project as `--project-root`, then approve the generated plan:
 
 ~~~bash
@@ -286,6 +290,10 @@ tools/spec-kit-governance/governance.py check-update
 
 对于一个已经 Spec 化、但没有全局 Policy 和 `docs/spec-kit/**` 包的项目，可以使用 `plan-install-update-reminder`，只向明确指定的现有 Agent context anchor 追加独立的受管理提醒区块。它要求已安装 `specify` CLI、已有 `.specify/` 目录和明确的 anchor 路径；不会创建治理包、复制 manager，也不会修改 `.specify/**`、`specs/**` 或 native integration 文件。提醒会要求 Agent 每个会话执行一次上游只读命令 `specify self check`，并且未经用户明确同意不得升级 CLI。
 
+对于已经拥有本地治理包的项目，只有在当前 Agent 实际加载了全局 Policy，且其中的 `SPEC_KIT_GOVERNANCE_SOURCE` locator 指向可读取的中央 Reference checkout 时，才启用中央 Reference 检查。Agent 在新会话第一个实质性任务前最多执行一次 manager 的只读命令 `check-update --source <central-reference-path>`。没有已加载的 Policy 或中央来源时静默跳过，不扫描电脑目录。`UP_TO_DATE` 不提示；`UPDATE_AVAILABLE` 只提示；`REVIEW_REQUIRED` 在人工审查 Policy 或历史分叉影响前不进入普通同步。
+
+用户明确批准后，先 staging 中央 source，再生成 `plan-upgrade --source <staged-source>`。生成的 plan 只能更新已提交的 `docs/spec-kit/**` 治理包、项目 manager 和精确上下文 anchor 中的 managed block；不得修改 `.specify/**`、`specs/**`、原生 Agent 生成文件或业务代码。治理层同步完成后，是否更新 specification、plan、tasks 或其他 Spec Kit artifacts，由上游 Spec Kit 工作流自行判断，本 manager 不代替它。
+
 从 portable manager 或 staged release 运行该命令，把目标项目作为 `--project-root`，然后批准生成的 plan：
 
 ~~~bash
@@ -310,16 +318,16 @@ Build and validate a release from the repository root:
 
 ~~~bash
 python3 scripts/build_governance_release.py \
-  --version 1.1.1 \
+  --version 1.2.0 \
   --output-dir /tmp/speckit-governance-release
 
 python3 scripts/validate_governance_release.py \
   /tmp/speckit-governance-release/latest.json
 ~~~
 
-The builder records source revision, worktree status, reviewed upstream revision, artifact hashes, and per-file content hashes. It rejects a missing canonical `GLOBAL_POLICY.md` or a legacy `global-policy.md`. The validator checks deterministic ZIP ordering, payload hashes, required files, and shared portable/extension content.
+The builder records source revision, worktree status, reviewed upstream revision, artifact hashes, and per-file content hashes. The portable ZIP also carries generated `governance/release/SOURCE_METADATA.json`, so a bootstrap performed from an extracted artifact can preserve the central source revision used by later update checks. It rejects a missing canonical `GLOBAL_POLICY.md` or a legacy `global-policy.md`. The validator checks deterministic ZIP ordering, payload hashes, required files, source metadata provenance, and shared portable/extension content.
 
-A release must be reviewed before broad rollout. The current source checkout may be dirty while work is in progress; `check-update` accepts only a clean Git source whose HEAD and artifacts match the release provenance.
+A release must be reviewed before broad rollout. The current source checkout may be dirty while work is in progress; the session `check-update` accepts only a clean, verifiable central Git source and compares its HEAD with the target manifest baseline. Release artifacts remain subject to their separate provenance and checksum validation.
 
 # 可移植发布
 
@@ -329,16 +337,16 @@ release builder 创建两个确定性 artifacts：一个用于 staging 和项目
 
 ~~~bash
 python3 scripts/build_governance_release.py \
-  --version 1.1.1 \
+  --version 1.2.0 \
   --output-dir /tmp/speckit-governance-release
 
 python3 scripts/validate_governance_release.py \
   /tmp/speckit-governance-release/latest.json
 ~~~
 
-builder 记录 source revision、worktree status、已审查的 upstream revision、artifact hashes 和逐文件 content hashes。它拒绝缺失 canonical `GLOBAL_POLICY.md` 或仍存在 legacy `global-policy.md` 的情况。validator 检查确定性的 ZIP 排序、payload hashes、required files 以及共享的 portable/extension content。
+builder 记录 source revision、worktree status、已审查的 upstream revision、artifact hashes 和逐文件 content hashes；portable ZIP 还会携带生成的 `governance/release/SOURCE_METADATA.json`，因此从解包 artifact bootstrap 时也能保留后续 update check 所需的 central source revision。它拒绝缺失 canonical `GLOBAL_POLICY.md` 或仍存在 legacy `global-policy.md` 的情况。validator 检查确定性的 ZIP 排序、payload hashes、required files、source metadata provenance 以及共享的 portable/extension content。会话中的 `check-update` 只接受干净且可验证的中央 Git source，并把其 HEAD 与目标 manifest baseline 比较；release artifact 仍然单独遵守 provenance 和 checksum 校验。
 
-release 在广泛 rollout 前必须经审查。工作进行中当前 source checkout 可以 dirty；`check-update` 只接受 HEAD 与 artifacts 匹配 release provenance 的 clean Git source。
+release 在广泛 rollout 前必须经审查。工作进行中当前 source checkout 可以 dirty；会话中的 `check-update` 只接受 clean Git source，并把其 HEAD 与目标 manifest 中记录的 Reference baseline 比较。
 
 # Upstream maintenance
 

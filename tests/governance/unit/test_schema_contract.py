@@ -47,6 +47,9 @@ class GovernanceSchemaContractTests(unittest.TestCase):
         self.assertEqual(anchor_path, {"$ref": "#/$defs/projectRelativePath"})
         protected = plan_schema["$defs"]["managerMutation"]["properties"]["protected_anchor"]
         self.assertEqual(protected, {"const": True})
+        actions = plan_schema["$defs"]["managerMutation"]["properties"]["action"]["enum"]
+        self.assertIn("append-managed-reference-update-check", actions)
+        self.assertIn("append-managed-bootstrap", actions)
 
 
 if __name__ == "__main__":

@@ -2,7 +2,13 @@
 
 The fixed public entry point for Reference-owned governance changes is `tools/spec-kit-governance/governance.py`. Its read-only commands are `doctor`, `resolve-agent`, `verify`, and `check-update`; every manager mutation must first generate an operation plan and then be executed with `apply-plan --approve-plan-id <id> --approve-plan-sha256 <hash>`.
 
-The manager is not a second Spec Kit executor. The upstream `specify` CLI owns `.specify/**`, `specs/**`, and native Agent-generated integration files. The manager may invoke supported upstream CLI commands as an opaque external step, but its own file mutations are restricted to `docs/spec-kit/**`, `tools/spec-kit-governance/governance.py`, `.spec-kit-governance/**`, and the managed loader block in the explicitly selected context anchor.
+The manager is not a second Spec Kit executor. The upstream `specify` CLI owns `.specify/**`, `specs/**`, and native Agent-generated integration files. The manager may invoke supported upstream CLI commands as an opaque external step, but its own file mutations are restricted to `docs/spec-kit/**`, `tools/spec-kit-governance/governance.py`, `.spec-kit-governance/**`, and the separately managed loader and Reference-update-check blocks in the explicitly selected context anchor.
+
+# Central Reference update handoff
+
+When the current Agent has actually loaded the global Policy and its `SPEC_KIT_GOVERNANCE_SOURCE` locator points to a clean central Reference checkout, the manager may run `check-update --source <central-source>` once before the first substantive task in a new session. The check is read-only. If the global Policy or source locator is absent, unavailable, dirty, or unverifiable, normal project work skips it silently and never searches arbitrary directories.
+
+`UP_TO_DATE` produces no notice. `UPDATE_AVAILABLE` is an informational prompt only. After explicit approval, stage the source and generate `plan-upgrade --source <staged-source>`. The plan may update the committed governance package, the project manager, and the separately managed governance-loader and Reference-update-check blocks in the context anchor. It must not update `.specify/**`, `specs/**`, native Agent files, or business code. Once the governance layer is current, upstream Spec Kit decides whether its specification, plan, or task artifacts need alignment.
 
 # Standard sequence
 

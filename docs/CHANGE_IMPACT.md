@@ -98,7 +98,7 @@ Decision:
 
 Conversational approval advances the direction into the upstream Spec Kit artifact workflow; it does not authorize direct code edits before artifact alignment. Discussion-only work remains non-mutating. The Reference package remains a governance guide and manager for its own additions, not a second Spec Kit executor. The upstream CLI continues to own `.specify/**`, `specs/**`, and native Agent-generated integration files. `analyze`, `validate`, and `converge` are required before substantive completion.
 
-A manager ownership guard rejects direct local mutations outside `docs/spec-kit/**`, `tools/spec-kit-governance/governance.py`, `.spec-kit-governance/**`, and the managed loader block in the explicit context anchor. Global Policy and the central Reference are not target-project runtime prerequisites.
+A manager ownership guard rejects direct local mutations outside `docs/spec-kit/**`, `tools/spec-kit-governance/governance.py`, `.spec-kit-governance/**`, and the managed loader or Reference-update-check blocks in the explicit context anchor. Global Policy and the central Reference are not target-project runtime prerequisites for offline work.
 
 Affected documents:
 
@@ -113,6 +113,24 @@ Affected documents:
 Validation:
 
 The `1.1.0` release metadata, portable package, extension package, manager ownership regression, conversation-approval contract, schema validation, `pytest`, `unittest`, and compile checks passed. This local policy amendment did not advance the upstream baseline; the following section records the separate upstream review.
+
+## Local capability addition — 2026-08-28
+
+### Classification
+
+`POLICY`
+
+### Decision
+
+Added a source-gated, session-scoped central Reference update check. It runs only when the current Agent has loaded the global Policy and that Policy exposes a readable `SPEC_KIT_GOVERNANCE_SOURCE` path. Without the global Policy or central source, normal target-project work skips the check silently and does not scan arbitrary directories.
+
+### Synchronization boundary
+
+After a verified update is reported and the user explicitly approves an exact plan, synchronization updates only the target governance package, local manager, and the managed Reference-update block in the selected context anchor. It does not edit `.specify/**`, `specs/**`, native Agent-generated files, or business code. The upstream Spec Kit workflow independently decides whether specification, plan, tasks, or other Spec artifacts require alignment.
+
+### Release
+
+This policy-affecting capability is published as governance package `1.2.0` with `policy_version` `1.2.0`. The existing CLI-only `plan-install-update-reminder` remains available as a separate lightweight path.
 
 ## Local capability addition — 2026-08-28
 

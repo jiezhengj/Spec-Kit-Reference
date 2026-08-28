@@ -7,6 +7,7 @@ Before any substantive work:
 3. Check `.specify/`. If it exists, recover its existing state and do not initialize again.
 4. Classify the request as read-only/explanatory, extremely small and low-risk, governance maintenance, or substantive engineering.
 5. When work involves the CLI, an integration, an extension, init, upgrade, rollback, or recovery, also read `REFERENCE.md` and `OPERATING_PROTOCOL.md`.
+6. If the loaded global Policy provides `SPEC_KIT_GOVERNANCE_SOURCE`, run the local manager's read-only central Reference check once in the new session; if it does not, skip silently and do not search for one.
 
 # Substantive task entry
 
@@ -26,6 +27,10 @@ The following rules are mandatory:
 
 The governance package does not replace the upstream Spec Kit executor. Its rules guide when the Agent must enter and remain in that workflow.
 
+## Reference update handoff
+
+A central Reference update first changes the governance and Agent-context layer through an approved plan. It does not directly change `.specify/**`, `specs/**`, specifications, plans, or tasks. After the governance layer is synchronized, inspect the current upstream artifacts and use the upstream Spec Kit workflow if they require alignment.
+
 # Governance operations
 
 For changes to this governance package itself, generate an operation plan before every mutation; the current operator then authorizes it with the exact plan ID and hash, after which the sole `apply-plan` may run.
@@ -38,4 +43,4 @@ If the project already has the runtime-selected project context anchor, it is a 
 
 Before `plan-init`, ask the user which BCP-47 language tag should govern new or substantially rewritten project documentation. Pass the explicit selection as `--documentation-language <tag>` so it is stored in project configuration and written into the selected context anchor. Do not infer or mass-translate.
 
-The project governance package is a shared team baseline and does not depend on personal global rules or a central Reference directory. The central Reference may be used only for explicit update review.
+The project governance package is a shared team baseline and does not depend on personal global rules or a central Reference directory. Its context anchor contains separately managed governance-loader and Reference-update-check blocks. The central Reference may be used only for explicit update review.

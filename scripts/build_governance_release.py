@@ -42,8 +42,8 @@ def files_under(relative: str) -> list[Path]:
     return sorted((item for item in path.rglob("*") if item.is_file() and "__pycache__" not in item.parts and item.suffix != ".pyc"), key=lambda p: p.relative_to(ROOT).as_posix())
 
 
-def deterministic_zip(output: Path, roots: list[str], *, strip_root: str | None = None) -> dict[str, str]:
-    entries: list[tuple[str, Path]] = []
+def deterministic_zip(output: Path, roots: list[str], *, strip_root: str | None = None, extra_entries: dict[str, bytes] | None = None) -> dict[str, str]:
+    entries: list[tuple[str, Path | bytes]] = []
     for root in roots:
         for path in files_under(root):
             name = path.relative_to(ROOT).as_posix()
@@ -52,12 +52,14 @@ def deterministic_zip(output: Path, roots: list[str], *, strip_root: str | None 
                 if name.startswith(prefix):
                     name = name[len(prefix):]
             entries.append((name, path))
+    for name, data in (extra_entries or {}).items():
+        entries.append((name, data))
     entries.sort(key=lambda item: item[0])
     output.parent.mkdir(parents=True, exist_ok=True)
     hashes: dict[str, str] = {}
     with zipfile.ZipFile(output, "w", compression=zipfile.ZIP_DEFLATED, compresslevel=9) as archive:
-        for name, path in entries:
-            data = path.read_bytes()
+        for name, path_or_data in entries:
+            data = path_or_data if isinstance(path_or_data, bytes) else path_or_data.read_bytes()
             info = zipfile.ZipInfo(name, date_time=(1980, 1, 1, 0, 0, 0))
             info.create_system = 3
             mode = 0o755 if path.suffix in {".py", ".sh", ".ps1"} else 0o644
@@ -83,11 +85,29 @@ def main() -> int:
     output = args.output_dir.resolve()
     portable = output / f"speckit-governance-{args.version}-portable.zip"
     extension = output / f"speckit-governance-{args.version}-extension.zip"
-    portable_hashes = deterministic_zip(portable, PORTABLE_FILES)
-    extension_hashes = deterministic_zip(extension, [EXTENSION_ROOT, "governance/manager"], strip_root=EXTENSION_ROOT)
     revision = git_output("rev-parse", "HEAD")
     raw_status = git_output("status", "--porcelain=v1", "--untracked-files=all") or ""
     baseline = (ROOT / "UPSTREAM_BASELINE").read_text(encoding="utf-8").strip() if (ROOT / "UPSTREAM_BASELINE").is_file() else None
+    if not revision or len(revision) != 40 or not baseline or len(baseline) != 40:
+        raise SystemExit("release source provenance requires a Git revision and reviewed upstream baseline")
+    source_metadata = json.dumps(
+        {
+            "schema_version": 1,
+            "repository": "https://github.com/jiezhengj/Spec-Kit-Reference",
+            "revision": revision,
+            "version": args.version,
+            "reviewed_upstream_revision": baseline,
+        },
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+    ).encode("utf-8") + b"\n"
+    portable_hashes = deterministic_zip(
+        portable,
+        PORTABLE_FILES,
+        extra_entries={"governance/release/SOURCE_METADATA.json": source_metadata},
+    )
+    extension_hashes = deterministic_zip(extension, [EXTENSION_ROOT, "governance/manager"], strip_root=EXTENSION_ROOT)
     manifest = {
         "schema_version": 1,
         "version": args.version,

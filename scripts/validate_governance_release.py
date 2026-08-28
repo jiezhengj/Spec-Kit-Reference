@@ -37,13 +37,25 @@ def main() -> int:
                 required = {
                     "governance/manager/speckit_governance.py",
                     "governance/manager/bootstrap_updater.py",
+                    "governance/project/GOVERNANCE_LOADER.md",
                     "governance/project/POLICY.md",
                     "governance/project/REFERENCE.md",
+                    "governance/project/REFERENCE_UPDATE_CHECK.md",
+                    "governance/release/SOURCE_METADATA.json",
                     "governance/schemas/operation-plan.schema.json",
                     "SPEC_KIT_REFERENCE.md",
                 }
                 if not required.issubset(names):
                     raise SystemExit(f"portable artifact missing required files: {sorted(required - set(names))}")
+                metadata = json.loads(archive.read("governance/release/SOURCE_METADATA.json"))
+                if (
+                    metadata.get("schema_version") != 1
+                    or metadata.get("repository") != source.get("repository")
+                    or metadata.get("revision") != source.get("revision")
+                    or metadata.get("version") != index.get("version")
+                    or metadata.get("reviewed_upstream_revision") != source.get("reviewed_upstream_revision")
+                ):
+                    raise SystemExit(f"portable source metadata does not match release provenance: {path}")
             else:
                 required = {"extension.yml", "scripts/python/bootstrap_governance.py", "governance/manager/speckit_governance.py"}
                 if not required.issubset(names):

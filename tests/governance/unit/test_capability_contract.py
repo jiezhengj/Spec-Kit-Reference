@@ -147,6 +147,35 @@ class CapabilityContractTests(unittest.TestCase):
         self.assertIn("UPDATE_REMINDER_START_MARKER", source)
         self.assertNotIn("specify self upgrade", source.split("def update_reminder_loader", 1)[0])
 
+    def test_reference_update_check_is_policy_and_source_gated(self):
+        policy = read("GLOBAL_POLICY.md")
+        project_policy = read("governance/project/POLICY.md")
+        check_block = read("governance/project/REFERENCE_UPDATE_CHECK.md")
+        for content in (policy, project_policy, check_block):
+            self.assertIn("SPEC_KIT_GOVERNANCE_SOURCE", content)
+            self.assertIn("skip", content.lower())
+            self.assertIn("silently", content.lower())
+            self.assertIn("do not", content.lower())
+        self.assertIn("check-update --source", check_block)
+        self.assertIn("UPDATE_AVAILABLE", read("governance/project/REFERENCE.md"))
+        self.assertIn("UP_TO_DATE", read("governance/manager/speckit_governance.py"))
+
+    def test_reference_update_never_becomes_spec_artifact_mutation(self):
+        for rel in (
+            "README.md",
+            "governance/project/POLICY.md",
+            "governance/project/REFERENCE.md",
+            "governance/project/START_HERE.md",
+            "governance/project/OPERATING_PROTOCOL.md",
+            "governance/project/REFERENCE_UPDATE_CHECK.md",
+        ):
+            content = read(rel)
+            self.assertIn(".specify/**", content)
+            self.assertIn("specs/**", content)
+        source = read("governance/manager/speckit_governance.py")
+        self.assertIn("append-managed-reference-update-check", source)
+        self.assertIn("REFERENCE_OWNERSHIP_VIOLATION", source)
+
     def test_risk_gate_formula(self):
         implementation = read("docs/archive/PROJECT_GOVERNANCE_IMPLEMENTATION_2026-08-21.md")
         self.assertIn("risk", implementation.lower())
