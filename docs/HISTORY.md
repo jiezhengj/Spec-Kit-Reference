@@ -1,5 +1,12 @@
 # Maintenance history
 
+## 2026-08-28 — Optional CLI update reminder
+
+- Added `plan-install-update-reminder` for already Spec Kit projects that want a CLI update reminder without global Policy or `docs/spec-kit/**`.
+- Limited the target mutation to a separate managed block in the explicitly selected existing context anchor; the reminder delegates detection to upstream `specify self check`.
+- Preserved explicit approval for `specify self upgrade` and kept `.specify/**`, `specs/**`, and native Agent integration files outside manager ownership.
+- Published the compatible governance package update as `1.1.1`.
+
 ## 2026-08-28 — Upstream baseline review
 
 - Reviewed `fa19e1c68b6daec5cab3309913cf5ecf6553075d` through `5aa8bea7823dcd056f111f847bf2d576bad3f0a5` after fetching `upstream/main`.

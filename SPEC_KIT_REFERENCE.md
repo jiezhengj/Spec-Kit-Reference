@@ -67,6 +67,8 @@ specify integration upgrade <key>
 specify extension update
 ```
 
+If an existing Spec Kit project intentionally has no global Policy and no `docs/spec-kit/**` package, the optional Reference operation `plan-install-update-reminder` can append a separate managed reminder to the exact existing Agent context anchor. It requires only the installed CLI, an existing `.specify/` project, and the explicit anchor path; it does not copy the manager or modify `.specify/**`, `specs/**`, or native integration files. The reminder delegates detection to upstream `specify self check` and never upgrades the CLI without explicit user approval.
+
 The actual installed CLI and project integration are authoritative if this reference differs from runtime behavior.
 
 ## Agentic SDD

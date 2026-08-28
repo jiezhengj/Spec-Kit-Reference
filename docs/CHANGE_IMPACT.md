@@ -114,6 +114,24 @@ Validation:
 
 The `1.1.0` release metadata, portable package, extension package, manager ownership regression, conversation-approval contract, schema validation, `pytest`, `unittest`, and compile checks passed. This local policy amendment did not advance the upstream baseline; the following section records the separate upstream review.
 
+## Local capability addition — 2026-08-28
+
+### Classification
+
+`REFERENCE`
+
+### Decision
+
+Added the optional `plan-install-update-reminder` operation for an already Spec Kit project that has an installed `specify` CLI and an existing explicit context anchor but does not install the full `docs/spec-kit/**` governance package. The operation appends only a separate managed reminder block. The Agent is instructed to call upstream `specify self check` once per session and to request approval before `specify self upgrade`.
+
+### Boundary verification
+
+The operation does not create or copy the project governance package, does not copy the manager into the target project, and does not modify `.specify/**`, `specs/**`, or native Agent-generated integration files. No global Policy or central Reference directory is required at runtime. The reminder is informational; an offline or timed-out update check is non-blocking.
+
+### Release
+
+This compatible Reference capability is published as governance package `1.1.1`; `policy_version` remains `1.1.0`. The portable and extension artifacts remain subject to the existing plan/apply, checksum, and explicit approval protocols.
+
 ## Upstream review — 2026-08-28
 
 ### Review range

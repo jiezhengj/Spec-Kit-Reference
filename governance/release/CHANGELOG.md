@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.1.1
+
+- Added an optional `plan-install-update-reminder` operation for existing
+  Spec Kit projects that want a CLI update reminder without installing the
+  full project governance package.
+- Kept the reminder Reference-owned and limited to a separate managed context
+  anchor block; update detection delegates to upstream `specify self check`.
+- Preserved explicit approval for `specify self upgrade` and the ownership
+  boundary for `.specify/**`, `specs/**`, and native Agent integration files.
+
 ## 1.1.0
 
 - Strengthened the substantive-work entry rule so conversational approval enters

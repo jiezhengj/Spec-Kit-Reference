@@ -139,6 +139,14 @@ class CapabilityContractTests(unittest.TestCase):
         self.assertIn("REFERENCE_OWNERSHIP_VIOLATION", source)
         self.assertIn("reference_owned_mutation", source)
 
+    def test_update_reminder_uses_upstream_cli_without_governance_package(self):
+        source = read("governance/manager/speckit_governance.py")
+        self.assertIn("plan-install-update-reminder", source)
+        self.assertIn("specify self check", source)
+        self.assertIn("append-managed-update-reminder", source)
+        self.assertIn("UPDATE_REMINDER_START_MARKER", source)
+        self.assertNotIn("specify self upgrade", source.split("def update_reminder_loader", 1)[0])
+
     def test_risk_gate_formula(self):
         implementation = read("docs/archive/PROJECT_GOVERNANCE_IMPLEMENTATION_2026-08-21.md")
         self.assertIn("risk", implementation.lower())

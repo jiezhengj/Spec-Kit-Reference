@@ -10,6 +10,10 @@ Before `plan-init`, the current Agent must ask the user for the BCP-47 language 
 
 Extract the portable artifact to `.spec-kit-governance/staging/<plan-id>/`, validate the manifest and SHA-256, and generate `plan-governance-bootstrap` from the staging manager. Bootstrap writes only the committed governance package, manager, manifest, and configuration, plus the Loader at the exact runtime-selected context-anchor path. It does not install the current Agent integration. Apply only after the user authorizes the exact plan ID/hash, then verify with the project manager. This plan/apply protocol governs Reference-owned files; it does not replace the upstream Spec Kit feature workflow.
 
+# Optional CLI update reminder
+
+For an existing `.specify/` project that intentionally does not carry `docs/spec-kit/**` and does not use a global Policy, `plan-install-update-reminder` may append only the separate Reference-owned update reminder to the exact existing context anchor. It requires the installed `specify` CLI, an existing anchor path supplied by the current Agent runtime or user, and an approved plan. It does not create the governance package, copy the manager, or edit `.specify/**`, `specs/**`, or native Agent integration files. The reminder delegates the check to upstream `specify self check`; it is informational and never runs `specify self upgrade` without explicit user approval.
+
 # Daily Spec Kit feature workflow
 
 For substantive feature work, use the upstream Spec Kit artifacts and commands:

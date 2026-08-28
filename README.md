@@ -222,6 +222,7 @@ The portable manager is the single project mutation entrypoint:
 tools/spec-kit-governance/governance.py doctor
 tools/spec-kit-governance/governance.py resolve-agent
 tools/spec-kit-governance/governance.py plan-governance-bootstrap
+tools/spec-kit-governance/governance.py plan-install-update-reminder
 tools/spec-kit-governance/governance.py plan-init
 tools/spec-kit-governance/governance.py plan-onboard
 tools/spec-kit-governance/governance.py plan-extension-install
@@ -239,6 +240,24 @@ tools/spec-kit-governance/governance.py check-update
 
 `plan-governance-bootstrap` requires the exact runtime-selected `--context-anchor <project-relative-path>`. `plan-init` additionally requires `--runtime-id <id>`, `--integration-key <key>`, and the user's explicit `--documentation-language <BCP-47-tag>`; it records the language in project configuration and the selected anchor. For native external operations, pass runtime-reported targets as repeated `--allowed-path-prefix <project-relative-prefix>` values. The manager never guesses Agent filenames or generated Skills/Commands directories. Non-empty brownfield initialization may use `--force` only in the dedicated, rehearsal-backed init plan. No other operation may use `--force`.
 
+For an already Spec Kit project that has no global Policy and no `docs/spec-kit/**` package, `plan-install-update-reminder` can append only a separate managed reminder block to the exact existing Agent context anchor. It requires the installed `specify` CLI, an existing `.specify/` directory, and the explicit anchor path; it does not create a governance package, copy the manager, or modify `.specify/**`, `specs/**`, or native integration files. The reminder asks the Agent to run the upstream read-only `specify self check` once per session and never upgrades the CLI without explicit user approval.
+
+Run it from the portable manager or a staged release, using the target project as `--project-root`, then approve the generated plan:
+
+~~~bash
+python3 governance/manager/speckit_governance.py \
+  --project-root /path/to/target \
+  plan-install-update-reminder \
+  --context-anchor <existing-agent-context-anchor>
+
+python3 governance/manager/speckit_governance.py \
+  --project-root /path/to/target \
+  apply-plan \
+  --plan /path/to/target/.spec-kit-governance/plans/<plan-id>.json \
+  --approve-plan-id <plan-id> \
+  --approve-plan-sha256 <plan-sha256>
+~~~
+
 # Manager 命令
 
 可移植 manager 是唯一的项目变更入口：
@@ -247,6 +266,7 @@ tools/spec-kit-governance/governance.py check-update
 tools/spec-kit-governance/governance.py doctor
 tools/spec-kit-governance/governance.py resolve-agent
 tools/spec-kit-governance/governance.py plan-governance-bootstrap
+tools/spec-kit-governance/governance.py plan-install-update-reminder
 tools/spec-kit-governance/governance.py plan-init
 tools/spec-kit-governance/governance.py plan-onboard
 tools/spec-kit-governance/governance.py plan-extension-install
@@ -264,6 +284,24 @@ tools/spec-kit-governance/governance.py check-update
 
 `plan-governance-bootstrap` 必须接收运行时选定的精确 `--context-anchor <项目相对路径>`。`plan-init` 还必须接收 `--runtime-id <id>`、`--integration-key <key>` 和用户明确选择的 `--documentation-language <BCP-47-tag>`；manager 会把语言写入项目配置和选定的 anchor。对于 native 外部操作，必须把运行时报告的 target 作为可重复的 `--allowed-path-prefix <项目相对前缀>` 传入。manager 绝不猜测 Agent 文件名或生成的 Skills/Commands 目录。非空 brownfield 初始化仅可在专用且经过 rehearsal-backed 的 init plan 中使用 `--force`。其他操作都不得使用 `--force`。
 
+对于一个已经 Spec 化、但没有全局 Policy 和 `docs/spec-kit/**` 包的项目，可以使用 `plan-install-update-reminder`，只向明确指定的现有 Agent context anchor 追加独立的受管理提醒区块。它要求已安装 `specify` CLI、已有 `.specify/` 目录和明确的 anchor 路径；不会创建治理包、复制 manager，也不会修改 `.specify/**`、`specs/**` 或 native integration 文件。提醒会要求 Agent 每个会话执行一次上游只读命令 `specify self check`，并且未经用户明确同意不得升级 CLI。
+
+从 portable manager 或 staged release 运行该命令，把目标项目作为 `--project-root`，然后批准生成的 plan：
+
+~~~bash
+python3 governance/manager/speckit_governance.py \
+  --project-root /path/to/target \
+  plan-install-update-reminder \
+  --context-anchor <existing-agent-context-anchor>
+
+python3 governance/manager/speckit_governance.py \
+  --project-root /path/to/target \
+  apply-plan \
+  --plan /path/to/target/.spec-kit-governance/plans/<plan-id>.json \
+  --approve-plan-id <plan-id> \
+  --approve-plan-sha256 <plan-sha256>
+~~~
+
 # Portable releases
 
 The release builder creates two deterministic artifacts: a portable governance ZIP for staging and project bootstrap, and a Spec Kit extension archive for extension installation.
@@ -272,7 +310,7 @@ Build and validate a release from the repository root:
 
 ~~~bash
 python3 scripts/build_governance_release.py \
-  --version 1.1.0 \
+  --version 1.1.1 \
   --output-dir /tmp/speckit-governance-release
 
 python3 scripts/validate_governance_release.py \
@@ -291,7 +329,7 @@ release builder 创建两个确定性 artifacts：一个用于 staging 和项目
 
 ~~~bash
 python3 scripts/build_governance_release.py \
-  --version 1.1.0 \
+  --version 1.1.1 \
   --output-dir /tmp/speckit-governance-release
 
 python3 scripts/validate_governance_release.py \

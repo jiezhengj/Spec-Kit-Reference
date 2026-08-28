@@ -16,7 +16,7 @@
   "properties": {
     "schema_version": { "const": 1 },
     "plan_id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$" },
-    "operation_type": { "enum": ["init", "onboard", "default-change", "upgrade", "rollback", "plan-governance-bootstrap", "plan-init", "plan-onboard", "plan-extension-install", "plan-default-change", "plan-upgrade", "plan-rollback", "plan-activate-binding"] },
+    "operation_type": { "enum": ["init", "onboard", "default-change", "upgrade", "rollback", "plan-governance-bootstrap", "plan-install-update-reminder", "plan-init", "plan-onboard", "plan-extension-install", "plan-default-change", "plan-upgrade", "plan-rollback", "plan-activate-binding"] },
     "created_at": { "type": "string", "format": "date-time" },
     "expires_at": { "type": "string", "format": "date-time" },
     "project_root_fingerprint": { "$ref": "#/$defs/sha256" },
@@ -68,12 +68,21 @@
     "currentAgent": { "type": "object", "additionalProperties": false, "required": ["runtime_id", "declaration_source"], "properties": { "runtime_id": { "type": "string", "minLength": 1 }, "declaration_source": { "enum": ["user-declared", "host-metadata", "environment", "runtime-declared"] } } },
     "writePreflight": { "type": "object", "additionalProperties": false, "required": ["path", "writable", "evidence"], "properties": { "path": { "$ref": "#/$defs/projectRelativePath" }, "writable": { "type": "boolean" }, "evidence": { "type": "string", "minLength": 1 } } },
     "anchorEvidence": { "type": "object", "additionalProperties": false, "required": ["source", "content_sha256", "review_conclusion"], "properties": { "source": { "type": "string", "minLength": 1 }, "content_sha256": { "$ref": "#/$defs/sha256" }, "review_conclusion": { "type": "string", "minLength": 1 } } },
-    "managerMutation": { "type": "object", "additionalProperties": false, "required": ["action", "path", "old_sha256", "expected_new_sha256", "mode", "content_b64"], "properties": { "action": { "enum": ["create", "replace", "delete", "append-managed-loader"] }, "path": { "$ref": "#/$defs/projectRelativePath" }, "old_sha256": { "$ref": "#/$defs/nullableSha256" }, "expected_new_sha256": { "$ref": "#/$defs/nullableSha256" }, "new_sha256": { "$ref": "#/$defs/nullableSha256" }, "mode": { "anyOf": [{ "type": "integer" }, { "type": "string", "pattern": "^[0-7]{3,4}$" }] }, "rollback_bytes_reference": { "type": "string" }, "content_b64": { "type": "string", "minLength": 1 }, "protected_anchor": { "const": true } } },
+    "managerMutation": { "type": "object", "additionalProperties": false, "required": ["action", "path", "old_sha256", "expected_new_sha256", "mode", "content_b64"], "properties": { "action": { "enum": ["create", "replace", "delete", "append-managed-loader", "append-managed-update-reminder"] }, "path": { "$ref": "#/$defs/projectRelativePath" }, "old_sha256": { "$ref": "#/$defs/nullableSha256" }, "expected_new_sha256": { "$ref": "#/$defs/nullableSha256" }, "new_sha256": { "$ref": "#/$defs/nullableSha256" }, "mode": { "anyOf": [{ "type": "integer" }, { "type": "string", "pattern": "^[0-7]{3,4}$" }] }, "rollback_bytes_reference": { "type": "string" }, "content_b64": { "type": "string", "minLength": 1 }, "protected_anchor": { "const": true } } },
     "externalMutation": { "type": "object", "additionalProperties": false, "required": ["argv", "allowed_path_prefixes"], "properties": { "argv": { "type": "array", "minItems": 1, "items": { "type": "string" } }, "cwd": { "type": "string" }, "working_directory": { "$ref": "#/$defs/projectRelativePath" }, "cli_version": { "type": "string" }, "allowed_path_prefixes": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/projectRelativePath" } }, "pre_apply_snapshot": { "type": "array" }, "pre_execution_snapshot": { "type": "array", "items": { "$ref": "#/$defs/inputFile" } }, "postconditions": { "type": "array" }, "expected_status_postconditions": { "type": "array", "items": { "type": "string" } }, "expected_managed_file_postconditions": { "type": "array", "items": { "type": "string" } }, "changed_file_inventory": { "type": "string" }, "changed_file_inventory_path": { "$ref": "#/$defs/projectRelativePath" }, "failure_recovery_protocol": { "type": "string" }, "rollback_argv": { "type": "array", "items": { "type": "string" } } } },
     "riskAssessment": { "type": "object", "additionalProperties": false, "required": ["ambiguity_open", "cross_cutting_component_count", "public_contract_change", "data_migration", "security_impact", "compliance_impact", "irreversible_operation", "artifact_conflict", "unknown_bug_cause", "evidence"], "properties": { "ambiguity_open": { "type": "boolean" }, "cross_cutting_component_count": { "type": "integer", "minimum": 0 }, "public_contract_change": { "type": "boolean" }, "data_migration": { "type": "boolean" }, "security_impact": { "type": "boolean" }, "compliance_impact": { "type": "boolean" }, "irreversible_operation": { "type": "boolean" }, "artifact_conflict": { "type": "boolean" }, "unknown_bug_cause": { "type": "boolean" }, "evidence": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/projectRelativePath" } } } },
     "rehearsal": { "type": "object", "additionalProperties": false, "required": ["argv", "cli_version", "force", "changed_files", "changed_sha256", "allowed_path_prefixes", "stdout_sha256", "stderr_sha256"], "properties": { "argv": { "type": "array", "minItems": 1, "items": { "type": "string" } }, "cli_version": { "type": ["string", "null"] }, "force": { "type": "boolean" }, "changed_files": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/projectRelativePath" } }, "changed_sha256": { "type": "object", "additionalProperties": { "$ref": "#/$defs/sha256" } }, "allowed_path_prefixes": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/projectRelativePath" } }, "stdout_sha256": { "$ref": "#/$defs/sha256" }, "stderr_sha256": { "$ref": "#/$defs/sha256" } } }
   },
   "allOf": [
+    {
+      "if": { "properties": { "operation_type": { "const": "plan-install-update-reminder" } } },
+      "then": {
+        "required": ["context_anchor"],
+        "properties": {
+          "context_anchor": { "$ref": "#/$defs/projectRelativePath" }
+        }
+      }
+    },
     {
       "if": { "properties": { "operation_type": { "const": "plan-init" } } },
       "then": {

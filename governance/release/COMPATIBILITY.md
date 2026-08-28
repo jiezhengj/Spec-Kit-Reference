@@ -12,3 +12,9 @@ local governance additions. A personal global Policy and the maintainer's
 central Reference directory are not runtime dependencies. The package must not
 rewrite `.specify/**`, `specs/**`, or native Agent-generated integration files;
 supported upstream CLI commands remain the executor for those artifacts.
+
+The optional `plan-install-update-reminder` operation is narrower than the
+full package: it requires only an existing `.specify/` project, the installed
+CLI, and an explicit existing context anchor. It appends only its separate
+managed reminder block and does not install `docs/spec-kit/**` or copy the
+manager into the target project.

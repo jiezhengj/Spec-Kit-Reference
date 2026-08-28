@@ -32,6 +32,8 @@ For changes to this governance package itself, generate an operation plan before
 
 If a native-integration target is unwritable, permission is insufficient, a sandbox blocks the work, managed-file repair fails, or installation fails, stop and return `NATIVE_INSTALL_BLOCKED`; do not switch to generic or another key.
 
+For a lightweight CLI update reminder in an existing Spec Kit project without `docs/spec-kit/**`, use the separate `plan-install-update-reminder` plan with the exact existing context anchor. It adds only a Reference-owned managed reminder block and delegates the check to upstream `specify self check`; it does not create a governance package or modify upstream-owned artifacts.
+
 If the project already has the runtime-selected project context anchor, it is a project-owned rules file. The governance loader may only be appended or updated inside its managed region; all other bytes must remain byte-identical. A loader file may be created only at the exact anchor path supplied and evidence-validated in an approved plan.
 
 Before `plan-init`, ask the user which BCP-47 language tag should govern new or substantially rewritten project documentation. Pass the explicit selection as `--documentation-language <tag>` so it is stored in project configuration and written into the selected context anchor. Do not infer or mass-translate.

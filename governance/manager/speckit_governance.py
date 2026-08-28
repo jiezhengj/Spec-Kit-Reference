@@ -34,6 +34,9 @@ PROJECT_PACKAGE = "docs/spec-kit"
 MANAGER_RELATIVE = "tools/spec-kit-governance/governance.py"
 START_MARKER = "<!-- PROJECT-SPEC-KIT-GOVERNANCE:START -->"
 END_MARKER = "<!-- PROJECT-SPEC-KIT-GOVERNANCE:END -->"
+UPDATE_REMINDER_START_MARKER = "<!-- PROJECT-SPEC-KIT-UPDATE-REMINDER:START version=1 -->"
+UPDATE_REMINDER_END_MARKER = "<!-- PROJECT-SPEC-KIT-UPDATE-REMINDER:END -->"
+MANAGED_ANCHOR_ACTIONS = {"append-managed-loader", "append-managed-update-reminder"}
 CLI_VERSION_RE = re.compile(r"^(\d+)\.(\d+)\.(\d+)(?:(\.dev|a|b|rc)(\d+))?$")
 SAFE_RELATIVE = re.compile(r"^[^/\\].*$")
 STATUSES = {
@@ -113,7 +116,7 @@ def validate_plan_shape(plan: dict[str, Any]) -> None:
             raise GovernanceError("malformed manager mutation checksum", "STATE_BROKEN")
         if item.get("protected_anchor") is True and item.get("path") != context_anchor:
             raise GovernanceError("protected anchor mutation does not match the declared context anchor", "STATE_BROKEN")
-        if item.get("path") == context_anchor and (item.get("action") != "append-managed-loader" or item.get("protected_anchor") is not True):
+        if item.get("path") == context_anchor and (item.get("action") not in MANAGED_ANCHOR_ACTIONS or item.get("protected_anchor") is not True):
             raise GovernanceError("the declared project rules anchor accepts only a managed Loader append", "PROJECT_RULES_PROTECTED")
     for item in plan.get("external_cli_mutations", []):
         argv = item.get("argv", [])
@@ -149,6 +152,8 @@ def reference_owned_mutation(path: str, context_anchor: str | None) -> bool:
     """Return whether a manager mutation stays inside the Reference boundary."""
     normalized = Path(path).as_posix()
     if context_anchor and normalized == context_anchor:
+        if normalized == ".specify" or normalized.startswith(".specify/") or normalized == "specs" or normalized.startswith("specs/"):
+            return False
         return True
     return (
         normalized == MANAGER_RELATIVE
@@ -362,14 +367,29 @@ def marker_loader(documentation_language: str | None = None) -> str:
     )
 
 
-def append_loader(existing: bytes, loader: bytes) -> bytes:
-    """Upsert one managed Loader while preserving every byte outside its markers."""
-    start = START_MARKER.encode("utf-8")
-    end = END_MARKER.encode("utf-8")
+def update_reminder_loader() -> str:
+    return (
+        f"{UPDATE_REMINDER_START_MARKER}\n\n"
+        "# Spec Kit CLI update reminder\n\n"
+        "This is a Reference-owned reminder. It does not modify `.specify/**`, `specs/**`, "
+        "or native Agent-generated integration files.\n\n"
+        "When `.specify/` exists, before the first substantive engineering action or mutation in a new Agent session, "
+        "run the upstream read-only command `specify self check` once.\n\n"
+        "If it reports a newer Specify CLI release, tell the user that an update is available and wait for explicit "
+        "approval before running `specify self upgrade`. If the check is offline or times out, report that it was "
+        "unavailable and continue. This reminder does not replace the upstream Spec Kit lifecycle.\n\n"
+        f"{UPDATE_REMINDER_END_MARKER}\n"
+    )
+
+
+def append_managed_block(existing: bytes, loader: bytes, start_marker: str, end_marker: str, label: str) -> bytes:
+    """Upsert one managed block while preserving every byte outside its markers."""
+    start = start_marker.encode("utf-8")
+    end = end_marker.encode("utf-8")
     start_count = existing.count(start)
     end_count = existing.count(end)
     if start_count != end_count or start_count > 1:
-        raise GovernanceError("project context anchor has malformed or duplicate governance markers", "STATE_BROKEN")
+        raise GovernanceError(f"project context anchor has malformed or duplicate {label} markers", "STATE_BROKEN")
     if start_count == 1:
         start_at = existing.index(start)
         end_at = existing.index(end, start_at) + len(end)
@@ -394,6 +414,16 @@ def append_loader(existing: bytes, loader: bytes) -> bytes:
     return existing + separator + loader
 
 
+def append_loader(existing: bytes, loader: bytes) -> bytes:
+    """Upsert the full governance Loader while preserving every byte outside its markers."""
+    return append_managed_block(existing, loader, START_MARKER, END_MARKER, "governance")
+
+
+def append_update_reminder(existing: bytes, loader: bytes) -> bytes:
+    """Upsert the optional update reminder while preserving every other anchor byte."""
+    return append_managed_block(existing, loader, UPDATE_REMINDER_START_MARKER, UPDATE_REMINDER_END_MARKER, "update reminder")
+
+
 def preflight_writable(root: Path, rel: str) -> dict[str, Any]:
     safe_relative(root, rel)
     target = root / rel
@@ -409,13 +439,13 @@ def preflight_writable(root: Path, rel: str) -> dict[str, Any]:
 
 def file_mutation(root: Path, rel: str, content: bytes, action: str = "create", *, protected_anchor: bool = False) -> dict[str, Any]:
     safe_relative(root, rel)
-    if protected_anchor and action != "append-managed-loader":
-        raise GovernanceError("the project-owned context anchor accepts only append-managed-loader", "PROJECT_RULES_PROTECTED")
+    if protected_anchor and action not in MANAGED_ANCHOR_ACTIONS:
+        raise GovernanceError("the project-owned context anchor accepts only a managed Loader or update-reminder append", "PROJECT_RULES_PROTECTED")
     target = root / rel
-    actual_action = action if action == "append-managed-loader" or target.exists() else "create"
+    actual_action = action if action in MANAGED_ANCHOR_ACTIONS or target.exists() else "create"
     expected_content = content
-    if actual_action == "append-managed-loader" and target.is_file():
-        expected_content = append_loader(target.read_bytes(), content)
+    if actual_action in MANAGED_ANCHOR_ACTIONS and target.is_file():
+        expected_content = append_loader(target.read_bytes(), content) if actual_action == "append-managed-loader" else append_update_reminder(target.read_bytes(), content)
     mutation = {
         "action": actual_action,
         "path": rel,
@@ -599,7 +629,7 @@ def make_plan(root: Path, operation: str, mutations: list[dict[str, Any]], *, ex
             "ambiguity_open": False, "cross_cutting_component_count": 1, "public_contract_change": False,
             "data_migration": False, "security_impact": False, "compliance_impact": False,
             "irreversible_operation": False, "artifact_conflict": False, "unknown_bug_cause": False,
-            "evidence": ["docs/spec-kit/START_HERE.md" if (root / PROJECT_PACKAGE / "START_HERE.md").is_file() else "GLOBAL_POLICY.md"],
+            "evidence": [context_anchor or ("docs/spec-kit/START_HERE.md" if (root / PROJECT_PACKAGE / "START_HERE.md").is_file() else "GLOBAL_POLICY.md")],
         },
         "required_user_authorization": f"Approve exact plan {operation}",
         "risks_and_recovery": ["Revalidate all snapshots before apply", "Restore backups on failure"],
@@ -644,11 +674,11 @@ def bootstrap_mutations(root: Path, source: Path, context_anchor: str) -> list[d
     tested_cli = cli_version() or "0.0.0"
     manifest_content = {
         "schema_version": 1,
-        "governance_package_version": "1.1.0",
+        "governance_package_version": "1.1.1",
         "policy_version": "1.1.0",
         "reference_version": "2026.08.28",
-        "manager_version": "1.1.0",
-        "source": {"repository": "https://github.com/jiezhengj/Spec-Kit-Reference", "revision": source_revision, "release": "v1.1.0", "reviewed_upstream_revision": reviewed_upstream},
+        "manager_version": "1.1.1",
+        "source": {"repository": "https://github.com/jiezhengj/Spec-Kit-Reference", "revision": source_revision, "release": "v1.1.1", "reviewed_upstream_revision": reviewed_upstream},
         "specify_compatibility": {"minimum_version": "0.16.6", "tested_version": tested_cli, "maximum_version_exclusive": None, "approved_install_ref": reviewed_upstream},
         "paths": {
             "start_here": f"{PROJECT_PACKAGE}/START_HERE.md", "policy": f"{PROJECT_PACKAGE}/POLICY.md",
@@ -1012,8 +1042,8 @@ def apply_manager_mutations(root: Path, plan: dict[str, Any]) -> list[str]:
                 )
             if item.get("protected_anchor") is True and rel != context_anchor:
                 raise GovernanceError("protected anchor mutation does not match the declared context anchor", "STATE_BROKEN")
-            if rel == context_anchor and (item.get("action") != "append-managed-loader" or item.get("protected_anchor") is not True):
-                raise GovernanceError("the declared project rules anchor accepts only append-managed-loader", "PROJECT_RULES_PROTECTED")
+            if rel == context_anchor and (item.get("action") not in MANAGED_ANCHOR_ACTIONS or item.get("protected_anchor") is not True):
+                raise GovernanceError("the declared project rules anchor accepts only a managed Loader or update-reminder append", "PROJECT_RULES_PROTECTED")
             if target.is_symlink():
                 raise GovernanceError(f"refusing to mutate symlink: {rel}", "STATE_BROKEN")
             old = target.read_bytes() if target.is_file() else None
@@ -1023,8 +1053,8 @@ def apply_manager_mutations(root: Path, plan: dict[str, Any]) -> list[str]:
                 backup.write_bytes(old)
             content = base64.b64decode(item["content_b64"])
             target.parent.mkdir(parents=True, exist_ok=True)
-            if item.get("action") == "append-managed-loader" and target.exists():
-                content = append_loader(target.read_bytes(), content)
+            if item.get("action") in MANAGED_ANCHOR_ACTIONS and target.exists():
+                content = append_loader(target.read_bytes(), content) if item.get("action") == "append-managed-loader" else append_update_reminder(target.read_bytes(), content)
             temp = target.with_name(f".{target.name}.{plan['plan_id']}.tmp")
             temp.write_bytes(content)
             with temp.open("r+b") as handle:
@@ -1197,6 +1227,19 @@ def create_plan_command(root: Path, operation: str, args: argparse.Namespace) ->
                 "CONTEXT_ANCHOR_UNKNOWN",
             )
         mutations = bootstrap_mutations(root, source_root(getattr(args, "source", None)), context_anchor)
+    elif operation == "plan-install-update-reminder":
+        if not (root / ".specify").is_dir():
+            raise GovernanceError("update reminder requires an existing .specify project", "PROJECT_NOT_INITIALIZED")
+        if not context_anchor:
+            raise GovernanceError("update reminder requires the exact runtime-selected context anchor", "CONTEXT_ANCHOR_UNKNOWN")
+        anchor_path = root / context_anchor
+        if not anchor_path.is_file():
+            raise GovernanceError("update reminder requires an existing context anchor; the supplied path is not a file", "CONTEXT_ANCHOR_UNKNOWN")
+        preflight_writable(root, context_anchor)
+        mutations = [file_mutation(
+            root, context_anchor, update_reminder_loader().encode("utf-8"),
+            "append-managed-update-reminder", protected_anchor=True,
+        )]
     else:
         mutations = []
     rehearsal = None
@@ -1358,7 +1401,7 @@ def dispatch(root: Path, args: argparse.Namespace) -> dict[str, Any]:
         return resolution(root, args.runtime_id, args.display_name, args.integration_key)
     if command == "apply-plan":
         return cmd_apply(root, args)
-    if command in {"plan-governance-bootstrap", "plan-init", "plan-onboard", "plan-extension-install", "plan-default-change", "plan-upgrade", "plan-rollback", "plan-activate-binding"}:
+    if command in {"plan-governance-bootstrap", "plan-install-update-reminder", "plan-init", "plan-onboard", "plan-extension-install", "plan-default-change", "plan-upgrade", "plan-rollback", "plan-activate-binding"}:
         return create_plan_command(root, command, args)
     if command in {"render", "verify"}:
         package = root / PROJECT_PACKAGE
@@ -1408,7 +1451,7 @@ def parser() -> argparse.ArgumentParser:
     sub = p.add_subparsers(dest="command", required=True)
     sub.add_parser("doctor")
     resolve = sub.add_parser("resolve-agent"); resolve.add_argument("--runtime-id", required=True); resolve.add_argument("--display-name"); resolve.add_argument("--integration-key"); resolve.add_argument("--json", action="store_true")
-    for name in ("plan-governance-bootstrap", "plan-init", "plan-onboard", "plan-extension-install", "plan-default-change", "plan-upgrade", "plan-rollback", "plan-activate-binding"):
+    for name in ("plan-governance-bootstrap", "plan-install-update-reminder", "plan-init", "plan-onboard", "plan-extension-install", "plan-default-change", "plan-upgrade", "plan-rollback", "plan-activate-binding"):
         item = sub.add_parser(name)
         item.add_argument("--runtime-id")
         item.add_argument("--display-name")

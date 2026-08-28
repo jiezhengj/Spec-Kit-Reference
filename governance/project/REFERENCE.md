@@ -71,6 +71,10 @@ specify integration upgrade <key>
 specify extension update
 ```
 
+# Optional CLI update reminder
+
+An already Spec Kit project may opt into a lightweight reminder without installing the project governance package. `plan-install-update-reminder` appends a separate managed block to the exact existing Agent context anchor and asks the Agent to run upstream `specify self check` once per session. It requires only the installed CLI, an existing `.specify/` directory, and the explicit anchor path. It does not create `docs/spec-kit/**`, copy the manager, or modify `.specify/**`, `specs/**`, or native integration files. A detected update is reported to the user; `specify self upgrade` still requires explicit approval.
+
 For a substantive defect, use the installed project's bug workflow when the
 bug extension is present; verify reproduction, remediation, and validation.
 Do not report a bug as fixed merely because a command completed.

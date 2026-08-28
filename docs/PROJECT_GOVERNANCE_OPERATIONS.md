@@ -10,6 +10,8 @@ First confirm the project root, read `docs/spec-kit/START_HERE.md`, and inspect 
 
 If an exact integration key, a context anchor, a writable native target, or compatibility with the current CLI version is unavailable, the manager must stop; it must neither guess the product nor switch to generic.
 
+For an existing `.specify/` project that does not carry `docs/spec-kit/**`, the optional `plan-install-update-reminder` operation is the lightweight reminder path. It requires an existing exact context anchor and installed CLI, appends only the separate managed reminder block, and leaves `.specify/**`, `specs/**`, and native integration files untouched. The block delegates update detection to upstream `specify self check`; it does not auto-upgrade.
+
 # Daily feature workflow
 
 After a substantive discussion, approval such as “方案可以” authorizes advancing the direction into the upstream Spec Kit workflow. It does not authorize direct application-code edits. Inspect the current feature specification, plan, and tasks; update them with the upstream Spec Kit commands when they are missing or inconsistent, then run the required `analyze`, implement only the resulting tasks, validate, and converge. Discussion-only work remains non-mutating. If scope, assumptions, risks, or affected components change during implementation, pause and update the upstream artifacts before continuing.

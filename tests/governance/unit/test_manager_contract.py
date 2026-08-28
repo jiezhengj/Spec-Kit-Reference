@@ -91,6 +91,86 @@ class ManagerContractTests(unittest.TestCase):
             self.assertEqual(result.count(manager.START_MARKER.encode("utf-8")), 1)
             self.assertEqual(result.count(manager.END_MARKER.encode("utf-8")), 1)
 
+    def test_update_reminder_requires_only_specify_project_and_preserves_upstream_files(self):
+        with tempfile.TemporaryDirectory() as directory:
+            project = Path(directory)
+            subprocess.run(["git", "init", "-q", str(project)], check=True)
+            (project / ".specify").mkdir()
+            (project / ".specify/feature.json").write_text('{"feature":"demo"}\n', encoding="utf-8")
+            (project / "specs").mkdir()
+            (project / "specs/demo.md").write_text("upstream spec\n", encoding="utf-8")
+            anchor = project / ".agent/context.md"
+            anchor.parent.mkdir()
+            original_anchor = b"# Agent rules\n\nKeep these bytes exactly.\n"
+            anchor.write_bytes(original_anchor)
+            fake_bin = project / "bin"
+            self.create_fake_specify(
+                fake_bin,
+                "import json\n"
+                "import sys\n"
+                "args = sys.argv[1:]\n"
+                "if not args or args[0] in ('--version', 'version'):\n"
+                "    print('1.0.0')\n"
+                "    sys.exit(0)\n"
+                "if len(args) >= 2 and args[0] == 'integration' and args[1] == 'status':\n"
+                "    print(json.dumps({'installed_integrations': [], 'default_integration': None}))\n"
+                "    sys.exit(0)\n"
+                "sys.exit(0)\n",
+            )
+            env = os.environ.copy()
+            env["PATH"] = f"{fake_bin}{os.pathsep}{env['PATH']}"
+            before_spec = (project / ".specify/feature.json").read_bytes()
+            before_specs = (project / "specs/demo.md").read_bytes()
+            result = self.run_manager(
+                project,
+                "plan-install-update-reminder",
+                "--context-anchor", ".agent/context.md",
+                check=False,
+                env=env,
+            )
+            self.assertEqual(result.returncode, 0, result.stderr)
+            plan_info = json.loads(result.stdout)
+            plan = json.loads(Path(plan_info["path"]).read_text(encoding="utf-8"))
+            self.assertEqual([item["path"] for item in plan["manager_file_mutations"]], [".agent/context.md"])
+            self.assertEqual(plan["manager_file_mutations"][0]["action"], "append-managed-update-reminder")
+            self.assertEqual(plan["external_cli_mutations"], [])
+            self.assertIsNone(plan["manifest_sha256"])
+            self.assertFalse((project / "docs/spec-kit").exists())
+            self.assertFalse((project / "tools").exists())
+            applied = self.run_manager(
+                project,
+                "apply-plan",
+                "--plan", plan_info["path"],
+                "--approve-plan-id", plan_info["plan_id"],
+                "--approve-plan-sha256", plan_info["plan_sha256"],
+                env=env,
+            )
+            self.assertEqual(json.loads(applied.stdout)["status"], "applied")
+            self.assertEqual((project / ".specify/feature.json").read_bytes(), before_spec)
+            self.assertEqual((project / "specs/demo.md").read_bytes(), before_specs)
+            self.assertTrue(anchor.read_bytes().startswith(original_anchor))
+            reminder = anchor.read_text(encoding="utf-8")
+            self.assertEqual(reminder.count(manager.UPDATE_REMINDER_START_MARKER), 1)
+            self.assertEqual(reminder.count(manager.UPDATE_REMINDER_END_MARKER), 1)
+            self.assertIn("specify self check", reminder)
+            self.assertIn("specify self upgrade", reminder)
+            self.assertNotIn(manager.START_MARKER, reminder)
+
+    def test_update_reminder_upsert_preserves_existing_governance_loader(self):
+        with tempfile.TemporaryDirectory() as directory:
+            project = Path(directory)
+            anchor = project / "rules/context.md"
+            anchor.parent.mkdir(parents=True)
+            original = b"# User rules\r\n\r\n" + manager.marker_loader().encode("utf-8") + b"\r\nTail stays exact."
+            anchor.write_bytes(original)
+            reminder = manager.update_reminder_loader().encode("utf-8")
+            updated = manager.append_update_reminder(original, reminder)
+            self.assertTrue(updated.startswith(b"# User rules\r\n\r\n"))
+            self.assertTrue(updated.startswith(original))
+            self.assertIn(manager.START_MARKER.encode("utf-8"), updated)
+            self.assertEqual(updated.count(manager.UPDATE_REMINDER_START_MARKER.encode("utf-8")), 1)
+            self.assertEqual(manager.append_update_reminder(updated, reminder), updated)
+
     def test_any_declared_anchor_rejects_replace_or_create_mutations(self):
         with tempfile.TemporaryDirectory() as directory:
             project = Path(directory)
@@ -155,6 +235,26 @@ class ManagerContractTests(unittest.TestCase):
                 with self.assertRaises(manager.GovernanceError) as raised:
                     manager.validate_plan_shape(plan)
                 self.assertEqual(raised.exception.status, "REFERENCE_OWNERSHIP_VIOLATION")
+
+    def test_update_reminder_cannot_treat_spec_ownership_as_context_anchor(self):
+        with tempfile.TemporaryDirectory() as directory:
+            project = Path(directory)
+            mutation = manager.file_mutation(
+                project,
+                ".specify/context.md",
+                manager.update_reminder_loader().encode("utf-8"),
+                "append-managed-update-reminder",
+                protected_anchor=True,
+            )
+            plan = manager.make_plan(
+                project,
+                "plan-install-update-reminder",
+                [mutation],
+                context_anchor=".specify/context.md",
+            )
+            with self.assertRaises(manager.GovernanceError) as raised:
+                manager.validate_plan_shape(plan)
+            self.assertEqual(raised.exception.status, "REFERENCE_OWNERSHIP_VIOLATION")
 
     def test_explicit_and_runtime_anchor_conflict_fails_closed(self):
         with tempfile.TemporaryDirectory() as directory:
