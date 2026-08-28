@@ -6,7 +6,7 @@ GitHub Spec Kit is used for substantive software engineering work. Read-only inv
 
 For substantive work, the upstream Spec Kit artifacts are the implementation contract. A conversation, design note, or user message is not itself a spec, plan, task list, or completion record.
 
-User approval phrases such as “方案可以”, “按这个来”, “没问题”, or “就这么改” approve the discussed direction only. They authorize the Agent to advance that direction into the upstream Spec Kit workflow; this approval does not authorize direct application-code edits that skip artifact alignment.
+User approval phrases such as “the plan is acceptable” or “proceed with this approach” approve the discussed direction only. They authorize the Agent to advance that direction into the upstream Spec Kit workflow; this approval does not authorize direct application-code edits that skip artifact alignment.
 
 When an approved direction is missing from or inconsistent with the current specification, plan, or tasks, the Agent must first use the upstream Spec Kit workflow to update the relevant artifacts. The Reference governance package must never edit `.specify/**`, `specs/**`, or native Agent-generated integration files to enforce this policy.
 

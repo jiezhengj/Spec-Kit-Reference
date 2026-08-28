@@ -26,7 +26,7 @@ If the current CLI has no native integration, `generic` is allowed only when the
 
 For operational mechanics, prefer current project state, installed integration, installed `specify` CLI, committed project Reference, this central source, then upstream documentation. Keep accepted specifications, plans, tasks, implementation, validation, and convergence synchronized. Never hide failing checks or declare completion with an unresolved blocker.
 
-For substantive work, approval of a conversational proposal such as “方案可以” authorizes advancing the direction into the upstream Spec Kit workflow; it does not authorize direct application-code edits before the current specification, plan, and tasks are aligned. The Reference package must not directly edit `.specify/**`, `specs/**`, or native Agent-generated files. The central Reference and a globally deployed Policy are maintenance conveniences, not target-project runtime prerequisites.
+For substantive work, approval of a conversational proposal such as “the plan is acceptable” authorizes advancing the direction into the upstream Spec Kit workflow; it does not authorize direct application-code edits before the current specification, plan, and tasks are aligned. The Reference package must not directly edit `.specify/**`, `specs/**`, or native Agent-generated files. The central Reference and a globally deployed Policy are maintenance conveniences, not target-project runtime prerequisites.
 
 ## Central update source
 

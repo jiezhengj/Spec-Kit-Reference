@@ -374,7 +374,7 @@ def governance_loader(source: Path | None = None) -> str:
         "# Spec Kit Governance\n\n"
         "This repository uses the committed project-local Spec Kit governance package.\n\n"
         "Read `docs/spec-kit/START_HERE.md` before substantive engineering work.\n\n"
-        "A conversational approval such as `方案可以` advances a direction into the upstream Spec Kit workflow; "
+        "A conversational approval such as `the plan is acceptable` advances a direction into the upstream Spec Kit workflow; "
         "it does not authorize direct application-code edits before the current Spec Kit artifacts are aligned.\n\n"
         "The governance package does not edit `.specify/**`, `specs/**`, or native Agent-generated integration files.\n\n"
         "Do not replace the project baseline with personal global rules or a local Reference.\n\n"

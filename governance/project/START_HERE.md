@@ -19,7 +19,7 @@ The following rules are mandatory:
 
 1. Before changing application code, inspect the current feature's Spec Kit artifacts and confirm the constitution, specification, plan, and tasks are present and relevant.
 2. A conversation, design note, or user message is not a substitute for a Spec Kit artifact.
-3. User approval such as “方案可以”, “按这个来”, “没问题”, or “就这么改” approves the discussed direction only. It permits the Agent to advance into upstream Spec Kit artifact alignment; it does not authorize direct code edits that skip that alignment.
+3. User approval such as “the plan is acceptable” or “proceed with this approach” approves the discussed direction only. It permits the Agent to advance into upstream Spec Kit artifact alignment; it does not authorize direct code edits that skip that alignment.
 4. If the approved direction is missing from or inconsistent with the current spec, plan, or tasks, use the upstream Spec Kit workflow to update the artifact before implementing it. Do not have this governance package edit `.specify/**` or `specs/**`.
 5. If the user is only discussing options and has not expressed implementation intent, remain in discussion and do not modify application files.
 6. Once the artifacts are aligned and no substantive question remains, implement only the current tasks. If scope, assumptions, risks, or affected components change, pause and return to the upstream Spec Kit artifacts before continuing.

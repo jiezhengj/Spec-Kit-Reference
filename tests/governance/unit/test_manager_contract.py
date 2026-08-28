@@ -73,7 +73,7 @@ class ManagerContractTests(unittest.TestCase):
             self.assertEqual(manifest["portable_anchor"]["path"], "runtime/project-rules.txt")
             self.assertTrue((project / "runtime/project-rules.txt").is_file())
             loader = (project / "runtime/project-rules.txt").read_text(encoding="utf-8")
-            self.assertIn("方案可以", loader)
+            self.assertIn("the plan is acceptable", loader)
             self.assertIn(".specify/**", loader)
             self.assertIn("does not authorize direct", loader)
             verified = json.loads(self.run_manager(project, "verify").stdout)

@@ -3,7 +3,7 @@
   "baseline_id": "BASELINE-2026-08-21-INITIAL",
   "captured_at": "2026-08-21T00:00:00+08:00",
   "source_snapshots": [
-    { "file": "GLOBAL_POLICY.md", "section": "entire file", "source_sha256": "a26e324964965bc63a190d48df0aacb896c2fa01e72a16f27663f474d2740b1c" },
+    { "file": "GLOBAL_POLICY.md", "section": "entire file", "source_sha256": "807bbcd323929fa8378003aa4fb7ce755926e351ee2df28e41ded8adea1797a2" },
     { "file": "SPEC_KIT_REFERENCE.md", "section": "entire file", "source_sha256": "d2fb2fb7fe554b6ac07bfb820aec70e8a277d1c0c1e4dc58a67ca4aa5bed4372" },
     { "file": "README.md", "section": "entire file", "source_sha256": "6d01cbc86dbea0888b3e0530e341577e83722ffc06c2ac58448f1dc5964b7ac4" },
     { "file": "AGENTS.md", "section": "entire file", "source_sha256": "40159064259ce02ccd0bf5902f963e994057b99b0261c9ccec84607aad747e39" },
@@ -14,7 +14,7 @@
     { "file": "scripts/check_upstream.py", "section": "entire file", "source_sha256": "ed067d7aebd23b2ee654efe74002455afb7af4ee386f689e9f0ebf04c7fc7e26" },
     { "file": "scripts/check-upstream.sh", "section": "entire file", "source_sha256": "8855f1054fc1d2a0c89d503167cf1d5007d64dfbf279a934bf757dbe0234f3e9" },
     { "file": "scripts/check-upstream.ps1", "section": "entire file", "source_sha256": "9ed591fb4b2451aa6088409611b0962c2cd591c9cfd581232217e4645840807c" },
-    { "file": "governance/project/GOVERNANCE_LOADER.md", "section": "entire file", "source_sha256": "38196b74fc7064cdce9609eadc1edeaa9e3b1663f3032da69411a03b7ac66143" },
+    { "file": "governance/project/GOVERNANCE_LOADER.md", "section": "entire file", "source_sha256": "bf6f47b73b5d2121f07782ed5d10fb2f48e14fd8e6bea4575d1f1555f03289c1" },
     { "file": "governance/project/REFERENCE_UPDATE_CHECK.md", "section": "entire file", "source_sha256": "1cf987690d83d06eb9d9bfc613e0d31a4854d26ed58e9c2d77bbefb03232b18e" },
     { "file": ".github/workflows/check-spec-kit-upstream.yml", "section": "entire file", "source_sha256": "e63a8105c8a3eee09f75f687a639d2c281059aaf28ace550c551fcaee610d508" }
   ],

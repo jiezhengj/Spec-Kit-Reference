@@ -117,7 +117,7 @@ class CapabilityContractTests(unittest.TestCase):
             "governance/project/REFERENCE.md",
         ):
             content = read(rel)
-            self.assertIn("方案可以", content)
+            self.assertIn("the plan is acceptable", content)
             self.assertIn("upstream Spec Kit", content)
             self.assertIn("does not authorize direct", content)
             for artifact in ("specification", "plan", "tasks"):

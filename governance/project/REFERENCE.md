@@ -35,7 +35,7 @@ The upstream Spec Kit CLI owns `.specify/**`, `specs/**`, and the native Agent i
 
 The Reference-owned additions in a target project are `docs/spec-kit/**`, `tools/spec-kit-governance/governance.py`, `.spec-kit-governance/**`, and the separately managed governance-loader and Reference-update-check blocks inside the selected context anchor. The central Reference repository and a globally deployed Policy are maintenance conveniences, not runtime prerequisites.
 
-User approval such as “方案可以” is not an implementation bypass. For substantive work, first align the proposal with the current upstream Spec Kit specification, plan, and tasks; this approval does not authorize direct code edits before that alignment. Then implement through the upstream workflow. `verify` validates only the Reference-owned package, not feature completion.
+User approval such as “the plan is acceptable” is not an implementation bypass. For substantive work, first align the proposal with the current upstream Spec Kit specification, plan, and tasks; this approval does not authorize direct code edits before that alignment. Then implement through the upstream workflow. `verify` validates only the Reference-owned package, not feature completion.
 
 # Integration lifecycle
 

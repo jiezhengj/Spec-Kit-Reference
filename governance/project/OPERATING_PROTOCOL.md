@@ -20,7 +20,7 @@ For substantive feature work, use the upstream Spec Kit artifacts and commands:
 
 `discussion → user direction approved → inspect current artifacts → update spec/plan/tasks through upstream Spec Kit → analyze → implement tasks → validate → converge`
 
-Approval phrases such as “方案可以” authorize advancing the direction into upstream Spec Kit artifact alignment. This approval does not authorize direct application-code edits. If the direction is already represented by the current specification, plan, and tasks, continue from the appropriate upstream handoff; otherwise update those artifacts first.
+Approval phrases such as “the plan is acceptable” authorize advancing the direction into upstream Spec Kit artifact alignment. This approval does not authorize direct application-code edits. If the direction is already represented by the current specification, plan, and tasks, continue from the appropriate upstream handoff; otherwise update those artifacts first.
 
 If the user is only discussing alternatives, do not edit application files. If implementation changes the scope or assumptions, pause and update the upstream artifacts before continuing. The Reference package must not edit `.specify/**`, `specs/**`, or native Agent integration files.
 
