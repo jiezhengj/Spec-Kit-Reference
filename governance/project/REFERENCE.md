@@ -27,6 +27,8 @@ Installing or upgrading one layer does not imply that the others changed.
 
 Invocation syntax belongs to the installed integration. Validation and convergence are completion gates.
 
+The active feature comes from `.specify/feature.json` or the `SPECIFY_FEATURE_DIRECTORY` override, not from the checked-out Git branch. For an existing non-empty project, the upstream adoption command is `specify init --here --force --integration <key>`; protect a reviewable baseline and inspect the generated diff first. The governance manager may invoke that command through its approved external operation, but does not directly edit its output.
+
 # Ownership and runtime independence
 
 The upstream Spec Kit CLI owns `.specify/**`, `specs/**`, and the native Agent integration files it generates. This governance package may inspect those artifacts and may invoke supported upstream CLI commands, but it must not directly edit or replace them.
@@ -45,6 +47,8 @@ Non-interactive init must always include `--integration <key>`; omitting it can 
 and can affect default-sensitive extensions, presets, events, and shared
 infrastructure. Treat it as a separately approved operation. Non-default
 integration parity must be verified rather than assumed.
+
+When the installed CLI exposes workflow init steps, the reviewed upstream range supports shell, PowerShell, and Python script variants. Use the installed CLI help for the exact option and default.
 
 # Generic boundary
 

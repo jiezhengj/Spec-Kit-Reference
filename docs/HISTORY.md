@@ -1,5 +1,13 @@
 # Maintenance history
 
+## 2026-08-28 — Upstream baseline review
+
+- Reviewed `fa19e1c68b6daec5cab3309913cf5ecf6553075d` through `5aa8bea7823dcd056f111f847bf2d576bad3f0a5` after fetching `upstream/main`.
+- Classified the range as `REFERENCE`: existing-project adoption guidance, active-feature state selection, workflow Python init scripts, and runtime validation hardening were reviewed; catalog-only changes had no local governance impact.
+- Updated the central and project References with the justified runtime facts while preserving the independently approved local requirement for `analyze`, `validate`, and `converge`.
+- Confirmed that no upstream-produced `.specify/`, `specs/`, or native Agent integration artifact is modified by this repository.
+- Advanced `UPSTREAM_BASELINE` only after documentation and validation completed.
+
 ## 2026-08-28 — Substantive task entry and ownership boundary
 
 - Made conversational approval such as “方案可以” an entry into upstream Spec Kit artifact alignment, not permission for direct application-code edits.

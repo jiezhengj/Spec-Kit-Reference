@@ -41,6 +41,8 @@ The presence of `.specify/` indicates an existing Spec Kit project. Existing pro
 
 If `.specify/` is absent for substantive engineering work, determine the current Agent integration, inspect `specify integration list` when necessary, and initialize at the actual project root. If it exists, inspect `specify integration status` and protect existing files.
 
+The active feature is determined by the project state in `.specify/feature.json` (or the `SPECIFY_FEATURE_DIRECTORY` override), not by the checked-out Git branch. When adopting Spec Kit in an existing project, the upstream command is `specify init --here --force --integration <key>`; reviewable existing work and the resulting managed-file diff must be protected before using it. The local governance manager may plan this upstream command, but it must not edit the resulting `.specify/**` or native integration files.
+
 ## Integration lifecycle
 
 Discover integrations with `specify integration list` and inspect the current project with `specify integration status` or `specify integration status --json`. These commands are project-aware and may require a `.specify/` project root; outside such a project, use `specify --help` or `specify integration --help` instead of initializing a project solely for discovery.
@@ -52,6 +54,8 @@ When a concrete Agent is in scope, its native integration is a hard requirement.
 Generated integration artifacts can migrate between command and Skills layouts as an Agent integration evolves. Treat the current project's integration status, managed-file metadata, and installed CLI as authoritative; do not infer a stable directory layout from an older project or from another Agent.
 
 Do not blindly force integration conflicts or rerun `specify init --here --force` as a routine upgrade path.
+
+Upstream workflow init steps support shell, PowerShell, and Python script variants in the reviewed range. Use the installed CLI's workflow help for the exact current option and default.
 
 ## CLI upgrade
 
@@ -74,6 +78,8 @@ constitution → specify → clarify → plan → checklist → tasks → analyz
 ```
 
 `clarify` and `checklist` are quality gates selected according to ambiguity, risk, and complexity. `analyze`, `validate`, and `converge` are required before substantive completion. Invocation syntax depends on the current Agent integration.
+
+The upstream quickstart documents both a shorter path and a full path with optional quality gates. This project's committed governance policy intentionally strengthens the completion contract: `analyze`, `validate`, and `converge` remain required before substantive completion.
 
 Convergence checks implementation completeness against accepted feature artifacts. If it finds missing work, it may append tasks; then repeat `implement`, validation, and `converge` until complete.
 
@@ -120,11 +126,11 @@ When upstream changes, classify the impact as `NONE`, `REFERENCE`, or `POLICY` b
 
 ## Review metadata
 
-Reviewed upstream commit: `github/spec-kit @ fa19e1c68b6daec5cab3309913cf5ecf6553075d`.
+Reviewed upstream commit: `github/spec-kit @ 5aa8bea7823dcd056f111f847bf2d576bad3f0a5`.
 
-Reference last reviewed: `2026-08-21`.
+Reference last reviewed: `2026-08-28`.
 
-Verified local CLI: `specify 0.16.6.dev0`; `specify integration --help` succeeds. In this governance repository, `integration list` and `integration status` correctly report that no `.specify/` project exists.
+Verified local CLI: `specify 1.0.2.dev0`; `specify integration --help` succeeds. In this governance repository, `integration list` and `integration status` correctly report that no `.specify/` project exists.
 
 The integration commands should be rechecked from an actual Spec Kit project root when project-level runtime verification is needed.
 

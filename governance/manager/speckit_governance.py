@@ -646,7 +646,7 @@ def bootstrap_mutations(root: Path, source: Path, context_anchor: str) -> list[d
         "schema_version": 1,
         "governance_package_version": "1.1.0",
         "policy_version": "1.1.0",
-        "reference_version": "2026.08.21",
+        "reference_version": "2026.08.28",
         "manager_version": "1.1.0",
         "source": {"repository": "https://github.com/jiezhengj/Spec-Kit-Reference", "revision": source_revision, "release": "v1.1.0", "reviewed_upstream_revision": reviewed_upstream},
         "specify_compatibility": {"minimum_version": "0.16.6", "tested_version": tested_cli, "maximum_version_exclusive": None, "approved_install_ref": reviewed_upstream},

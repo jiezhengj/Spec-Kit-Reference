@@ -112,4 +112,38 @@ Affected documents:
 
 Validation:
 
-The `1.1.0` release metadata, portable package, extension package, manager ownership regression, conversation-approval contract, schema validation, `pytest`, `unittest`, and compile checks passed. The upstream baseline remains at `fa19e1c68b6daec5cab3309913cf5ecf6553075d`; current `upstream/main` is `5aa8bea7823dcd056f111f847bf2d576bad3f0a5` and is retained for a separate future review.
+The `1.1.0` release metadata, portable package, extension package, manager ownership regression, conversation-approval contract, schema validation, `pytest`, `unittest`, and compile checks passed. This local policy amendment did not advance the upstream baseline; the following section records the separate upstream review.
+
+## Upstream review — 2026-08-28
+
+### Review range
+
+Baseline:
+
+`fa19e1c68b6daec5cab3309913cf5ecf6553075d`
+
+Reviewed through:
+
+`5aa8bea7823dcd056f111f847bf2d576bad3f0a5`
+
+### Classification
+
+`REFERENCE`
+
+### Relevant upstream changes
+
+The range includes the Spec Kit `1.0.1` release and subsequent `1.0.2.dev0` development changes. The relevant operational changes are the existing-project adoption guide, the distinction between Spec Kit project-file maintenance and feature-artifact evolution, the `.specify/feature.json` active-feature selector, Python support for workflow init scripts, and additional validation hardening for bundles, presets, events, and catalog inputs. Community catalog content and dependency-only changes do not alter this repository's governance contract.
+
+### Local impact
+
+The local central and project References now record that the active feature is selected by `.specify/feature.json` or `SPECIFY_FEATURE_DIRECTORY`, not by the Git branch; existing-project initialization uses the upstream `specify init --here --force --integration <key>` command under the existing reviewable-baseline and manager-scope protections; and workflow init script choices include `sh`, `ps`, and `py` where the installed CLI exposes them. No upstream-produced artifact is copied, replaced, or edited by this repository.
+
+The upstream quickstart documents both a shorter lifecycle and a full lifecycle with optional quality gates. This repository keeps its independently approved local policy requiring `analyze`, `validate`, and `converge` before substantive completion. The upstream range is therefore `REFERENCE`, not a local Policy replacement.
+
+### Runtime compatibility
+
+The installed local CLI is `specify 1.0.2.dev0`, matching the reviewed upstream source version `1.0.2.dev0`. Runtime behavior must continue to be checked against the installed CLI and project state; the release manifest records the reviewed upstream revision separately.
+
+### Conclusion
+
+The range is reviewed and the local Reference updates are complete. No global Policy change is justified by these upstream commits. After repository validation, advance `UPSTREAM_BASELINE` to `5aa8bea7823dcd056f111f847bf2d576bad3f0a5` as the last maintenance mutation.

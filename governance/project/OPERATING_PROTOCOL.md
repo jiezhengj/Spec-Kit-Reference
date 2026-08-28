@@ -26,7 +26,7 @@ If the user is only discussing alternatives, do not edit application files. If i
 
 # New projects
 
-When `.specify/` does not exist, first obtain a clear approved key, rehearse with the same CLI/key in a temporary directory, and generate an external mutation scope. A non-empty brownfield may use `specify init --here --force --non-interactive --integration <key>` only through a dedicated `plan-init`; an empty project uses the command without force. After the actual change, compare the scope inventory, status, and managed files; an escape or incomplete recovery returns `RECOVERY_REQUIRED`.
+When `.specify/` does not exist, first obtain a clear approved key, rehearse with the same CLI/key in a temporary directory, and generate an external mutation scope. A non-empty brownfield may use `specify init --here --force --non-interactive --integration <key>` only through a dedicated `plan-init`; upstream `--force` may replace conflicting managed paths, so protect a reviewable baseline and inspect the resulting diff. An empty project uses the command without force. After the actual change, compare the scope inventory, status, and managed files; an escape or incomplete recovery returns `RECOVERY_REQUIRED`.
 
 # Existing projects
 

@@ -414,7 +414,7 @@ class ManagerContractTests(unittest.TestCase):
             attestation = evidence_dir / "no-native.json"
             attestation.write_text(json.dumps({
                 "runtime_id": "vendor.unknown",
-                "specify_version": "0.16.6.dev0",
+                "specify_version": "0.16.6",
                 "catalog_evidence": "docs/spec-kit/evidence/catalog.txt",
                 "catalog_evidence_sha256": hashlib.sha256(catalog.read_bytes()).hexdigest(),
                 "reviewed_by_current_operator": True,
@@ -432,7 +432,7 @@ class ManagerContractTests(unittest.TestCase):
                 "from pathlib import Path\n\n"
                 "args = sys.argv[1:]\n"
                 "if not args or args[0] in ('--version', 'version'):\n"
-                "    print('0.16.6.dev0')\n"
+                "    print('0.16.6')\n"
                 "    sys.exit(0)\n"
                 "if len(args) >= 2 and args[0] == 'integration' and args[1] == 'status':\n"
                 "    print('{\"installed_integrations\":[]}')\n"
