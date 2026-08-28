@@ -1,5 +1,13 @@
 # Maintenance history
 
+## 2026-08-28 — Substantive task entry and ownership boundary
+
+- Made conversational approval such as “方案可以” an entry into upstream Spec Kit artifact alignment, not permission for direct application-code edits.
+- Required the current specification, plan, and tasks to be aligned before implementation, with `analyze`, `validate`, and `converge` required before substantive completion.
+- Kept the upstream CLI as the sole executor for `.specify/**`, `specs/**`, and native Agent-generated integration files; added manager rejection of out-of-bound local mutations.
+- Documented that a target project needs its local governance additions and installed `specify`/Spec Kit state, but not a personal global Policy or central Reference directory at runtime.
+- Published the compatible governance package update as `1.1.0` and left the unrelated upstream baseline review for a separate maintenance change.
+
 ## 2026-08-21 — Documentation normalization
 
 - Rewrote `README.md` around the current portable governance package, manager, release, deployment, and validation workflow.

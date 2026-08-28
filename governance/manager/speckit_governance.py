@@ -43,7 +43,7 @@ STATUSES = {
     "NATIVE_CANDIDATE_REJECTED", "NATIVE_INSTALL_BLOCKED", "AMBIGUOUS", "CATALOG_UNAVAILABLE",
     "CONTEXT_ANCHOR_UNKNOWN", "ANCHOR_FORMAT_UNSUPPORTED", "UNSUPPORTED_GENERIC_COMPATIBLE",
     "UNSUPPORTED_INCOMPATIBLE", "INTEGRATION_CONFLICT", "DEFAULT_CHANGE_FORBIDDEN",
-    "CENTRAL_SOURCE_UNVERIFIED", "PROJECT_RULES_PROTECTED", "STATE_BROKEN", "RECOVERY_REQUIRED", "READY_WITH_LIMITATIONS", "READY",
+    "CENTRAL_SOURCE_UNVERIFIED", "PROJECT_RULES_PROTECTED", "REFERENCE_OWNERSHIP_VIOLATION", "STATE_BROKEN", "RECOVERY_REQUIRED", "READY_WITH_LIMITATIONS", "READY",
 }
 
 
@@ -102,6 +102,11 @@ def validate_plan_shape(plan: dict[str, Any]) -> None:
         raise GovernanceError("onboarding requires anchor compatibility evidence", "CONTEXT_ANCHOR_UNKNOWN")
     context_anchor = plan.get("context_anchor")
     for item in plan.get("manager_file_mutations", []):
+        if not isinstance(item.get("path"), str) or not reference_owned_mutation(item["path"], context_anchor):
+            raise GovernanceError(
+                "manager mutations may target only Reference-owned additions or the managed context-anchor loader",
+                "REFERENCE_OWNERSHIP_VIOLATION",
+            )
         if item.get("path") == "" or item.get("old_sha256") is not None and not re.fullmatch(r"[0-9a-f]{64}", item["old_sha256"]):
             raise GovernanceError("malformed manager mutation", "STATE_BROKEN")
         if item.get("expected_new_sha256") and not re.fullmatch(r"[0-9a-f]{64}", item["expected_new_sha256"]):
@@ -138,6 +143,20 @@ def safe_relative(root: Path, value: str) -> Path:
     except ValueError as exc:
         raise GovernanceError(f"path escapes project root: {value!r}") from exc
     return rel
+
+
+def reference_owned_mutation(path: str, context_anchor: str | None) -> bool:
+    """Return whether a manager mutation stays inside the Reference boundary."""
+    normalized = Path(path).as_posix()
+    if context_anchor and normalized == context_anchor:
+        return True
+    return (
+        normalized == MANAGER_RELATIVE
+        or normalized == PROJECT_PACKAGE
+        or normalized.startswith(PROJECT_PACKAGE + "/")
+        or normalized == RUNTIME_DIR
+        or normalized.startswith(RUNTIME_DIR + "/")
+    )
 
 
 def relative_existing(root: Path, path: Path) -> str:
@@ -335,6 +354,9 @@ def marker_loader(documentation_language: str | None = None) -> str:
         "# Spec Kit Governance\n\n"
         "This repository uses the committed project-local Spec Kit governance package.\n\n"
         "Read `docs/spec-kit/START_HERE.md` before substantive engineering work.\n\n"
+        "A conversational approval such as `方案可以` advances a direction into the upstream Spec Kit workflow; "
+        "it does not authorize direct application-code edits before the current Spec Kit artifacts are aligned.\n\n"
+        "The governance package does not edit `.specify/**`, `specs/**`, or native Agent-generated integration files.\n\n"
         f"Do not replace the project baseline with personal global rules or a local Reference.{language_rule}\n\n"
         f"{END_MARKER}\n"
     )
@@ -622,11 +644,11 @@ def bootstrap_mutations(root: Path, source: Path, context_anchor: str) -> list[d
     tested_cli = cli_version() or "0.0.0"
     manifest_content = {
         "schema_version": 1,
-        "governance_package_version": "1.0.0",
-        "policy_version": "1.0.0",
+        "governance_package_version": "1.1.0",
+        "policy_version": "1.1.0",
         "reference_version": "2026.08.21",
-        "manager_version": "1.0.0",
-        "source": {"repository": "https://github.com/jiezhengj/Spec-Kit-Reference", "revision": source_revision, "release": "v1.0.0", "reviewed_upstream_revision": reviewed_upstream},
+        "manager_version": "1.1.0",
+        "source": {"repository": "https://github.com/jiezhengj/Spec-Kit-Reference", "revision": source_revision, "release": "v1.1.0", "reviewed_upstream_revision": reviewed_upstream},
         "specify_compatibility": {"minimum_version": "0.16.6", "tested_version": tested_cli, "maximum_version_exclusive": None, "approved_install_ref": reviewed_upstream},
         "paths": {
             "start_here": f"{PROJECT_PACKAGE}/START_HERE.md", "policy": f"{PROJECT_PACKAGE}/POLICY.md",
@@ -983,6 +1005,11 @@ def apply_manager_mutations(root: Path, plan: dict[str, Any]) -> list[str]:
             safe_relative(root, rel)
             target = root / rel
             context_anchor = plan.get("context_anchor")
+            if not reference_owned_mutation(rel, context_anchor):
+                raise GovernanceError(
+                    "manager mutations may target only Reference-owned additions or the managed context-anchor loader",
+                    "REFERENCE_OWNERSHIP_VIOLATION",
+                )
             if item.get("protected_anchor") is True and rel != context_anchor:
                 raise GovernanceError("protected anchor mutation does not match the declared context anchor", "STATE_BROKEN")
             if rel == context_anchor and (item.get("action") != "append-managed-loader" or item.get("protected_anchor") is not True):

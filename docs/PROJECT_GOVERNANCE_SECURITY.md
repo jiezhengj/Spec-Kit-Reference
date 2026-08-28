@@ -9,3 +9,7 @@ Manager mutations use temporary files in the target directory, flush/fsync, atom
 # Native no-downgrade
 
 Any unwritable native target, managed file repair, or context anchor, or any permission, sandbox, or installation failure affecting one, is a blocker. The system must not automatically switch to generic, another key, `--force`, or generate only `.specify/commands/` to falsely claim completion.
+
+# Ownership boundary
+
+The manager rejects direct mutations to `.specify/**`, `specs/**`, and native Agent-generated integration files with `REFERENCE_OWNERSHIP_VIOLATION`. Those artifacts remain under project or upstream CLI ownership. Supported `specify` CLI calls may still be represented as scoped external operations; their output is inventoried and never silently treated as manager-owned content.

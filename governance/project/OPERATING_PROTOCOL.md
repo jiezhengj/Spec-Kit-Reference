@@ -8,7 +8,21 @@ Before `plan-init`, the current Agent must ask the user for the BCP-47 language 
 
 # Governance package bootstrap
 
-Extract the portable artifact to `.spec-kit-governance/staging/<plan-id>/`, validate the manifest and SHA-256, and generate `plan-governance-bootstrap` from the staging manager. Bootstrap writes only the committed governance package, manager, manifest, and configuration, plus the Loader at the exact runtime-selected context-anchor path. It does not install the current Agent integration. Apply only after the user authorizes the exact plan ID/hash, then verify with the project manager.
+Extract the portable artifact to `.spec-kit-governance/staging/<plan-id>/`, validate the manifest and SHA-256, and generate `plan-governance-bootstrap` from the staging manager. Bootstrap writes only the committed governance package, manager, manifest, and configuration, plus the Loader at the exact runtime-selected context-anchor path. It does not install the current Agent integration. Apply only after the user authorizes the exact plan ID/hash, then verify with the project manager. This plan/apply protocol governs Reference-owned files; it does not replace the upstream Spec Kit feature workflow.
+
+# Daily Spec Kit feature workflow
+
+For substantive feature work, use the upstream Spec Kit artifacts and commands:
+
+`discussion → user direction approved → inspect current artifacts → update spec/plan/tasks through upstream Spec Kit → analyze → implement tasks → validate → converge`
+
+Approval phrases such as “方案可以” authorize advancing the direction into upstream Spec Kit artifact alignment. This approval does not authorize direct application-code edits. If the direction is already represented by the current specification, plan, and tasks, continue from the appropriate upstream handoff; otherwise update those artifacts first.
+
+If the user is only discussing alternatives, do not edit application files. If implementation changes the scope or assumptions, pause and update the upstream artifacts before continuing. The Reference package must not edit `.specify/**`, `specs/**`, or native Agent integration files.
+
+# Completion semantics
+
+`verify` from `tools/spec-kit-governance/governance.py` verifies only the Reference-owned governance package. It does not prove that a business feature is implemented. Feature completion requires the upstream Spec Kit artifacts to agree with the implementation and requires `analyze`, `validate`, and `converge` evidence.
 
 # New projects
 

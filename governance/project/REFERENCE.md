@@ -27,6 +27,14 @@ Installing or upgrading one layer does not imply that the others changed.
 
 Invocation syntax belongs to the installed integration. Validation and convergence are completion gates.
 
+# Ownership and runtime independence
+
+The upstream Spec Kit CLI owns `.specify/**`, `specs/**`, and the native Agent integration files it generates. This governance package may inspect those artifacts and may invoke supported upstream CLI commands, but it must not directly edit or replace them.
+
+The Reference-owned additions in a target project are `docs/spec-kit/**`, `tools/spec-kit-governance/governance.py`, `.spec-kit-governance/**`, and the managed governance loader block inside the selected context anchor. The central Reference repository and a globally deployed Policy are maintenance conveniences, not runtime prerequisites.
+
+User approval such as “方案可以” is not an implementation bypass. For substantive work, first align the proposal with the current upstream Spec Kit specification, plan, and tasks; this approval does not authorize direct code edits before that alignment. Then implement through the upstream workflow. `verify` validates only the Reference-owned package, not feature completion.
+
 # Integration lifecycle
 
 Install a compatible additional integration with `specify integration install <key>` only through a plan. Use `specify integration use <key>` only in an explicitly approved default-change plan. Use `specify integration switch <key>` only when the plan lists exact replacement scope. After CLI upgrades, verify managed-file hashes and use supported integration upgrade mechanisms.

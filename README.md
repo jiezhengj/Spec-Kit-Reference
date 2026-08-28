@@ -104,7 +104,7 @@ Upstream content is never dynamically imported as a higher-priority instruction 
 
 # Global Policy deployment
 
-[GLOBAL_POLICY.md](GLOBAL_POLICY.md) is the only global Policy template. It is a Markdown document with one H1 title and H2 policy sections, wrapped in `<!-- SPEC-KIT-GLOBAL-POLICY:START version=1.0.0 -->` and `<!-- SPEC-KIT-GLOBAL-POLICY:END -->`. The deployment renderer fills this deployment-time locator:
+[GLOBAL_POLICY.md](GLOBAL_POLICY.md) is the only global Policy template. It is a Markdown document with one H1 title and H2 policy sections, wrapped in `<!-- SPEC-KIT-GLOBAL-POLICY:START version=1.1.0 -->` and `<!-- SPEC-KIT-GLOBAL-POLICY:END -->`. The deployment renderer fills this deployment-time locator:
 
 ~~~text
 SPEC_KIT_GOVERNANCE_SOURCE: <ABSOLUTE_PATH_TO_SPEC_KIT_REFERENCE_REPOSITORY>
@@ -116,7 +116,7 @@ Do not permanently write a personal absolute path into the committed source temp
 
 # 全局 Policy 部署
 
-[GLOBAL_POLICY.md](GLOBAL_POLICY.md) 是唯一的全局 Policy 模板。它是包含一个 H1 标题和 H2 Policy 章节的 Markdown 文档，由 `<!-- SPEC-KIT-GLOBAL-POLICY:START version=1.0.0 -->` 与 `<!-- SPEC-KIT-GLOBAL-POLICY:END -->` 包裹。部署 renderer 填写以下仅在部署时使用的 locator：
+[GLOBAL_POLICY.md](GLOBAL_POLICY.md) 是唯一的全局 Policy 模板。它是包含一个 H1 标题和 H2 Policy 章节的 Markdown 文档，由 `<!-- SPEC-KIT-GLOBAL-POLICY:START version=1.1.0 -->` 与 `<!-- SPEC-KIT-GLOBAL-POLICY:END -->` 包裹。部署 renderer 填写以下仅在部署时使用的 locator：
 
 ~~~text
 SPEC_KIT_GOVERNANCE_SOURCE: <ABSOLUTE_PATH_TO_SPEC_KIT_REFERENCE_REPOSITORY>
@@ -142,6 +142,8 @@ For substantive work in a business project:
 
 Every mutation uses a two-stage plan/apply protocol. Approve the exact plan ID and hash before `apply-plan`. Native integration failure is a blocker: an unwritable target, permission error, sandbox restriction, repair failure, or CLI installation failure must never silently become `generic`.
 
+This plan/apply rule governs mutations owned by this Reference package. It does not replace the upstream Spec Kit feature workflow. After a substantive discussion, approval such as “方案可以”, “按这个来”, “没问题”, or “就这么改” authorizes the Agent to align the direction with the current upstream specification, plan, and tasks; it does not authorize direct application-code edits that skip that alignment. Discussion-only work does not edit application files. If the direction is already aligned, the Agent may continue from the appropriate upstream handoff; if scope, assumptions, risks, or affected components change, it must update the upstream artifacts before continuing.
+
 If the project already has the runtime-selected project context anchor, it is project-owned instruction content. The governance loader may only be appended or updated inside its managed region through the reviewed manager plan; every byte outside that region must remain byte-identical. The manager may create only the exact anchor path supplied and evidence-validated by the current Agent runtime or user; it never guesses a filename.
 
 Before first-time `plan-init`, the current Agent asks the user for the BCP-47 language tag for new or substantially rewritten project documentation. It passes that exact value as `--documentation-language <tag>`, and the manager persists it in `PROJECT_CONFIG.json` and the selected context-anchor loader. The language is never inferred from locale, Agent product, existing documents, or a default.
@@ -153,7 +155,7 @@ constitution → specify → clarify → plan → checklist → tasks → analyz
 → implement → validate → converge
 ~~~
 
-Quality gates are risk-driven. Converge is the completion gate; passing tests or exhausting an initial task list is insufficient when artifacts and implementation disagree.
+Clarify and checklist are risk-driven. Analyze, validate, and converge are required before substantive completion; passing tests or exhausting an initial task list is insufficient when artifacts and implementation disagree.
 
 # 项目治理工作流
 
@@ -171,6 +173,8 @@ Quality gates are risk-driven. Converge is the completion gate; passing tests or
 
 每项变更都使用两阶段的 plan/apply 协议。`apply-plan` 前必须批准精确的 plan ID 和 hash。native integration 失败是 blocker：不可写 target、权限错误、sandbox 限制、修复失败或 CLI 安装失败，绝不得静默变成 `generic`。
 
+这条 plan/apply 规则只治理本 Reference 包拥有的变更，不替代上游 Spec Kit 的功能工作流。实质性讨论后，用户说“方案可以”“按这个来”“没问题”或“就这么改”，只表示批准把方向推进到上游 specification、plan 和 tasks 的对齐；不表示允许跳过对齐直接修改业务代码。仅讨论选项时不得修改业务文件；若方向已对齐，可从相应的上游交接点继续；若范围、假设、风险或受影响组件发生变化，必须先更新上游 artifacts。
+
 如果项目已经有运行时选定的项目上下文锚点文件，它属于项目拥有的规则内容。治理 loader 只能通过已审查的 manager plan 追加或更新其受管区块；区块之外的每个字节都必须保持完全一致。manager 只能创建当前 Agent 运行时或用户明确提供并完成证据校验的精确路径，绝不猜测文件名。
 
 首次执行 `plan-init` 前，当前 Agent 必须询问用户：新建或实质性重写的项目文档使用哪个 BCP-47 语言标签。它必须把该值作为 `--documentation-language <tag>` 原样传给 manager，由 manager 写入 `PROJECT_CONFIG.json` 和选定的上下文锚点 loader。语言不得从地区设置、Agent 产品、现有文档或默认值推断。
@@ -182,7 +186,7 @@ constitution → specify → clarify → plan → checklist → tasks → analyz
 → implement → validate → converge
 ~~~
 
-质量 gate 由风险驱动。Converge 是完成 gate；当 artifacts 与 implementation 不一致时，仅测试通过或耗尽初始任务列表都不足以完成工作。
+Clarify 和 checklist 由风险驱动。Analyze、validate 和 converge 是实质性工作完成前的必需 gate；当 artifacts 与 implementation 不一致时，仅测试通过或耗尽初始任务列表都不足以完成工作。
 
 # Agent-neutral integration rules
 
@@ -231,7 +235,7 @@ tools/spec-kit-governance/governance.py verify
 tools/spec-kit-governance/governance.py check-update
 ~~~
 
-`apply-plan` is the only mutation entrypoint. Plans record project and Git snapshots, CLI and integration state, exact file mutations, external CLI scope, recovery steps, and a canonical SHA-256 plan hash. Runtime plans, backups, journals, and failure evidence live under `.spec-kit-governance/` and are ignored by Git.
+`apply-plan` is the only mutation entrypoint for Reference-owned governance changes. Plans record project and Git snapshots, CLI and integration state, exact file mutations, external CLI scope, recovery steps, and a canonical SHA-256 plan hash. Runtime plans, backups, journals, and failure evidence live under `.spec-kit-governance/` and are ignored by Git. The upstream `specify` CLI remains the executor for upstream Spec Kit artifacts and feature workflow.
 
 `plan-governance-bootstrap` requires the exact runtime-selected `--context-anchor <project-relative-path>`. `plan-init` additionally requires `--runtime-id <id>`, `--integration-key <key>`, and the user's explicit `--documentation-language <BCP-47-tag>`; it records the language in project configuration and the selected anchor. For native external operations, pass runtime-reported targets as repeated `--allowed-path-prefix <project-relative-prefix>` values. The manager never guesses Agent filenames or generated Skills/Commands directories. Non-empty brownfield initialization may use `--force` only in the dedicated, rehearsal-backed init plan. No other operation may use `--force`.
 
@@ -256,7 +260,7 @@ tools/spec-kit-governance/governance.py verify
 tools/spec-kit-governance/governance.py check-update
 ~~~
 
-`apply-plan` 是唯一的变更入口。Plan 记录项目和 Git snapshots、CLI 与 integration 状态、精确文件变更、外部 CLI scope、恢复步骤，以及 canonical SHA-256 plan hash。运行时 plan、备份、journals 和 failure evidence 位于 `.spec-kit-governance/` 下，且被 Git 忽略。
+`apply-plan` 是 Reference 自有治理变更的唯一入口。Plan 记录项目和 Git snapshots、CLI 与 integration 状态、精确文件变更、外部 CLI scope、恢复步骤，以及 canonical SHA-256 plan hash。运行时 plan、备份、journals 和 failure evidence 位于 `.spec-kit-governance/` 下，且被 Git 忽略。上游 Spec Kit artifacts 和功能工作流仍由上游 `specify` CLI 执行。
 
 `plan-governance-bootstrap` 必须接收运行时选定的精确 `--context-anchor <项目相对路径>`。`plan-init` 还必须接收 `--runtime-id <id>`、`--integration-key <key>` 和用户明确选择的 `--documentation-language <BCP-47-tag>`；manager 会把语言写入项目配置和选定的 anchor。对于 native 外部操作，必须把运行时报告的 target 作为可重复的 `--allowed-path-prefix <项目相对前缀>` 传入。manager 绝不猜测 Agent 文件名或生成的 Skills/Commands 目录。非空 brownfield 初始化仅可在专用且经过 rehearsal-backed 的 init plan 中使用 `--force`。其他操作都不得使用 `--force`。
 
@@ -268,7 +272,7 @@ Build and validate a release from the repository root:
 
 ~~~bash
 python3 scripts/build_governance_release.py \
-  --version 1.0.0 \
+  --version 1.1.0 \
   --output-dir /tmp/speckit-governance-release
 
 python3 scripts/validate_governance_release.py \
@@ -287,7 +291,7 @@ release builder 创建两个确定性 artifacts：一个用于 staging 和项目
 
 ~~~bash
 python3 scripts/build_governance_release.py \
-  --version 1.0.0 \
+  --version 1.1.0 \
   --output-dir /tmp/speckit-governance-release
 
 python3 scripts/validate_governance_release.py \

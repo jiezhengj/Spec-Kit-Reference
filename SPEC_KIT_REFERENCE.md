@@ -73,9 +73,15 @@ The canonical conceptual lifecycle is:
 constitution → specify → clarify → plan → checklist → tasks → analyze → implement → validate → converge
 ```
 
-`clarify`, `checklist`, and `analyze` are quality gates selected according to ambiguity, risk, and complexity. Invocation syntax depends on the current Agent integration.
+`clarify` and `checklist` are quality gates selected according to ambiguity, risk, and complexity. `analyze`, `validate`, and `converge` are required before substantive completion. Invocation syntax depends on the current Agent integration.
 
 Convergence checks implementation completeness against accepted feature artifacts. If it finds missing work, it may append tasks; then repeat `implement`, validation, and `converge` until complete.
+
+## Ownership and runtime independence
+
+The upstream Spec Kit CLI owns `.specify/**`, `specs/**`, and native Agent integration files. This Reference may inspect them and invoke supported CLI commands, but it must not directly edit or replace them. Its target-project additions are the committed `docs/spec-kit/**` package, the local governance manager, `.spec-kit-governance/**` runtime state, and the managed loader block in the explicitly selected context anchor.
+
+A conversational approval such as “方案可以” advances a direction into the upstream Spec Kit workflow; it does not authorize direct code edits before the specification, plan, and tasks are aligned. The central Reference and global Policy are not runtime prerequisites for a target project whose local governance package and loader are present.
 
 ## Bug workflow
 

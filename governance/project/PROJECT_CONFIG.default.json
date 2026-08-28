@@ -31,7 +31,7 @@
   "quality_gates": {
     "clarify": "risk-triggered",
     "checklist": "risk-triggered",
-    "analyze": "risk-triggered",
+    "analyze": "required",
     "validate": "required",
     "converge": "required"
   }

@@ -79,3 +79,37 @@ Affected documents:
 Validation:
 
 The rule was added to the single logical Policy source and the corresponding operational reference. Existing upstream baseline data was not changed.
+
+## Local policy amendment — substantive task entry
+
+Date:
+
+`2026-08-28`
+
+Classification:
+
+`POLICY`
+
+Trigger:
+
+In Spec Kit projects, an Agent could interpret conversational approval such as “方案可以” as immediate permission to edit application code, even when the approved direction was not represented in the current specification, plan, and tasks.
+
+Decision:
+
+Conversational approval advances the direction into the upstream Spec Kit artifact workflow; it does not authorize direct code edits before artifact alignment. Discussion-only work remains non-mutating. The Reference package remains a governance guide and manager for its own additions, not a second Spec Kit executor. The upstream CLI continues to own `.specify/**`, `specs/**`, and native Agent-generated integration files. `analyze`, `validate`, and `converge` are required before substantive completion.
+
+A manager ownership guard rejects direct local mutations outside `docs/spec-kit/**`, `tools/spec-kit-governance/governance.py`, `.spec-kit-governance/**`, and the managed loader block in the explicit context anchor. Global Policy and the central Reference are not target-project runtime prerequisites.
+
+Affected documents:
+
+- `GLOBAL_POLICY.md`
+- `SPEC_KIT_REFERENCE.md`
+- `governance/project/START_HERE.md`
+- `governance/project/POLICY.md`
+- `governance/project/OPERATING_PROTOCOL.md`
+- `governance/project/REFERENCE.md`
+- `governance/manager/speckit_governance.py`
+
+Validation:
+
+The `1.1.0` release metadata, portable package, extension package, manager ownership regression, conversation-approval contract, schema validation, `pytest`, `unittest`, and compile checks passed. The upstream baseline remains at `fa19e1c68b6daec5cab3309913cf5ecf6553075d`; current `upstream/main` is `5aa8bea7823dcd056f111f847bf2d576bad3f0a5` and is retained for a separate future review.

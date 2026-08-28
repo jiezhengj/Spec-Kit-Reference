@@ -51,6 +51,10 @@ class ManagerContractTests(unittest.TestCase):
             self.assertIn("docs/spec-kit/ADAPTERS.json", manifest["content_sha256"])
             self.assertEqual(manifest["portable_anchor"]["path"], "runtime/project-rules.txt")
             self.assertTrue((project / "runtime/project-rules.txt").is_file())
+            loader = (project / "runtime/project-rules.txt").read_text(encoding="utf-8")
+            self.assertIn("方案可以", loader)
+            self.assertIn(".specify/**", loader)
+            self.assertIn("does not authorize direct", loader)
             verified = json.loads(self.run_manager(project, "verify").stdout)
             self.assertEqual(verified["status"], "READY")
 
@@ -131,6 +135,26 @@ class ManagerContractTests(unittest.TestCase):
             with self.assertRaises(manager.GovernanceError) as raised:
                 manager.validate_plan_shape(plan)
             self.assertEqual(raised.exception.status, "PROJECT_RULES_PROTECTED")
+
+    def test_manager_rejects_upstream_owned_mutations(self):
+        with tempfile.TemporaryDirectory() as directory:
+            project = Path(directory)
+            for protected_path in (
+                ".specify/templates/spec-template.md",
+                ".specify/memory/constitution.md",
+                "specs/demo/plan.md",
+                ".claude/commands/specify.md",
+            ):
+                mutation = manager.file_mutation(project, protected_path, b"must not be manager-owned\n")
+                plan = manager.make_plan(
+                    project,
+                    "plan-governance-bootstrap",
+                    [mutation],
+                    context_anchor="runtime/project-rules.txt",
+                )
+                with self.assertRaises(manager.GovernanceError) as raised:
+                    manager.validate_plan_shape(plan)
+                self.assertEqual(raised.exception.status, "REFERENCE_OWNERSHIP_VIOLATION")
 
     def test_explicit_and_runtime_anchor_conflict_fails_closed(self):
         with tempfile.TemporaryDirectory() as directory:

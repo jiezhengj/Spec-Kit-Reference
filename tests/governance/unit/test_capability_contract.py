@@ -109,6 +109,36 @@ class CapabilityContractTests(unittest.TestCase):
         lifecycle = "constitution → specify → clarify → plan → checklist → tasks → analyze → implement → validate → converge"
         self.assertIn(lifecycle, read("governance/project/POLICY.md"))
 
+    def test_conversational_approval_does_not_bypass_spec_alignment(self):
+        for rel in (
+            "governance/project/START_HERE.md",
+            "governance/project/POLICY.md",
+            "governance/project/OPERATING_PROTOCOL.md",
+            "governance/project/REFERENCE.md",
+        ):
+            content = read(rel)
+            self.assertIn("方案可以", content)
+            self.assertIn("upstream Spec Kit", content)
+            self.assertIn("does not authorize direct", content)
+            for artifact in ("specification", "plan", "tasks"):
+                self.assertIn(artifact, content)
+
+    def test_analyze_is_required_for_substantive_work(self):
+        config = json.loads(read("governance/project/PROJECT_CONFIG.default.json"))
+        self.assertEqual(config["quality_gates"]["analyze"], "required")
+        self.assertIn("Analyze, validate, and converge are required", read("governance/project/POLICY.md"))
+
+    def test_reference_owned_boundary_is_documented_and_enforced(self):
+        agents = read("AGENTS.md")
+        reference = read("governance/project/REFERENCE.md")
+        source = read("governance/manager/speckit_governance.py")
+        for content in (agents, reference):
+            self.assertIn(".specify/**", content)
+            self.assertIn("specs/**", content)
+            self.assertIn("runtime prerequisites", content)
+        self.assertIn("REFERENCE_OWNERSHIP_VIOLATION", source)
+        self.assertIn("reference_owned_mutation", source)
+
     def test_risk_gate_formula(self):
         implementation = read("docs/archive/PROJECT_GOVERNANCE_IMPLEMENTATION_2026-08-21.md")
         self.assertIn("risk", implementation.lower())

@@ -27,3 +27,5 @@ These documents belong to the implementation and review layer of the central gov
 ## Maintenance boundary
 
 Central upgrades must not overwrite project-owned `LOCAL_OVERRIDES.md`, `PROJECT_CONFIG.json`, or `ADAPTERS.json`. Any incompatible change to a schema, fixed path, or enum is a governance-package major change and must provide a migrator and rollback tests.
+
+The upstream Spec Kit CLI remains the owner and executor of `.specify/**`, `specs/**`, and native Agent-generated integration files. The portable package may inspect them and invoke supported CLI commands, but its manager mutations are restricted to the Reference-owned package, runtime state, manager, and managed context-anchor loader. A target project does not require a maintainer's global Policy or central Reference directory at runtime.

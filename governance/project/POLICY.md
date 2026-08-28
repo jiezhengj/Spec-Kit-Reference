@@ -2,6 +2,18 @@
 
 GitHub Spec Kit is used for substantive software engineering work. Read-only investigation, explanation, extremely small typo fixes, and very low-risk minor changes do not require the full lifecycle.
 
+# Conversation approval and implementation boundary
+
+For substantive work, the upstream Spec Kit artifacts are the implementation contract. A conversation, design note, or user message is not itself a spec, plan, task list, or completion record.
+
+User approval phrases such as “方案可以”, “按这个来”, “没问题”, or “就这么改” approve the discussed direction only. They authorize the Agent to advance that direction into the upstream Spec Kit workflow; this approval does not authorize direct application-code edits that skip artifact alignment.
+
+When an approved direction is missing from or inconsistent with the current specification, plan, or tasks, the Agent must first use the upstream Spec Kit workflow to update the relevant artifacts. The Reference governance package must never edit `.specify/**`, `specs/**`, or native Agent-generated integration files to enforce this policy.
+
+If the user is only discussing alternatives and has not expressed implementation intent, the Agent must remain in discussion. If implementation intent exists, the Agent may proceed automatically after artifact alignment without requiring the user to repeat “use Spec Kit”.
+
+If implementation reveals a changed requirement, assumption, risk, public contract, data boundary, or affected component, the Agent must pause, update the upstream Spec Kit artifacts, and then resume from the resulting tasks. It must not silently expand the implementation scope.
+
 # Projects and brownfields
 
 Before making a change, confirm the actual project root; read every applicable project-local rule, README, architecture document, test, dependency, and CI configuration; understand the actual brownfield system; and protect existing user work. When `.specify/` exists, restore the existing project state and do not routinely reinitialize it.
@@ -22,11 +34,11 @@ Generic is allowed only when the current CLI has no native integration, project 
 
 New projects must use explicit `specify init --here --non-interactive --integration <approved-key>`. If a non-interactive init omits the key, the CLI may select a default product, so the manager must reject that command. In a non-empty brownfield, `--force` may appear only in a dedicated `plan-init`, with rehearsal, a scope snapshot, backup, exact authorization, and failure recovery; no other command may use `--force`.
 
-Substantive work conceptually follows:
+Substantive work follows:
 
 `constitution → specify → clarify → plan → checklist → tasks → analyze → implement → validate → converge`
 
-Whether to run clarify, checklist, and analyze is determined by the fixed risk-assessment formula in the operation plan; validate and converge are completion gates. Implementation must remain synchronized with the accepted specification, plan, tasks, project constraints, and tests.
+Clarify and checklist may be skipped only when the applicable risk assessment supports the skip and the Agent states the reason. Analyze, validate, and converge are required before substantive completion. Implementation must remain synchronized with the accepted specification, plan, tasks, project constraints, and tests.
 
 # Default and integration coexistence
 
@@ -42,4 +54,4 @@ The runtime-fact order is: current-project `.specify/`, installed integrations a
 
 Relevant tests, builds, linting, schemas, reproductions, validation, and convergence must be run; failures must not be concealed. The CLI, integrations, extensions, governance package, and Skills are separate layers, and upgrading one layer must not assume that the others upgrade automatically. Central upstream changes must be classified as `NONE`, `REFERENCE`, or `POLICY`; the checker is read-only, the baseline advances last after review, and upstream history must not be merged or Policy automatically deployed.
 
-Completion requires agreement among user intent, accepted artifacts, implementation, project constraints, validation, convergence, the native integration, adapter verification, and capability-inventory conservation. Do not report completion when a blocker, unmapped legacy capability, unplanned deletion, downgrade, invalid state, or default change exists.
+Completion requires agreement among user intent, accepted artifacts, implementation, project constraints, validation, convergence, the native integration, adapter verification, and capability-inventory conservation. Approval of a conversational proposal is not completion evidence. Do not report completion when a blocker, unmapped legacy capability, unplanned deletion, downgrade, invalid state, or default change exists; artifact drift is also unresolved work.
