@@ -1404,6 +1404,12 @@ def governance_v2_upgrade_mutations(root: Path, source_snapshot: dict[str, Any],
     manifest["policy_version"] = source_version(source, "POLICY_VERSION", "2.0.0")
     manifest["reference_version"] = source_version(source, "REFERENCE_VERSION", REFERENCE_VERSION)
     manifest["manager_version"] = "2.0.0"
+    manifest["specify_compatibility"] = {
+        "minimum_version": "1.0.4",
+        "tested_version": "1.0.4",
+        "maximum_version_exclusive": None,
+        "approved_install_ref": manifest.get("source", {}).get("reviewed_upstream_revision") or reviewed_upstream_revision(source),
+    }
     manifest.setdefault("source", {})["revision"] = source_snapshot["source_revision"]
     manifest["source"]["release"] = "v2.0.0"
     manifest["project_owned_prefixes"] = [f"{PROJECT_PACKAGE}/features/"]

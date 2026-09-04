@@ -66,6 +66,8 @@ class ManagerV2OperationTests(unittest.TestCase):
             self.assertRegex(record["plan_binding_sha256"], r"^[0-9a-f]{64}$")
             self.assertIn("docs/spec-kit/features", record["preserved_subtrees"])
             self.assertEqual(manifest["companion"]["extension"], "governance-discovery")
+            self.assertEqual(manifest["specify_compatibility"]["minimum_version"], "1.0.4")
+            self.assertEqual(manifest["specify_compatibility"]["tested_version"], "1.0.4")
             self.assertEqual(sidecar.read_text(encoding="utf-8"), "user evidence\n")
             self.assertNotIn("docs/spec-kit/features/demo/DISCOVERY.md", by_path)
 
