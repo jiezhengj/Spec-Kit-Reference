@@ -11,9 +11,11 @@ from __future__ import annotations
 
 import argparse
 import base64
+import binascii
 import hashlib
 import json
 import os
+from datetime import datetime, timezone
 from pathlib import Path
 
 
@@ -50,14 +52,28 @@ def main() -> int:
     except ValueError as exc:
         raise SystemExit("plan must be inside the project runtime plan directory") from exc
     plan = json.loads(plan_path.read_text(encoding="utf-8"))
+    if plan.get("schema_version") != 1:
+        raise SystemExit("unsupported plan schema")
     if plan.get("plan_id") != args.approve_plan_id or plan.get("plan_sha256") != args.approve_plan_sha256 or plan_hash(plan) != args.approve_plan_sha256:
         raise SystemExit("exact plan approval does not match")
-    if plan.get("operation_type") not in {"plan-upgrade", "plan-rollback", "upgrade", "rollback"}:
+    try:
+        expires = datetime.fromisoformat(str(plan["expires_at"]).replace("Z", "+00:00"))
+    except (KeyError, ValueError) as exc:
+        raise SystemExit("plan expiry is invalid") from exc
+    if datetime.now(timezone.utc) > expires:
+        raise SystemExit("approved plan has expired")
+    if plan.get("operation_type") not in {
+        "plan-upgrade", "plan-rollback", "upgrade", "rollback",
+        "plan-upgrade-governance-v2", "plan-rollback-governance-v2",
+    }:
         raise SystemExit("updater accepts only upgrade or rollback plans")
     mutation = next((item for item in plan.get("manager_file_mutations", []) if item.get("path") == MANAGER_RELATIVE.as_posix()), None)
-    if not mutation or not mutation.get("content_b64"):
+    if not mutation or not mutation.get("content_b64") or mutation.get("action") not in {"create", "replace"}:
         raise SystemExit("validated plan has no manager replacement")
-    content = base64.b64decode(mutation["content_b64"], validate=True)
+    try:
+        content = base64.b64decode(mutation["content_b64"], validate=True)
+    except (binascii.Error, ValueError, TypeError) as exc:
+        raise SystemExit("manager replacement is not valid base64") from exc
     expected_hash = mutation.get("expected_new_sha256") or mutation.get("new_sha256")
     if hashlib.sha256(content).hexdigest() != expected_hash:
         raise SystemExit("manager replacement checksum mismatch")
@@ -65,6 +81,15 @@ def main() -> int:
     if not staged_manager.is_file() or hashlib.sha256(staged_manager.read_bytes()).hexdigest() != expected_hash:
         raise SystemExit("staged manager does not match the approved replacement")
     target = project / MANAGER_RELATIVE
+    try:
+        target.resolve(strict=False).relative_to(project)
+    except ValueError as exc:
+        raise SystemExit("manager target escapes the project root") from exc
+    if target.is_symlink():
+        raise SystemExit("refusing to replace a symlinked manager")
+    current_hash = hashlib.sha256(target.read_bytes()).hexdigest() if target.is_file() else None
+    if current_hash != mutation.get("old_sha256"):
+        raise SystemExit("manager changed after the approved plan was created")
     target.parent.mkdir(parents=True, exist_ok=True)
     backup = project / RUNTIME_DIR / "backups" / plan["plan_id"] / "governance.py.bak"
     backup.parent.mkdir(parents=True, exist_ok=True)

@@ -57,6 +57,12 @@ Do not blindly force integration conflicts or rerun `specify init --here --force
 
 Upstream workflow init steps support shell, PowerShell, and Python script variants in the reviewed range. Use the installed CLI's workflow help for the exact current option and default.
 
+Workflow execution is an optional dispatcher, not an automatic consequence of installing the CLI or invoking an individual Agent Skill. The reviewed bundled `speckit` workflow is version `1.0.1`: it selects the initialized integration when `integration=auto`, pauses after `specify` and `plan`, then runs `tasks` and `implement`. It does not include `clarify`, a task-review gate, `analyze`, validation, or convergence. Projects that require those stages or additional human approval gates must specify and verify that stronger orchestration separately.
+
+The reviewed workflow engine supports named `slot` steps that are skipped when unfilled and can be replaced by schema-valid overlays. A slot must already be declared by the workflow; the bundled `speckit` workflow does not currently declare slots. Overlay replacement must preserve outputs consumed by later steps, and slots are not supported inside fan-out templates. Do not treat slot support as evidence that a project has installed or activated a custom gate.
+
+Current setup-plan script output uses `FEATURE_DIR`, not the former `SPECS_DIR` key, and rejects unknown setup arguments. Current `analyze` and `converge` prerequisite checks require `spec.md`, `plan.md`, and `tasks.md` before reading cross-artifact state. Use the installed scripts and command help as authority when consuming their JSON contracts.
+
 ## CLI upgrade
 
 ```text
@@ -87,9 +93,17 @@ The canonical conceptual lifecycle is:
 constitution → specify → clarify → plan → checklist → tasks → analyze → implement → validate → converge
 ```
 
-`clarify` and `checklist` are quality gates selected according to ambiguity, risk, and complexity. `analyze`, `validate`, and `converge` are required before substantive completion. Invocation syntax depends on the current Agent integration.
+Under project configuration v2 governed mode, `clarify`, `checklist`, `analyze`, `validate`, and `converge` are required. Human review gates are separate from these Agent or tool checks and cannot be inferred from a successful command. Invocation syntax depends on the current Agent integration.
 
 The upstream quickstart documents both a shorter path and a full path with optional quality gates. This project's committed governance policy intentionally strengthens the completion contract: `analyze`, `validate`, and `converge` remain required before substantive completion.
+
+Governance package v2 further strengthens substantive Feature entry and handoff. Natural-language requests to use Spec or form a substantive plan begin with structured Discovery. The required review objects are `DISCOVERY`, clarified `SPECIFICATION`, `PLAN_BUNDLE`, `TASK_PACKAGE`, and any `REMEDIATION` produced by analyze or implementation drift. These gates are user decisions bound to artifact hashes; upstream checklists and Agent self-review do not substitute for them.
+
+The Reference-maintained companion bundle uses supported upstream extension, preset, and workflow primitives. Its `governed-sdd` workflow orchestrates discovery, mandatory clarify and checklist, review gates, task readiness, cold-start review, analyze, implementation, validation, and convergence. It does not replace upstream commands or authorize direct edits to upstream-owned `.specify/**`, `specs/**`, or generated integrations.
+
+Approval evidence lives in the target project at `docs/spec-kit/features/<feature-id>/`. The append-only review ledger binds each decision to project-relative paths and SHA-256 values. Task readiness and cold-start reports are validation evidence, not approvals. Central upgrades preserve this subtree byte-for-byte.
+
+Tiny-model-ready tasks retain the upstream checkbox and task-ID form while adding objective, traceability, context, preconditions, exact write scope, read-only references, forbidden changes, input/output behavior, invariants, ordered requirements, verification and expected results, completion evidence, stop conditions, and handoff. This makes a task self-contained; it does not guarantee that a low-capability executor can solve intrinsically complex work.
 
 Convergence checks implementation completeness against accepted feature artifacts. If it finds missing work, it may append tasks; then repeat `implement`, validation, and `converge` until complete.
 
@@ -136,12 +150,14 @@ When upstream changes, classify the impact as `NONE`, `REFERENCE`, or `POLICY` b
 
 ## Review metadata
 
-Reviewed upstream commit: `github/spec-kit @ 5aa8bea7823dcd056f111f847bf2d576bad3f0a5`.
+Reviewed upstream commit: `github/spec-kit @ df6b3187022ce986759bd854467e8a4bb56bb0f4`.
 
-Reference last reviewed: `2026-08-28`.
+Reference last reviewed: `2026-09-04`.
 
-Verified local CLI: `specify 1.0.2.dev0`; `specify integration --help` succeeds. In this governance repository, `integration list` and `integration status` correctly report that no `.specify/` project exists.
+Verified local CLI: `specify 1.0.4`; `specify workflow --help`, `specify preset --help`, and `specify extension --help` succeed. This governance repository still has no `.specify/` project, so project-level integration and generated-Skill verification must be performed from an initialized target project.
 
 The integration commands should be rechecked from an actual Spec Kit project root when project-level runtime verification is needed.
+
+This Reference repository itself is an explicitly approved maintenance exception and is not initialized as a Spec Kit target project. That local exception does not appear in the portable target-project Policy and must not be used to bypass governed Feature work elsewhere.
 
 The most recent semantic review and the locally verified CLI version are recorded in `docs/CHANGE_IMPACT.md`. These values may differ from the latest upstream commit and from the currently available runtime.

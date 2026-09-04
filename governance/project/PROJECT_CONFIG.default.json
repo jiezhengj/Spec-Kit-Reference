@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "default_integration": {
     "policy": "pinned",
     "key": null,
@@ -29,10 +29,27 @@
     "review_mode": "pull-request-required"
   },
   "quality_gates": {
-    "clarify": "risk-triggered",
-    "checklist": "risk-triggered",
+    "clarify": "required",
+    "checklist": "required",
     "analyze": "required",
     "validate": "required",
     "converge": "required"
+  },
+  "workflow_governance": {
+    "mode": "governed-sdd-required",
+    "discovery": "required-for-substantive",
+    "artifact_reviews": [
+      "DISCOVERY",
+      "SPECIFICATION",
+      "PLAN_BUNDLE",
+      "TASK_PACKAGE",
+      "REMEDIATION"
+    ],
+    "approval_evidence": "committed-project-local",
+    "tiny_model_tasks": "required",
+    "cold_start_review": {
+      "required": true,
+      "minimum_samples": 3
+    }
   }
 }

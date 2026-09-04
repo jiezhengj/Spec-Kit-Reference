@@ -1,10 +1,12 @@
-<!-- SPEC-KIT-GLOBAL-POLICY:START version=1.2.0 -->
+<!-- SPEC-KIT-GLOBAL-POLICY:START version=2.0.0 -->
 
 # Spec Kit Global Policy
 
 ## Scope
 
 Use GitHub Spec Kit for substantive software engineering. Do not require the full lifecycle for read-only investigation, explanation, trivial typo fixes, or extremely small low-risk changes.
+
+Requests to create, design, plan, or implement a substantive Feature, including “use Spec”, “use Spec Kit”, or equivalent wording, enter governed discovery before specification or implementation. Explain any low-risk exemption instead of silently treating substantive work as a small change.
 
 ## Project authority
 
@@ -26,7 +28,13 @@ If the current CLI has no native integration, `generic` is allowed only when the
 
 For operational mechanics, prefer current project state, installed integration, installed `specify` CLI, committed project Reference, this central source, then upstream documentation. Keep accepted specifications, plans, tasks, implementation, validation, and convergence synchronized. Never hide failing checks or declare completion with an unresolved blocker.
 
-For substantive work, approval of a conversational proposal such as “the plan is acceptable” authorizes advancing the direction into the upstream Spec Kit workflow; it does not authorize direct application-code edits before the current specification, plan, and tasks are aligned. The Reference package must not directly edit `.specify/**`, `specs/**`, or native Agent-generated files. The central Reference and a globally deployed Policy are maintenance conveniences, not target-project runtime prerequisites.
+For substantive work, first inspect the brownfield system and conduct structured discovery. Record known facts, user decisions, assumptions awaiting approval, open questions, excluded scope, acceptance evidence, failure behavior, and release constraints. Do not replace product, security, privacy, retention, or release decisions with an unstated industry default. Specification may begin only after blocking questions are resolved, high-impact assumptions are approved or excluded, scope and non-goals are explicit, at least one primary journey has a Given/When/Then skeleton, and the user approves the discovery snapshot.
+
+Human review gates apply to `DISCOVERY`, `SPECIFICATION`, `PLAN_BUNDLE`, `TASK_PACKAGE`, and any required `REMEDIATION`. Each review request must identify the exact artifact set and content hashes. Agent self-review, a requirements checklist, successful validation, or a vague conversational approval cannot create or replace user approval. Changed content makes the corresponding approval stale. Stop at each configured gate until the user explicitly approves that review object or requests changes.
+
+Implementation tasks must be self-contained work packages for an executor without the originating conversation. Each task must state a single observable objective, traceability, minimum context, preconditions, exact allowed files, read-only references, forbidden changes, inputs and outputs, invariants and edge cases, ordered implementation requirements, executable verification with expected results, completion evidence, stop conditions, and handoff. Split tasks that contain multiple independently verifiable results or unresolved product, architecture, or security decisions. Readiness proves context completeness, not that every small model is capable of the work.
+
+Approval of a conversational proposal such as “the plan is acceptable” authorizes advancing only the identified review object into the governed upstream Spec Kit workflow; it does not authorize direct application-code edits before the current specification, plan, and tasks are aligned and approved. Clarify and checklist are required in governed mode. Analyze, validation, and convergence remain mandatory. The Reference package must not directly edit `.specify/**`, `specs/**`, or native Agent-generated files. The central Reference and a globally deployed Policy are maintenance conveniences, not target-project runtime prerequisites.
 
 ## Central update source
 

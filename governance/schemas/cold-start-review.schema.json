@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://jiezhengj.github.io/Spec-Kit-Reference/governance/schemas/cold-start-review.schema.json",
+  "title": "Isolated cold-start task review report",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "feature_id",
+    "generated_at",
+    "task_package_sha256",
+    "isolation",
+    "reviews",
+    "result"
+  ],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "feature_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+    },
+    "generated_at": { "type": "string", "format": "date-time" },
+    "task_package_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "isolation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["originating_conversation_provided", "repository_access", "supplied_context"],
+      "properties": {
+        "originating_conversation_provided": { "const": false },
+        "repository_access": { "const": "read-only" },
+        "supplied_context": { "const": "declared-task-and-references-only" }
+      }
+    },
+    "minimum_samples": { "type": "integer", "minimum": 1 },
+    "reviews": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/review" }
+    },
+    "result": { "enum": ["EXECUTABLE", "CHANGES_REQUESTED"] }
+  },
+  "$defs": {
+    "projectRelativePath": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!/)(?![A-Za-z]:)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*\\\\)(?!\\.\\.?$).+$"
+    },
+    "review": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "task_id",
+        "classification"
+      ],
+      "properties": {
+        "task_id": { "type": "string", "pattern": "^[A-Za-z][A-Za-z0-9._-]*$" },
+        "classification": {
+          "enum": ["EXECUTABLE", "NEEDS_CONTEXT", "HIDDEN_DECISION", "CONFLICT", "UNVERIFIABLE"]
+        },
+        "supplied_references": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/projectRelativePath" }
+        },
+        "findings": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "substantive_questions": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "reviewed_by": { "type": "string", "minLength": 1 },
+        "reviewed_at": { "type": "string", "format": "date-time" }
+      }
+    }
+  }
+}

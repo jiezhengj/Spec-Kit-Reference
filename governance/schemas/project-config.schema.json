@@ -13,10 +13,11 @@
     "context",
     "documentation",
     "upgrade",
-    "quality_gates"
+    "quality_gates",
+    "workflow_governance"
   ],
   "properties": {
-    "schema_version": { "const": 1 },
+    "schema_version": { "const": 2 },
     "default_integration": {
       "type": "object",
       "additionalProperties": false,
@@ -97,11 +98,56 @@
       "additionalProperties": false,
       "required": ["clarify", "checklist", "analyze", "validate", "converge"],
       "properties": {
-        "clarify": { "enum": ["risk-triggered", "required"] },
-        "checklist": { "enum": ["risk-triggered", "required"] },
-        "analyze": { "enum": ["risk-triggered", "required"] },
+        "clarify": { "const": "required" },
+        "checklist": { "const": "required" },
+        "analyze": { "const": "required" },
         "validate": { "const": "required" },
         "converge": { "const": "required" }
+      }
+    },
+    "workflow_governance": { "$ref": "#/$defs/workflowGovernance" }
+  },
+  "$defs": {
+    "workflowGovernance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode",
+        "discovery",
+        "artifact_reviews",
+        "approval_evidence",
+        "tiny_model_tasks",
+        "cold_start_review"
+      ],
+      "properties": {
+        "mode": { "const": "governed-sdd-required" },
+        "discovery": { "const": "required-for-substantive" },
+        "artifact_reviews": {
+          "type": "array",
+          "minItems": 5,
+          "uniqueItems": true,
+          "allOf": [
+            { "contains": { "const": "DISCOVERY" }, "minContains": 1 },
+            { "contains": { "const": "SPECIFICATION" }, "minContains": 1 },
+            { "contains": { "const": "PLAN_BUNDLE" }, "minContains": 1 },
+            { "contains": { "const": "TASK_PACKAGE" }, "minContains": 1 },
+            { "contains": { "const": "REMEDIATION" }, "minContains": 1 }
+          ],
+          "items": {
+            "enum": ["DISCOVERY", "SPECIFICATION", "PLAN_BUNDLE", "TASK_PACKAGE", "REMEDIATION"]
+          }
+        },
+        "approval_evidence": { "const": "committed-project-local" },
+        "tiny_model_tasks": { "const": "required" },
+        "cold_start_review": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["required", "minimum_samples"],
+          "properties": {
+            "required": { "const": true },
+            "minimum_samples": { "type": "integer", "minimum": 3 }
+          }
+        }
       }
     }
   }

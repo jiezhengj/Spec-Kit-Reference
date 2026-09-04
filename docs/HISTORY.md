@@ -1,5 +1,21 @@
 # Maintenance history
 
+## 2026-09-04 — Governed discovery and executable task contracts
+
+- Added mandatory structured Discovery for substantive Spec intent, with explicit exit criteria for blocking questions, high-impact assumptions, scope, primary journeys, and user-approved snapshots.
+- Added hash-bound human review ledgers for Discovery, specification, plan bundle, task package, and remediation; Agent self-review cannot create approval and changed artifacts make approval stale.
+- Added tiny-model task-package readiness and cold-start validation so implementation work can be handed to an executor without the originating conversation.
+- Added the `governed-sdd` companion workflow, discovery extension, tiny-model preset, and manager checks while preserving upstream ownership of `.specify/**`, `specs/**`, and native Agent-generated artifacts.
+- Defined the reviewed `1.3.0` bridge and `2.0.0` strict migration, rollback, manifest-v2, and project-local feature-sidecar preservation contracts.
+
+## 2026-09-04 — Upstream baseline review
+
+- Reviewed `5aa8bea7823dcd056f111f847bf2d576bad3f0a5` through `df6b3187022ce986759bd854467e8a4bb56bb0f4` after fetching `upstream/main`.
+- Classified the range as `REFERENCE`: workflow slots, bundled workflow `1.0.1`, stricter artifact prerequisites, `FEATURE_DIR` script output, new integrations, and runtime hardening were reviewed without promoting upstream content into local Policy.
+- Documented that the bundled workflow gates only specification and planning and does not automatically provide clarification, task review, analysis, validation, or convergence.
+- Verified the installed `specify 1.0.4` workflow, preset, and extension command surfaces; kept installed CLI, reviewed source, and generated project Skills as separate versioned layers.
+- Advanced the baseline only after the Reference update and repository validation completed.
+
 ## 2026-08-28 — Central Reference update handoff
 
 - Added a source-gated, session-scoped read-only check for a newer central Reference when the loaded global Policy provides the explicit source locator.

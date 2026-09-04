@@ -16,7 +16,7 @@
   "properties": {
     "schema_version": { "const": 1 },
     "plan_id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$" },
-    "operation_type": { "enum": ["init", "onboard", "default-change", "upgrade", "rollback", "plan-governance-bootstrap", "plan-install-update-reminder", "plan-init", "plan-onboard", "plan-extension-install", "plan-default-change", "plan-upgrade", "plan-rollback", "plan-activate-binding"] },
+    "operation_type": { "enum": ["init", "onboard", "default-change", "upgrade", "rollback", "plan-governance-bootstrap", "plan-install-update-reminder", "plan-init", "plan-onboard", "plan-extension-install", "plan-default-change", "plan-upgrade", "plan-rollback", "plan-activate-binding", "plan-record-artifact-review", "plan-upgrade-governance-v2", "plan-rollback-governance-v2", "plan-install-governed-companion", "plan-remove-governed-companion"] },
     "created_at": { "type": "string", "format": "date-time" },
     "expires_at": { "type": "string", "format": "date-time" },
     "project_root_fingerprint": { "$ref": "#/$defs/sha256" },
@@ -47,6 +47,22 @@
     },
     "capability_inventory_before": { "type": "object" },
     "rehearsal": { "anyOf": [{ "type": "null" }, { "$ref": "#/$defs/rehearsal" }] },
+    "source_snapshot": {
+      "anyOf": [
+        { "type": "null" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["source_root", "source_revision", "tree_sha256", "files"],
+          "properties": {
+            "source_root": { "type": "string", "pattern": "^/" },
+            "source_revision": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+            "tree_sha256": { "$ref": "#/$defs/sha256" },
+            "files": { "type": "object", "minProperties": 1, "propertyNames": { "$ref": "#/$defs/projectRelativePath" }, "additionalProperties": { "$ref": "#/$defs/sha256" } }
+          }
+        }
+      ]
+    },
     "manager_file_mutations": { "type": "array", "items": { "$ref": "#/$defs/managerMutation" } },
     "external_cli_mutations": { "type": "array", "items": { "$ref": "#/$defs/externalMutation" } },
     "default_integration_change": { "type": "boolean" },

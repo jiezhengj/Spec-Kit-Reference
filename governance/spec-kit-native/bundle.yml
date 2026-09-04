@@ -1,0 +1,41 @@
+schema_version: "1.0"
+
+bundle:
+  id: "spec-kit-governance-companion"
+  name: "Spec Kit Governance Companion"
+  version: "2.0.0"
+  role: "governance"
+  description: "Discovery, tiny-model task authoring, and governed SDD workflow source for the Spec Kit governance package."
+  author: "SpecKitReference maintainers"
+  license: "MIT"
+
+requires:
+  speckit_version: ">=1.0.4"
+
+# `source` records the component directory inside this bundle. It is retained
+# for provenance and for the Reference manager's installation plan. Spec Kit
+# 1.0.4 validates this manifest structurally, but bundle installation currently
+# resolves component IDs only from bundled assets or catalogs; it does not yet
+# install these relative sources. See README.md for the supported CLI sequence.
+provides:
+  extensions:
+    - id: "governance-discovery"
+      version: "2.0.0"
+      source: "extensions/discovery"
+  presets:
+    - id: "tiny-model-tasks"
+      version: "2.0.0"
+      source: "presets/tiny-model-tasks"
+      priority: 5
+      strategy: "wrap"
+  workflows:
+    - id: "governed-sdd"
+      version: "2.0.0"
+      source: "workflows/governed-sdd"
+
+tags:
+  - "governance"
+  - "discovery"
+  - "review-gates"
+  - "tiny-model"
+  - "spec-driven-development"

@@ -1,4 +1,30 @@
-# Changelog
+# Planned 2.0.0 release
+
+## 2.0.0
+
+- Introduces project-config schema v2 and the `workflow_governance` contract.
+- Requires explicit Discovery, artifact-specific human review evidence, and
+  hash-bound approval before each governed lifecycle transition.
+- Adds self-contained tiny-model task packages, task-readiness validation, and
+  cold-start review evidence.
+- Adds the `governed-sdd` companion workflow, without replacing upstream
+  bundled workflows or changing ownership of `.specify/**`, `specs/**`, or
+  native Agent-generated files.
+- Requires a verified `1.3.0` bridge migration record for v1 projects; direct
+  v1-to-v2 overwrite is rejected as `MIGRATION_REQUIRED`.
+- Preserves `docs/spec-kit/features/**` as project-local user evidence during
+  central synchronization, migration, and rollback.
+
+## 1.3.0 bridge
+
+- Preserves the v1 portable governance behavior while adding read support for
+  v2 migration contracts and a hash-bound v1-to-v2 migration planner.
+- Adds complete backup inventory and rollback-journal requirements for the
+  future major migration.
+- Does not enable strict workflow gates, install the governed companion, or
+  alter existing feature behavior.
+
+# Released history
 
 ## 1.2.0
 

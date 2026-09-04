@@ -104,7 +104,7 @@ Upstream content is never dynamically imported as a higher-priority instruction 
 
 # Global Policy deployment
 
-[GLOBAL_POLICY.md](GLOBAL_POLICY.md) is the only global Policy template. It is a Markdown document with one H1 title and H2 policy sections, wrapped in `<!-- SPEC-KIT-GLOBAL-POLICY:START version=1.2.0 -->` and `<!-- SPEC-KIT-GLOBAL-POLICY:END -->`. The deployment renderer fills this deployment-time locator:
+[GLOBAL_POLICY.md](GLOBAL_POLICY.md) is the only global Policy template. It is a Markdown document with one H1 title and H2 policy sections, wrapped in `<!-- SPEC-KIT-GLOBAL-POLICY:START version=2.0.0 -->` and `<!-- SPEC-KIT-GLOBAL-POLICY:END -->`. The deployment renderer fills this deployment-time locator:
 
 ~~~text
 SPEC_KIT_GOVERNANCE_SOURCE: <ABSOLUTE_PATH_TO_SPEC_KIT_REFERENCE_REPOSITORY>
@@ -116,7 +116,7 @@ Do not permanently write a personal absolute path into the committed source temp
 
 # 全局 Policy 部署
 
-[GLOBAL_POLICY.md](GLOBAL_POLICY.md) 是唯一的全局 Policy 模板。它是包含一个 H1 标题和 H2 Policy 章节的 Markdown 文档，由 `<!-- SPEC-KIT-GLOBAL-POLICY:START version=1.2.0 -->` 与 `<!-- SPEC-KIT-GLOBAL-POLICY:END -->` 包裹。部署 renderer 填写以下仅在部署时使用的 locator：
+[GLOBAL_POLICY.md](GLOBAL_POLICY.md) 是唯一的全局 Policy 模板。它是包含一个 H1 标题和 H2 Policy 章节的 Markdown 文档，由 `<!-- SPEC-KIT-GLOBAL-POLICY:START version=2.0.0 -->` 与 `<!-- SPEC-KIT-GLOBAL-POLICY:END -->` 包裹。部署 renderer 填写以下仅在部署时使用的 locator：
 
 ~~~text
 SPEC_KIT_GOVERNANCE_SOURCE: <ABSOLUTE_PATH_TO_SPEC_KIT_REFERENCE_REPOSITORY>
@@ -229,11 +229,20 @@ tools/spec-kit-governance/governance.py plan-extension-install
 tools/spec-kit-governance/governance.py plan-default-change
 tools/spec-kit-governance/governance.py plan-upgrade
 tools/spec-kit-governance/governance.py plan-rollback
+tools/spec-kit-governance/governance.py plan-upgrade-governance-v2
+tools/spec-kit-governance/governance.py plan-rollback-governance-v2
+tools/spec-kit-governance/governance.py plan-install-governed-companion
+tools/spec-kit-governance/governance.py plan-remove-governed-companion
 tools/spec-kit-governance/governance.py plan-activate-binding
+tools/spec-kit-governance/governance.py plan-record-artifact-review
 tools/spec-kit-governance/governance.py apply-plan
 tools/spec-kit-governance/governance.py render
 tools/spec-kit-governance/governance.py verify
 tools/spec-kit-governance/governance.py check-update
+tools/spec-kit-governance/governance.py check-companion-status
+tools/spec-kit-governance/governance.py check-artifact-approval
+tools/spec-kit-governance/governance.py verify-task-package
+tools/spec-kit-governance/governance.py audit-feature-readiness
 ~~~
 
 `apply-plan` is the only mutation entrypoint for Reference-owned governance changes. Plans record project and Git snapshots, CLI and integration state, exact file mutations, external CLI scope, recovery steps, and a canonical SHA-256 plan hash. Runtime plans, backups, journals, and failure evidence live under `.spec-kit-governance/` and are ignored by Git. The upstream `specify` CLI remains the executor for upstream Spec Kit artifacts and feature workflow.
@@ -277,11 +286,20 @@ tools/spec-kit-governance/governance.py plan-extension-install
 tools/spec-kit-governance/governance.py plan-default-change
 tools/spec-kit-governance/governance.py plan-upgrade
 tools/spec-kit-governance/governance.py plan-rollback
+tools/spec-kit-governance/governance.py plan-upgrade-governance-v2
+tools/spec-kit-governance/governance.py plan-rollback-governance-v2
+tools/spec-kit-governance/governance.py plan-install-governed-companion
+tools/spec-kit-governance/governance.py plan-remove-governed-companion
 tools/spec-kit-governance/governance.py plan-activate-binding
+tools/spec-kit-governance/governance.py plan-record-artifact-review
 tools/spec-kit-governance/governance.py apply-plan
 tools/spec-kit-governance/governance.py render
 tools/spec-kit-governance/governance.py verify
 tools/spec-kit-governance/governance.py check-update
+tools/spec-kit-governance/governance.py check-companion-status
+tools/spec-kit-governance/governance.py check-artifact-approval
+tools/spec-kit-governance/governance.py verify-task-package
+tools/spec-kit-governance/governance.py audit-feature-readiness
 ~~~
 
 `apply-plan` 是 Reference 自有治理变更的唯一入口。Plan 记录项目和 Git snapshots、CLI 与 integration 状态、精确文件变更、外部 CLI scope、恢复步骤，以及 canonical SHA-256 plan hash。运行时 plan、备份、journals 和 failure evidence 位于 `.spec-kit-governance/` 下，且被 Git 忽略。上游 Spec Kit artifacts 和功能工作流仍由上游 `specify` CLI 执行。
@@ -318,7 +336,7 @@ Build and validate a release from the repository root:
 
 ~~~bash
 python3 scripts/build_governance_release.py \
-  --version 1.2.0 \
+  --version 2.0.0 \
   --output-dir /tmp/speckit-governance-release
 
 python3 scripts/validate_governance_release.py \
@@ -337,7 +355,7 @@ release builder 创建两个确定性 artifacts：一个用于 staging 和项目
 
 ~~~bash
 python3 scripts/build_governance_release.py \
-  --version 1.2.0 \
+  --version 2.0.0 \
   --output-dir /tmp/speckit-governance-release
 
 python3 scripts/validate_governance_release.py \

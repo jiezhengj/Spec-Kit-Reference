@@ -1,0 +1,100 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://jiezhengj.github.io/Spec-Kit-Reference/governance/schemas/artifact-review.schema.json",
+  "title": "Append-only Spec Kit artifact review ledger",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "feature_id", "events"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "feature_id": { "$ref": "#/$defs/featureId" },
+    "events": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/event" }
+    }
+  },
+  "$defs": {
+    "featureId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+    },
+    "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "projectRelativePath": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!/)(?![A-Za-z]:)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*\\\\)(?!\\.\\.?$).+$"
+    },
+    "contentHashes": {
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": { "$ref": "#/$defs/projectRelativePath" },
+      "additionalProperties": { "$ref": "#/$defs/sha256" }
+    },
+    "event": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "event_id",
+        "artifact_type",
+        "decision",
+        "artifact_paths",
+        "content_sha256",
+        "review_summary",
+        "open_risks",
+        "recorded_by",
+        "recorded_at",
+        "evidence",
+        "supersedes_event_id"
+      ],
+      "properties": {
+        "event_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+        },
+        "artifact_type": {
+          "enum": ["DISCOVERY", "SPECIFICATION", "PLAN_BUNDLE", "TASK_PACKAGE", "REMEDIATION"]
+        },
+        "decision": {
+          "enum": ["REVIEW_REQUESTED", "APPROVED", "CHANGES_REQUESTED", "SUPERSEDED"]
+        },
+        "artifact_paths": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/projectRelativePath" }
+        },
+        "content_sha256": { "$ref": "#/$defs/contentHashes" },
+        "review_summary": { "type": "string", "minLength": 1 },
+        "open_risks": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "recorded_by": { "type": "string", "minLength": 1 },
+        "recorded_at": { "type": "string", "format": "date-time" },
+        "evidence": { "type": "string", "minLength": 1 },
+        "supersedes_event_id": {
+          "type": ["string", "null"],
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+        },
+        "approved_by": { "type": "string", "minLength": 1 },
+        "approved_at": { "type": "string", "format": "date-time" }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "decision": { "const": "APPROVED" } }, "required": ["decision"] },
+          "then": { "required": ["approved_by", "approved_at"] }
+        },
+        {
+          "if": { "properties": { "decision": { "const": "SUPERSEDED" } }, "required": ["decision"] },
+          "then": { "properties": { "supersedes_event_id": { "type": "string" } } }
+        }
+      ]
+    }
+  }
+}

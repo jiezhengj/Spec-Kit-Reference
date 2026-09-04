@@ -4,9 +4,9 @@
   "title": "Spec Kit project governance manifest",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schema_version", "governance_package_version", "policy_version", "reference_version", "manager_version", "source", "specify_compatibility", "paths", "content_sha256", "project_owned_files", "portable_anchor"],
+  "required": ["schema_version", "governance_package_version", "policy_version", "reference_version", "manager_version", "source", "specify_compatibility", "paths", "content_sha256", "project_owned_files", "project_owned_prefixes", "companion", "portable_anchor"],
   "properties": {
-    "schema_version": { "const": 1 },
+    "schema_version": { "const": 2 },
     "governance_package_version": { "$ref": "#/$defs/semver" },
     "policy_version": { "$ref": "#/$defs/semver" },
     "reference_version": { "type": "string", "pattern": "^[0-9]{4}\\.[0-9]{2}\\.[0-9]{2}$" },
@@ -58,6 +58,22 @@
     "project_owned_files": {
       "type": "array",
       "const": ["docs/spec-kit/LOCAL_OVERRIDES.md", "docs/spec-kit/PROJECT_CONFIG.json", "docs/spec-kit/ADAPTERS.json"]
+    },
+    "project_owned_prefixes": {
+      "type": "array",
+      "const": ["docs/spec-kit/features/"]
+    },
+    "companion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["version", "extension", "preset", "workflow", "installation_mode"],
+      "properties": {
+        "version": { "$ref": "#/$defs/semver" },
+        "extension": { "const": "governance-discovery" },
+        "preset": { "const": "tiny-model-tasks" },
+        "workflow": { "const": "governed-sdd" },
+        "installation_mode": { "const": "independent-native-components" }
+      }
     },
     "portable_anchor": {
       "type": "object",

@@ -1,0 +1,96 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://jiezhengj.github.io/Spec-Kit-Reference/governance/schemas/project-config-migration-record.schema.json",
+  "title": "Project configuration v1 to v2 migration record",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "migration_id",
+    "from_project_config_version",
+    "to_project_config_version",
+    "created_at",
+    "plan_id",
+    "plan_binding_sha256",
+    "source_revision",
+    "config_sha256_before",
+    "config_sha256_after",
+    "backup_inventory",
+    "preserved_subtrees",
+    "rollback_journal",
+    "status"
+  ],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "migration_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+    },
+    "from_project_config_version": { "const": 1 },
+    "to_project_config_version": { "const": 2 },
+    "created_at": { "type": "string", "format": "date-time" },
+    "plan_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[a-z0-9][a-z0-9-]*$"
+    },
+    "plan_binding_sha256": {
+      "$ref": "#/$defs/sha256",
+      "description": "SHA-256 of canonical JSON containing algorithm, operation_type, plan_id, project fingerprint, Git snapshot, source revision, before/after config hashes, backup inventory, and preserved subtrees. The migration record itself and final plan_sha256 are excluded to avoid self-reference."
+    },
+    "source_revision": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+    "config_sha256_before": { "$ref": "#/$defs/sha256" },
+    "config_sha256_after": { "$ref": "#/$defs/sha256" },
+    "backup_inventory": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path", "sha256"],
+        "properties": {
+          "path": { "$ref": "#/$defs/projectRelativePath" },
+          "sha256": { "$ref": "#/$defs/sha256" }
+        }
+      }
+    },
+    "preserved_subtrees": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "contains": { "const": "docs/spec-kit/features" },
+      "items": { "$ref": "#/$defs/projectRelativePath" }
+    },
+    "rollback_journal": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["sequence", "action", "path", "expected_sha256"],
+        "properties": {
+          "sequence": { "type": "integer", "minimum": 1 },
+          "action": { "enum": ["RESTORE", "DELETE_CREATED", "VERIFY_PRESERVED"] },
+          "path": { "$ref": "#/$defs/projectRelativePath" },
+          "expected_sha256": {
+            "anyOf": [
+              { "$ref": "#/$defs/sha256" },
+              { "type": "null" }
+            ]
+          }
+        }
+      }
+    },
+    "status": { "enum": ["PLANNED", "APPLIED", "ROLLED_BACK", "FAILED"] }
+  },
+  "$defs": {
+    "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "projectRelativePath": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!/)(?![A-Za-z]:)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*\\\\)(?!\\.\\.?$).+$"
+    }
+  }
+}

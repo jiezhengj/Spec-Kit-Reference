@@ -1,5 +1,39 @@
 # Upstream impact assessment
 
+## Local policy amendment — governed discovery and review
+
+Date:
+
+`2026-09-04`
+
+Classification:
+
+`POLICY`
+
+Trigger:
+
+Across existing Spec Kit projects, “按 Spec 制定方案” did not reliably cause the Agent to collect enough primary requirements, request human review at each artifact boundary, or produce implementation tasks that an executor with no prior conversation could safely run.
+
+Decision:
+
+Substantive Spec intent now enters structured Discovery before specification. Discovery, specification, plan bundle, task package, and remediation use hash-bound human review evidence. Implementation tasks must satisfy the tiny-model task contract and cold-start validation. These requirements are delivered through a separate `governed-sdd` companion and Reference-owned project sidecars; they do not redefine or directly edit upstream `.specify/**`, `specs/**`, or native Agent-generated artifacts.
+
+Existing v1 projects use the reviewed `1.3.0` bridge before the strict `2.0.0` configuration and companion are enabled. Migration and rollback preserve `docs/spec-kit/features/**` as project-owned evidence.
+
+Affected documents and components:
+
+- `GLOBAL_POLICY.md`
+- `SPEC_KIT_REFERENCE.md`
+- `governance/project/**`
+- `governance/manager/**`
+- `governance/schemas/**`
+- `governance/spec-kit-native/**`
+- release, migration, operations, and test contracts
+
+Validation:
+
+The manager contract, review-state, task-readiness, cold-start, bridge/strict release, deterministic archive, ownership-boundary, and full repository regression suites must pass before publication and rollout.
+
 ## Review range
 
 Baseline:
@@ -183,3 +217,48 @@ The installed local CLI is `specify 1.0.2.dev0`, matching the reviewed upstream 
 ### Conclusion
 
 The range is reviewed and the local Reference updates are complete. No global Policy change is justified by these upstream commits. After repository validation, advance `UPSTREAM_BASELINE` to `5aa8bea7823dcd056f111f847bf2d576bad3f0a5` as the last maintenance mutation.
+
+# Upstream review — 2026-09-04
+
+## Review range
+
+Baseline:
+
+`5aa8bea7823dcd056f111f847bf2d576bad3f0a5`
+
+Reviewed through:
+
+`df6b3187022ce986759bd854467e8a4bb56bb0f4`
+
+## Classification
+
+`REFERENCE`
+
+## Relevant upstream changes
+
+The range contains 60 commits spanning the `1.0.2`, `1.0.3`, and `1.0.4` releases and the beginning of `1.0.5.dev0`. The operationally relevant changes are:
+
+- workflow `slot` steps that are skipped when unfilled and may be replaced through schema-valid overlays;
+- bundled `speckit` workflow version `1.0.1`, with `integration=auto`, no unused `scope` input, and review gates only after specification and planning;
+- `analyze` and `converge` prerequisite checks that now require `spec.md` in addition to `plan.md` and `tasks.md`;
+- setup-plan output standardized on `FEATURE_DIR`, with unknown arguments rejected;
+- workflow, preset, extension, event, authentication, bundler, Unicode, and state-recovery hardening;
+- additional native Agent integrations and shared-Skills-directory collision metadata.
+
+Community catalog changes and new integration-specific layouts do not alter this repository's Agent-neutral governance contract.
+
+## Local impact
+
+`SPEC_KIT_REFERENCE.md` now records the bundled workflow's actual scope and its distinction from individual Skill execution. It also records the workflow-slot boundary, the current setup-plan JSON key, and the fail-fast prerequisites for `analyze` and `converge`.
+
+The bundled workflow still does not run `clarify`, task review, `analyze`, validation, or convergence. Workflow slots are an available extension mechanism only when a workflow declares them; the bundled workflow currently declares none. These facts support, but do not themselves implement, the separately requested governance design for mandatory discovery, artifact approval, tiny-model task packages, and cold-start validation.
+
+No change to `GLOBAL_POLICY.md` is justified by the upstream range. Any stronger intake, review, task-granularity, preset, extension, or custom-workflow requirement is a separate local `POLICY` decision requiring its own reviewed design and approval.
+
+## Runtime compatibility
+
+The installed local runtime is `specify 1.0.4`. Its workflow, preset, and extension help surfaces were verified. The reviewed upstream source is currently `1.0.5.dev0`; source revision, installed CLI version, and target-project generated Skills remain separate facts and must not be inferred from one another.
+
+## Conclusion
+
+The range is `REFERENCE`: it changes current operational mechanics and available extension points without replacing the local lifecycle or ownership policy. After repository validation, advance `UPSTREAM_BASELINE` to `df6b3187022ce986759bd854467e8a4bb56bb0f4` as the final maintenance mutation.

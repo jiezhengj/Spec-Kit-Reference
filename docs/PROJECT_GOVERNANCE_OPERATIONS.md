@@ -24,6 +24,52 @@ After a substantive discussion, approval such as “方案可以” authorizes a
 
 `verify` proves only the Reference-owned governance package. It is not feature-completion evidence.
 
+# Governed SDD workflow
+
+For a project configured with `workflow_governance.mode` of
+`governed-sdd-required`, a request such as “按 Spec 制定方案” begins with
+Discovery rather than an immediate specification draft. Record the objective,
+users, scenarios, data, boundaries, risks, acceptance evidence, known facts,
+open questions, and provisional assumptions. Product, safety, privacy, and
+release decisions remain questions for the user when they materially affect the
+feature; reasonable implementation defaults are not approval evidence.
+
+The governed sequence is:
+
+```text
+discovery → review-discovery → specify → clarify-loop → review-spec
+→ plan → review-plan-bundle → checklist → tasks → audit-task-readiness
+→ cold-start-review → review-task-package → analyze
+→ remediation-gate-if-needed → implement → validate → converge
+→ completion-review
+```
+
+At every review gate, stop in `PAUSED` and present the artifact type, current
+hashes, decisions, assumptions, open risks, and requested disposition. Only an
+explicit human approval bound to the displayed artifact type and hashes opens
+the next transition. An Agent checklist, a generated test result, or an
+approval of another artifact cannot substitute for that evidence. A rejection
+returns work to the artifact's revision stage; a changed artifact invalidates
+the earlier approval.
+
+Before implementation, generate a self-contained task package for each task:
+goal, traceability, necessary context, prerequisite state, allowed and
+prohibited changes, target files and symbols, interfaces and invariants,
+concrete implementation steps, failure behavior, validation command, expected
+result, completion evidence, and escalation condition. Run the read-only
+readiness audit and required cold-start review. A package that needs material
+context from the original conversation is not ready for a small isolated model.
+
+# V1 to v2 execution
+
+Strict governed SDD is available only after the project has completed the
+`1.3.0` bridge and an approved v2 migration plan. The bridge may plan but must
+not activate strict gates. The v2 plan requires companion capability discovery
+and exact upstream CLI argv in its operation plan. If a required workflow,
+preset, extension, or validator cannot be resolved, return
+`COMPANION_CAPABILITY_UNAVAILABLE`; do not silently run the legacy path while
+claiming governed completion.
+
 # Failure handling
 
 An unwritable Native target, or a permission, sandbox, repair, or installation failure, uniformly returns `NATIVE_INSTALL_BLOCKED`; an unknown identity returns `IDENTITY_UNKNOWN` or `KEY_REQUIRED`; plan-input drift, scope escape, or incomplete recovery returns `RECOVERY_REQUIRED`. On failure, retain the plan, backup, journal, and changed-file inventory; V1 performs no automatic cleanup.
