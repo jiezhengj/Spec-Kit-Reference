@@ -85,6 +85,20 @@ class ManagerV2OperationTests(unittest.TestCase):
         self.assertEqual(remove[-1]["argv"][-1], "--force")
         self.assertTrue(all(item["allowed_path_prefixes"] == [".specify/", ".agents/skills/"] for item in install + remove))
 
+    def test_v2_reference_sync_repairs_cli_compatibility_metadata(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            self.v1_target(root, "2.0.0")
+            manifest_path = root / "docs/spec-kit/MANIFEST.json"
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            manifest["specify_compatibility"]["tested_version"] = "0.16.6"
+            self.write_json(manifest_path, manifest)
+            mutations = manager.governance_update_mutations(root, ROOT)
+            by_path = {item["path"]: item for item in mutations}
+            updated = json.loads(base64.b64decode(by_path["docs/spec-kit/MANIFEST.json"]["content_b64"]))
+            self.assertEqual(updated["specify_compatibility"]["minimum_version"], "1.0.4")
+            self.assertEqual(updated["specify_compatibility"]["tested_version"], "1.0.4")
+
 
 if __name__ == "__main__":
     unittest.main()

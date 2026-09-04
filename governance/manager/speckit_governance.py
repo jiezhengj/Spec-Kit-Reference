@@ -1316,6 +1316,13 @@ def governance_update_mutations(root: Path, source: Path, context_anchor: str | 
         manifest["policy_version"] = source_version(source, "POLICY_VERSION", manifest.get("policy_version"))
         manifest["reference_version"] = source_version(source, "REFERENCE_VERSION", manifest.get("reference_version"))
         manifest["manager_version"] = source_version(source, "MANAGER_VERSION", manifest.get("manager_version"))
+        if manifest["governance_package_version"] == "2.0.0":
+            manifest["specify_compatibility"] = {
+                "minimum_version": "1.0.4",
+                "tested_version": "1.0.4",
+                "maximum_version_exclusive": None,
+                "approved_install_ref": manifest.get("source", {}).get("reviewed_upstream_revision") or reviewed_upstream_revision(source),
+            }
         manifest["source"] = manifest.get("source", {})
         source_revision_value = source_revision(source)
         if source_revision_value is None:
