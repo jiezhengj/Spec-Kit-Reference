@@ -11,11 +11,18 @@ Before any substantive work:
 
 # Substantive task entry
 
-Natural-language requests such as “按 Spec 制定方案”, “use Spec Kit”, “start a Feature”, or equivalent substantive design, plan, or implementation intent are classified before execution: undecided ideas use Assessment, known defects use Bug Fix, low-risk Features use the short path, and high-risk Features use the governed workflow.
+Natural-language requests such as “按 Spec 制定方案”, “use Spec Kit”, “start a Feature”, or equivalent substantive design, plan, or implementation intent are classified before execution: undecided ideas use Assessment, known defects use Bug Fix, low-risk Features use the short path, and high-risk Features use the full upstream path with a task-scoped choice between the adaptive full route and `governed-sdd`.
 
 For every substantive Feature, first ensure the project Constitution exists. If the project has no usable Constitution, invoke the upstream `/speckit-constitution` skill once and review the result before starting the Feature path. A known defect uses Bug Fix and an undecided idea uses Assessment; those extensions are independent entry paths and do not require manufacturing a Feature specification first.
 
-For high-risk substantive engineering, the governed upstream Spec Kit lifecycle is the execution path:
+Before creating or updating high-risk Feature artifacts, ask the user to choose one route for the current Feature:
+
+1. `governed-sdd`: enable the companion's high-assurance workflow for this Feature only;
+2. adaptive full path: use the complete upstream Spec Kit lifecycle with only the risk-triggered gates that apply.
+
+This choice must not modify `docs/spec-kit/PROJECT_CONFIG.json` or the project's default `workflow_governance.mode`. Both routes use upstream Spec Kit. If `governed-sdd` is selected and its companion is missing, ask whether to install it through the native CLI; a refusal returns `HANDOFF_TO_AGENT`.
+
+When the task-scoped route selects `governed-sdd`, the high-assurance lifecycle is:
 
 `constitution → discovery → review discovery → specify → clarify → review specification → plan → review plan bundle → checklist → tasks → readiness audit → cold-start review → review task package → analyze → remediation when needed → implement → validate → converge → completion review`
 

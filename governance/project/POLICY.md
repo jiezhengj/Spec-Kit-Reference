@@ -6,7 +6,7 @@ GitHub Spec Kit is used for substantive software engineering work. Read-only inv
 
 For substantive work, the upstream Spec Kit artifacts form the implementation contract. Before the first Feature in a project, ensure a usable project Constitution exists by invoking `/speckit-constitution` when it is absent or only a placeholder. The project may opt into committed high-assurance review evidence; adaptive short-path work does not create review ledgers solely because the request is substantive.
 
-Requests to create, design, plan, or implement a substantive Feature, including “按 Spec”, “use Spec Kit”, “form a plan”, or equivalent wording, must first be classified. Undecided ideas use Assessment, known defects use Bug Fix, low-risk Features use the short path, and high-risk Features use the governed workflow. Read-only investigation, explanation, trivial typo correction, and extremely small low-risk changes may remain outside SDD.
+Requests to create, design, plan, or implement a substantive Feature, including “按 Spec”, “use Spec Kit”, “form a plan”, or equivalent wording, must first be classified. Undecided ideas use Assessment, known defects use Bug Fix, low-risk Features use the short path, and high-risk Features use the full upstream path. Before high-risk Feature artifacts are created or updated, ask whether to use the task-scoped `governed-sdd` profile or the adaptive full upstream path. Read-only investigation, explanation, trivial typo correction, and extremely small low-risk changes may remain outside SDD.
 
 User approval phrases such as “the plan is acceptable” or “proceed with this approach” approve only the review object explicitly identified in the request. This approval does not authorize direct application-code edits that skip artifact alignment or later review gates; it authorizes the Agent only to advance that object into the governed upstream Spec Kit workflow.
 
@@ -22,7 +22,7 @@ Before upstream specification for high-risk work, inspect the repository for fac
 
 Classify each discovery item as `CONFIRMED_FACT`, `USER_DECISION`, `ASSUMPTION_PENDING_APPROVAL`, `OPEN_QUESTION`, `OUT_OF_SCOPE`, or `DEFERRED_WITH_OWNER`. Ask one logical topic per round, investigate repository facts before asking the user, and continue until there is no blocking open question. Recommendations are allowed but never become decisions without user approval. Product behavior, release scope, security exceptions, privacy, and data retention must not be filled from an unstated default.
 
-For high-assurance work, specification may begin only when high-impact assumptions are approved or excluded, scope and non-goals are explicit, at least one primary journey has a complete Given/When/Then skeleton, acceptance and failure evidence can be defined, and the user has approved the exact Discovery snapshot. Adaptive short-path work uses the upstream Specify and Clarify contracts appropriate to its risk.
+For high-assurance work, specification may begin only when high-impact assumptions are approved or excluded, scope and non-goals are explicit, at least one primary journey has a complete Given/When/Then skeleton, acceptance and failure evidence can be defined, and the user has approved the exact Discovery snapshot. Adaptive short-path and adaptive full-path work use the upstream Specify and Clarify contracts appropriate to their risk. A task-scoped high-assurance choice must not modify the project default configuration; both routes continue to use upstream Spec Kit.
 
 # High-assurance artifact review gates
 
@@ -66,7 +66,7 @@ Generic is allowed only when the current CLI has no native integration, project 
 
 New projects must use explicit `specify init --here --non-interactive --integration <approved-key>`. If a non-interactive init omits the key, the CLI may select a default product, so the manager must reject that command. In a non-empty brownfield, `--force` may appear only in a dedicated `plan-init`, with rehearsal, a scope snapshot, backup, exact authorization, and failure recovery; no other command may use `--force`.
 
-High-risk work in governed mode follows:
+When the current high-risk Feature selects the `governed-sdd` profile, it follows:
 
 `discovery → review discovery → specify → clarify → review specification → plan → review plan bundle → checklist → tasks → readiness audit → cold-start review → review task package → analyze → remediation gate when needed → implement → validate → converge → completion review`
 
@@ -74,7 +74,7 @@ This governed sequence preserves the upstream core lifecycle:
 
 `constitution → specify → clarify → plan → checklist → tasks → analyze → implement → validate → converge`
 
-In adaptive mode, Clarify, checklist, and analyze are triggered by ambiguity and risk; validate and converge remain required before substantive completion. In `governed-sdd` mode all configured gates are required. Missing optional companion capability does not block adaptive upstream work. Implementation must remain synchronized with the accepted specification, plan, tasks when present, project constraints, and tests.
+In adaptive mode, Clarify, checklist, and analyze are triggered by ambiguity and risk; validate and converge remain required before substantive completion. For a Feature that selects `governed-sdd`, all configured high-assurance gates are required. Missing optional companion capability does not block adaptive upstream work. Implementation must remain synchronized with the accepted specification, plan, tasks when present, project constraints, and tests.
 
 At Spec Kit project entry, inspect the CLI, active integration, and official `assess` and `bug` extensions. If a required capability is missing, ask whether to install it. If the user declines, return `HANDOFF_TO_AGENT` and stop applying Reference governance to that capability.
 

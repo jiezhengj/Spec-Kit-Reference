@@ -128,6 +128,35 @@ class CapabilityContractTests(unittest.TestCase):
         self.assertEqual(config["quality_gates"]["analyze"], "risk-triggered")
         self.assertIn("validate and converge remain required", read("governance/project/POLICY.md"))
 
+    def test_high_risk_route_is_task_scoped_and_preserves_upstream_authority(self):
+        required_phrases = ("task-scoped", "upstream Spec Kit")
+        for rel in (
+            "GLOBAL_POLICY.md",
+            "SPEC_KIT_REFERENCE.md",
+            "governance/project/START_HERE.md",
+            "governance/project/OPERATING_PROTOCOL.md",
+            "governance/project/POLICY.md",
+            "governance/project/REFERENCE.md",
+            "governance/project/AGENT_ONBOARDING.md",
+            "governance/spec-kit-native/workflows/governed-sdd/README.md",
+        ):
+            content = read(rel)
+            for phrase in required_phrases:
+                self.assertIn(phrase, content, f"{phrase!r} missing from {rel}")
+        protocol = read("governance/project/OPERATING_PROTOCOL.md")
+        self.assertIn("must not modify `docs/spec-kit/PROJECT_CONFIG.json`", protocol)
+        self.assertIn("workflow_governance.mode", protocol)
+        self.assertIn("adaptive full upstream path", protocol)
+        self.assertIn("Both routes use upstream Spec Kit", protocol)
+
+    def test_adaptive_default_is_not_rewritten_by_task_route_contract(self):
+        config = json.loads(read("governance/project/PROJECT_CONFIG.default.json"))
+        self.assertEqual(config["workflow_governance"]["mode"], "upstream-adaptive")
+        reference = read("governance/project/REFERENCE.md")
+        protocol = read("governance/project/OPERATING_PROTOCOL.md")
+        self.assertIn("does not change the project's default configuration", reference)
+        self.assertIn("must not modify `docs/spec-kit/PROJECT_CONFIG.json`", protocol)
+
     def test_reference_owned_boundary_is_documented_and_enforced(self):
         agents = read("AGENTS.md")
         reference = read("governance/project/REFERENCE.md")

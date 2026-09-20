@@ -23,13 +23,15 @@ Installing or upgrading one layer does not imply that the others changed.
 
 `.specify/` means an existing Spec Kit project. Resume it, inspect `status --json`, and protect existing files. New work is routed by intent and risk:
 
-`assessment` for undecided ideas, `bugfix` for known defects, the upstream short path for low-risk Features, and the governed companion for high-risk Features.
+`assessment` for undecided ideas, `bugfix` for known defects, the upstream short path for low-risk Features, and the full upstream path for high-risk Features.
+
+Before a high-risk Feature creates or updates artifacts, ask whether this Feature should use the task-scoped `governed-sdd` high-assurance profile or remain on the adaptive full upstream path. A task-scoped choice does not change the project's default configuration. Both routes use upstream Spec Kit; the companion adds the high-assurance review, readiness, and cold-start contract only when selected.
 
 Invocation syntax belongs to the installed integration. Validation and convergence are completion gates.
 
 The companion layer is installed and maintained through supported upstream workflow, extension, and preset commands. It orchestrates existing Spec Kit commands and Reference-owned gates; it is not a second specification engine. The Reference manager may inspect status and plan exact upstream CLI operations, but it must not write `.specify/**`, `specs/**`, or native Agent files directly.
 
-The companion provides the optional high-assurance profile. Verify its actual status when that profile is selected. In the adaptive profile, a missing companion is a warning and does not block ordinary upstream work.
+The companion provides the optional high-assurance profile. Verify its actual status when that profile is selected. In the adaptive profile, a missing companion is a warning and does not block ordinary upstream work. Never silently install, remove, or switch the companion during ordinary Feature work.
 
 At entry to a Spec Kit project, run the manager's capability check. It must detect the CLI, active integration, and official `assess` and `bug` extensions. For Feature work, also verify the once-per-project Constitution before starting `specify`. If a required capability is missing, ask the user whether to install it. If the user declines, return `HANDOFF_TO_AGENT`; do not retry or turn the decline into a permanent project error.
 

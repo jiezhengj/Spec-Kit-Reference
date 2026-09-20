@@ -6,7 +6,7 @@
 
 Use GitHub Spec Kit for substantive software engineering. Do not require the full lifecycle for read-only investigation, explanation, trivial typo fixes, or extremely small low-risk changes.
 
-Requests to create, design, plan, or implement a substantive Feature are routed by intent and risk: establish or review the project Constitution first, then use Assessment for undecided ideas, Bug Fix for known defects, short SDD for low-risk Features, and the full governed path for high-risk work. Explain any low-risk exemption instead of silently treating substantive work as a small change.
+Requests to create, design, plan, or implement a substantive Feature are routed by intent and risk: establish or review the project Constitution first, then use Assessment for undecided ideas, Bug Fix for known defects, short SDD for low-risk Features, and the full upstream path for high-risk work. Before creating or updating high-risk Feature artifacts, ask whether `governed-sdd` should be enabled for this Feature only. Explain any low-risk exemption instead of silently treating substantive work as a small change.
 
 ## Project authority
 
@@ -29,6 +29,8 @@ If the current CLI has no native integration, `generic` is allowed only when the
 For operational mechanics, prefer current project state, installed integration, installed `specify` CLI, committed project Reference, this central source, then upstream documentation. Keep accepted specifications, plans, tasks, implementation, validation, and convergence synchronized. Never hide failing checks or declare completion with an unresolved blocker.
 
 For high-risk substantive work, first inspect the brownfield system and conduct structured discovery. For lower-risk work, use the shortest upstream path that still produces verifiable intent and acceptance evidence. Record known facts, user decisions, assumptions awaiting approval, open questions, excluded scope, acceptance evidence, failure behavior, and release constraints when the selected route requires them. Do not replace product, security, privacy, retention, or release decisions with an unstated industry default.
+
+The `governed-sdd` choice is task-scoped: it must not change the project's default `workflow_governance.mode` or rewrite `docs/spec-kit/PROJECT_CONFIG.json`. Both the adaptive full path and `governed-sdd` use the upstream Spec Kit lifecycle; `governed-sdd` adds the optional companion's high-assurance review, readiness, and cold-start contract. Only an explicit user request to change the project's future default may update that configuration through its reviewed plan.
 
 Human review gates apply to `DISCOVERY`, `SPECIFICATION`, `PLAN_BUNDLE`, `TASK_PACKAGE`, and any required `REMEDIATION`. Each review request must identify the exact artifact set and content hashes. Agent self-review, a requirements checklist, successful validation, or a vague conversational approval cannot create or replace user approval. Changed content makes the corresponding approval stale. Stop at each configured gate until the user explicitly approves that review object or requests changes.
 

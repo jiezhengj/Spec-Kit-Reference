@@ -16,9 +16,13 @@ For an existing `.specify/` project that intentionally does not carry `docs/spec
 
 # Daily adaptive Feature workflow
 
-For feature work, select the shortest suitable upstream route:
+For Feature work, classify intent and risk, then select the shortest suitable upstream route:
 
-`assessment → decide`, `assess → fix → test`, `specify → plan → tasks → implement → converge`, or the full high-assurance sequence when risk requires it.
+`assessment → decide`, `assess → fix → test`, `specify → plan → tasks → implement → converge`, or the full upstream sequence when risk requires it.
+
+Before creating or updating artifacts for a high-risk Feature, ask one explicit task-scoped question: “Should this Feature use the `governed-sdd` high-assurance profile, or should it remain on the adaptive full upstream path?” A `governed-sdd` answer enables the companion only for the current Feature. An adaptive answer keeps the project on its existing default and uses the upstream full path with applicable risk-triggered gates.
+
+The task-scoped answer must not modify `docs/spec-kit/PROJECT_CONFIG.json`, change `workflow_governance.mode`, or silently alter the project's future defaults. Both routes use upstream Spec Kit. A project-default change is a separate user request and reviewed configuration operation.
 
 At each review gate, show the object type, artifact paths, hashes, concise changes, open risks, and permitted next stage. Record `REVIEW_REQUESTED`, `APPROVED`, `CHANGES_REQUESTED`, and `SUPERSEDED` as append-only events. Derive `STALE` whenever a live artifact hash differs from the approved hash or an upstream review object has been superseded. Never rewrite history to change a decision.
 

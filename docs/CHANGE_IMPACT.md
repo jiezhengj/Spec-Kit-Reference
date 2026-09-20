@@ -1,5 +1,36 @@
 # Upstream impact assessment
 
+## Local policy amendment — task-scoped high-assurance routing
+
+Date:
+
+`2026-09-21`
+
+Classification:
+
+`POLICY`
+
+Trigger:
+
+The adaptive release documented risk-based full paths and an optional `governed-sdd` profile, but did not explicitly tell the Agent to ask the user which profile to use for a high-risk Feature. The wording also left room for the mistaken belief that selecting `governed-sdd` replaces upstream Spec Kit or necessarily changes the project default.
+
+Decision:
+
+Before creating or updating high-risk Feature artifacts, the Agent must ask for a task-scoped choice between the `governed-sdd` high-assurance profile and the adaptive full upstream path. The choice does not modify `docs/spec-kit/PROJECT_CONFIG.json` or `workflow_governance.mode`; only an explicit project-default request may do so through a reviewed configuration operation. Both routes continue to use upstream Spec Kit. The companion adds mandatory discovery, review, readiness, and cold-start controls only for the selected high-assurance Feature.
+
+Affected documents and components:
+
+- `GLOBAL_POLICY.md`
+- `SPEC_KIT_REFERENCE.md`
+- `governance/project/**`
+- `governance/spec-kit-native/workflows/governed-sdd/README.md`
+- `tests/governance/unit/test_capability_contract.py`
+- `governance/capability-baseline.json`
+
+Validation:
+
+The task-scoped route contract is asserted in the capability tests, the full repository test suite passes, and the adaptive default remains unchanged.
+
 ## Local policy amendment — governed discovery and review
 
 Date:

@@ -24,11 +24,31 @@ After a substantive discussion, approval such as “方案可以” authorizes a
 
 `verify` proves only the Reference-owned governance package. It is not feature-completion evidence.
 
+# Task-scoped high-assurance route
+
+The project default remains `upstream-adaptive`. Before creating or updating
+artifacts for a high-risk Feature, the Agent must ask whether the current
+Feature should use the `governed-sdd` high-assurance profile or the adaptive
+full upstream path. This is a task-scoped route decision, not a project-mode
+mutation. It must not rewrite `docs/spec-kit/PROJECT_CONFIG.json` or
+`workflow_governance.mode`.
+
+Both routes use upstream Spec Kit. The adaptive choice keeps the complete
+upstream lifecycle and applies only the risk-triggered gates that are relevant.
+The `governed-sdd` choice additionally requires the companion's Discovery,
+hash-bound review, task-readiness, cold-start, remediation, and completion
+contracts. If the companion is unavailable, ask before installing it; a
+refusal returns `HANDOFF_TO_AGENT` and does not block ordinary adaptive work.
+
+Changing the project's future default to `governed-sdd` is a separate explicit
+user decision and must use the reviewed project-configuration operation.
+
 # Governed SDD workflow
 
-For a project configured with `workflow_governance.mode` of
-`governed-sdd`, a high-risk request such as “按 Spec 制定方案” begins with
-Discovery rather than an immediate specification draft. Adaptive projects route
+If a separate explicit project-default operation has configured
+`workflow_governance.mode` as `governed-sdd`, a high-risk request such as “按
+Spec 制定方案” begins with Discovery rather than an immediate specification
+draft. Otherwise, an adaptive project routes
 undecided ideas to Assessment, known defects to Bug Fix, and low-risk Features
 to the upstream short path. Record the objective,
 users, scenarios, data, boundaries, risks, acceptance evidence, known facts,

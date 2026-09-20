@@ -1,5 +1,12 @@
 # Maintenance history
 
+## 2026-09-21 — Task-scoped high-assurance routing
+
+- Added an explicit high-risk Feature route question between task-scoped `governed-sdd` and the adaptive full upstream path.
+- Clarified that both routes use upstream Spec Kit and that a task-scoped choice never changes the project default configuration.
+- Clarified that the companion is selected, installed, or verified only for the route that requires it; ordinary adaptive work remains non-blocking when it is absent.
+- Added regression coverage for the routing contract and preserved the default `upstream-adaptive` profile.
+
 ## 2026-09-21 — Adaptive routing, automatic Reference upgrades, and official extensions
 
 - Replaced the mandatory governed default with the adaptive upstream profile; the former `governed-sdd-required` configuration is migrated automatically and no legacy-strict profile is retained.

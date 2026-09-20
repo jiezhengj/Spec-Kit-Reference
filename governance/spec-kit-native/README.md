@@ -18,6 +18,14 @@ specify workflow add governance/spec-kit-native/workflows/governed-sdd --dev
 
 Those commands are examples for a reviewed manager-generated operation plan. They are not authorization to mutate a target project directly.
 
+The companion is not the upstream Spec Kit executor. A high-risk Feature may
+select the `governed-sdd` workflow for that Feature while the project remains
+`upstream-adaptive`; that task-scoped choice must not rewrite the project
+configuration. If the route remains adaptive, the Agent continues with the
+upstream short or full lifecycle selected by risk. Both routes use upstream
+Spec Kit, while the companion adds the high-assurance controls only when the
+route explicitly selects them.
+
 # Bundle compatibility boundary
 
 `bundle.yml` follows the current bundle-manifest schema and can be structurally validated and reproducibly built. The bundle installer may not consume a component reference's relative `source` field on every CLI release: it resolves extensions, presets, and workflows according to the installed CLI's supported sources. Consequently, a built archive is a distributable provenance artifact, not a promise of one fixed CLI implementation.
