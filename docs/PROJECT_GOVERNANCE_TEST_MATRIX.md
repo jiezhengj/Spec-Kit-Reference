@@ -4,7 +4,7 @@ Tests must cover schema validation, canonical plan hashes, path safety, markers,
 
 The ownership boundary must have a regression test: manager-owned mutations to `.specify/**`, `specs/**`, or native Agent-generated files are rejected, while supported upstream CLI operations remain representable as external mutations. Conversation-approval tests must prove that “方案可以” advances artifact alignment but never authorizes direct code edits before the upstream specification, plan, and tasks are aligned. Runtime-independence tests must prove that the local package does not require a global Policy or central Reference directory.
 
-The optional update-reminder path must prove that `plan-install-update-reminder` works with only an installed CLI, an existing `.specify/` project, and an explicit existing context anchor; it must append only its own managed block, preserve upstream Spec Kit files and existing anchor content, delegate detection to `specify self check`, and never authorize an automatic `specify self upgrade`.
+The optional update-reminder path must prove that `plan-install-update-reminder` works with only an installed CLI, an existing `.specify/` project, and an explicit existing context anchor; it must append only its own managed block, preserve upstream Spec Kit files and existing anchor content, delegate detection to `specify self check`, ask before `specify self upgrade`, and authorize only no-force refreshes of installed integration, extensions, and workflows.
 
 # Governed workflow and review evidence
 

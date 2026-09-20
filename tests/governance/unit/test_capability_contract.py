@@ -176,6 +176,23 @@ class CapabilityContractTests(unittest.TestCase):
         self.assertIn("UPDATE_REMINDER_START_MARKER", source)
         self.assertNotIn("specify self upgrade", source.split("def update_reminder_loader", 1)[0])
 
+    def test_upstream_update_protocol_is_reference_independent_and_refreshes_supported_layers(self):
+        policy = read("GLOBAL_POLICY.md")
+        loader = read("governance/project/GOVERNANCE_LOADER.md")
+        manager_source = read("governance/manager/speckit_governance.py")
+        reminder = manager_source.split("def update_reminder_loader", 1)[1].split("def reference_update_loader", 1)[0]
+        for content in (policy, loader, reminder):
+            self.assertIn(".specify/", content)
+            self.assertIn("at most once", content)
+            self.assertIn("specify self check", content)
+            self.assertIn("specify self upgrade", content)
+            self.assertIn("specify integration upgrade", content)
+            self.assertIn("specify extension update", content)
+            self.assertIn("specify workflow update", content)
+            self.assertIn("--force", content)
+        self.assertIn("independently of the central Reference", policy)
+        self.assertIn("independently of the central Reference", loader)
+
     def test_reference_update_check_is_policy_and_source_gated(self):
         policy = read("GLOBAL_POLICY.md")
         project_policy = read("governance/project/POLICY.md")
@@ -344,7 +361,7 @@ class CapabilityContractTests(unittest.TestCase):
         self.assertIn("\n# Spec Kit Global Policy\n", policy)
         self.assertIn("<!-- SPEC-KIT-GLOBAL-POLICY:START version=", policy)
         self.assertIn("<!-- SPEC-KIT-GLOBAL-POLICY:END -->", policy)
-        self.assertEqual(policy.count("\n## "), 5)
+        self.assertEqual(policy.count("\n## "), 6)
         self.assertEqual(policy.count("SPEC_KIT_GOVERNANCE_SOURCE:"), 1)
         self.assertEqual(policy.count("<ABSOLUTE_PATH_TO_SPEC_KIT_REFERENCE_REPOSITORY>"), 0)
         self.assertIn("SPEC_KIT_GOVERNANCE_SOURCE: /Users/jiezhengj/Documents/Project/SpecKitReference", policy)

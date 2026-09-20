@@ -1,5 +1,11 @@
 # Maintenance history
 
+## 2026-09-21 — Reference-independent upstream update maintenance
+
+- Made the Spec Kit upstream update check activate for every existing `.specify/` project, whether or not a central Reference or `docs/spec-kit/**` package is present.
+- Limited the user approval gate to a reported CLI upgrade; supported refreshes of installed integrations, extensions, and workflows are automatic and never add `--force`.
+- Preserved the central Reference check as a separate source-gated maintenance operation.
+
 ## 2026-09-21 — Task-scoped high-assurance routing
 
 - Added an explicit high-risk Feature route question between task-scoped `governed-sdd` and the adaptive full upstream path.

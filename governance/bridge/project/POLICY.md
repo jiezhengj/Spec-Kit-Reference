@@ -56,6 +56,10 @@ Relevant tests, builds, linting, schemas, reproductions, validation, and converg
 
 Completion requires agreement among user intent, accepted artifacts, implementation, project constraints, validation, convergence, the native integration, adapter verification, and capability-inventory conservation. Approval of a conversational proposal is not completion evidence. Do not report completion when a blocker, unmapped legacy capability, unplanned deletion, downgrade, invalid state, or default change exists; artifact drift is also unresolved work.
 
+# Upstream update maintenance
+
+The upstream update check is independent of the central Reference. Whenever `.specify/` exists, run the installed CLI's read-only `specify self check` at most once before the first substantive action in each new Agent session, even when this project has no `docs/spec-kit/**` package or the computer has no central Reference. Ask the user before `specify self upgrade` only when a newer CLI is reported. Then use the current CLI's actual help/status/list contracts to refresh installed integration, extension, and workflow components automatically when supported. Do not install missing components, assume presets are covered, invent flags, or add `--force`; modified-file conflicts and other irreversible choices require user review.
+
 # Central Reference maintenance
 
 When the global Policy is actually loaded and provides a readable `SPEC_KIT_GOVERNANCE_SOURCE`, an existing `.specify/` project with this committed governance package may perform one read-only central Reference check before the first substantive task in a new Agent session. If the global Policy, source locator, or source verification is absent, skip the check silently and never scan the computer for a Reference directory.

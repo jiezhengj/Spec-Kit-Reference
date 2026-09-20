@@ -78,6 +78,10 @@ In adaptive mode, Clarify, checklist, and analyze are triggered by ambiguity and
 
 At Spec Kit project entry, inspect the CLI, active integration, and official `assess` and `bug` extensions. If a required capability is missing, ask whether to install it. If the user declines, return `HANDOFF_TO_AGENT` and stop applying Reference governance to that capability.
 
+# Upstream update maintenance
+
+The upstream update check is independent of the central Reference. Whenever `.specify/` exists, run the installed CLI's read-only `specify self check` at most once before the first substantive action in each new Agent session, even when this project has no `docs/spec-kit/**` package or the computer has no central Reference. Ask the user before `specify self upgrade` only when a newer CLI is reported. Then use the current CLI's actual help/status/list contracts to refresh installed integration, extension, and workflow components automatically when supported. Do not install missing components, assume presets are covered, invent flags, or add `--force`; modified-file conflicts and other irreversible choices require user review.
+
 # Default and integration coexistence
 
 The project default integration uses a pinned strategy. Routine onboarding must not change the default. A default change may update configuration only after project configuration opens a one-time change window, an independent plan is generated, `specify integration use <key>` is run, and status verification succeeds; failure must restore the prior default. Extensions, presets, events, and shared infrastructure of non-default integrations must be verified separately; do not claim parity.

@@ -71,7 +71,17 @@ specify self upgrade
 specify integration status
 specify integration upgrade <key>
 specify extension update
+specify workflow update
 ```
+
+For every existing Spec Kit project, the upstream update check is independent
+of the central Reference. In each new Agent session, run `specify self check` at
+most once before substantive work. A newer CLI requires explicit approval
+before `specify self upgrade`; installed integration, extension, and workflow
+refreshes may be performed automatically using the current CLI contracts. Do
+not install missing components or add `--force`; a modified-file conflict or
+another irreversible choice requires user review. No exact CLI version is
+assumed.
 
 ## Central Reference update check
 
@@ -81,7 +91,7 @@ For a project that carries the committed governance package, the central Referen
 
 Reference synchronization updates only `docs/spec-kit/**`, the local governance manager, and the managed block in the explicit context anchor. It does not update `.specify/**`, `specs/**`, native Agent files, or business code. After synchronization, the upstream Spec Kit workflow decides whether any specification, plan, or task artifacts need updating.
 
-If an existing Spec Kit project intentionally has no global Policy and no `docs/spec-kit/**` package, Reference is inactive. The Agent may use upstream Spec Kit directly. A local reminder is optional and never makes the central Reference a runtime prerequisite.
+If an existing Spec Kit project intentionally has no global Policy and no `docs/spec-kit/**` package, the central Reference is inactive, but the independent upstream update protocol still applies when supplied by the Agent's global rules or a project-local reminder block. The project may use upstream Spec Kit directly; the central Reference remains a runtime convenience, not a prerequisite.
 
 The actual installed CLI and project integration are authoritative if this reference differs from runtime behavior.
 

@@ -81,7 +81,18 @@ specify self check
 specify self upgrade
 specify integration upgrade <key>
 specify extension update
+specify workflow update
 ```
+
+At most once per new Agent session, an existing `.specify/` project must run the
+read-only `specify self check`, regardless of whether this project carries the
+governance package or the current computer has a central Reference. A newer CLI
+requires explicit user approval before `specify self upgrade`. After that
+decision, inspect the active integration and installed extensions and workflows
+using the current CLI's help/status/list contracts. Supported refreshes of
+installed components are automatic; missing components are not installed by
+this check. Never add `--force`. Modified managed files, a requested force
+override, unsafe scope, or another irreversible choice requires user review.
 
 # Central Reference update check
 
@@ -93,7 +104,7 @@ Reference synchronization updates only `docs/spec-kit/**`, the local governance 
 
 # Optional CLI update reminder
 
-An existing Spec Kit project without this local package remains a pure upstream project. Reference does not scan for it, install itself, or impose a central update dependency.
+An existing Spec Kit project without this local package remains a pure upstream project. Reference does not scan for it, install itself, or impose a central Reference update dependency. The project can still use the independent upstream update protocol through its global Agent rules or the managed reminder block installed by `plan-install-update-reminder`.
 
 For an undecided idea, use `$speckit-assess-intake`. For a known defect, use the Bug workflow with `$speckit-bug-assess` and verify reproduction, remediation, and validation. If `assess` or `bug` is missing, offer native CLI installation first. A user refusal hands the task back to the current Agent without a Reference blocker.
 

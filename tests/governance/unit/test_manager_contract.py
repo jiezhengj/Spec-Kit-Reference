@@ -181,6 +181,11 @@ class ManagerContractTests(unittest.TestCase):
             self.assertEqual(reminder.count(manager.UPDATE_REMINDER_END_MARKER), 1)
             self.assertIn("specify self check", reminder)
             self.assertIn("specify self upgrade", reminder)
+            self.assertIn("specify integration upgrade", reminder)
+            self.assertIn("specify extension update", reminder)
+            self.assertIn("specify workflow update", reminder)
+            self.assertIn("at most once", reminder)
+            self.assertIn("Never add `--force`", reminder)
             self.assertNotIn(manager.START_MARKER, reminder)
             self.assertNotIn(manager.REFERENCE_UPDATE_START_MARKER, reminder)
 

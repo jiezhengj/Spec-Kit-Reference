@@ -12,7 +12,7 @@ Extract the portable artifact to `.spec-kit-governance/staging/<plan-id>/`, vali
 
 # Optional CLI update reminder
 
-For an existing `.specify/` project that intentionally does not carry `docs/spec-kit/**` and does not use a global Policy, `plan-install-update-reminder` may append only the separate Reference-owned update reminder to the exact existing context anchor. It requires the installed `specify` CLI, an existing anchor path supplied by the current Agent runtime or user, and an approved plan. It does not create the governance package, copy the manager, or edit `.specify/**`, `specs/**`, or native Agent integration files. The reminder delegates the check to upstream `specify self check`; it is informational and never runs `specify self upgrade` without explicit user approval.
+For an existing `.specify/` project that intentionally does not carry `docs/spec-kit/**`, `plan-install-update-reminder` may append the independent upstream update protocol to the exact existing context anchor. It requires the installed `specify` CLI, an existing anchor path supplied by the current Agent runtime or user, and an approved plan. It does not create the governance package, copy the manager, or directly edit `.specify/**`, `specs/**`, or native Agent integration files. The protocol runs `specify self check` at most once per new session, asks before `specify self upgrade`, and automatically refreshes supported installed integration, extension, and workflow components without `--force`. A modified-file conflict or any request for `--force` requires user review.
 
 # Daily Spec Kit feature workflow
 

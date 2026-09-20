@@ -20,6 +20,9 @@
   v1-to-v2 overwrite is rejected as `MIGRATION_REQUIRED`.
 - Preserves `docs/spec-kit/features/**` as project-local user evidence during
   central synchronization, migration, and rollback.
+- Applies an independent upstream update protocol to every existing `.specify/`
+  project: ask before `specify self upgrade`, automatically refresh supported
+  installed integration/extension/workflow layers, and never add `--force`.
 
 ## 1.3.0 bridge
 

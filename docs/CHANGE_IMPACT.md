@@ -278,6 +278,32 @@ The range contains 60 commits spanning the `1.0.2`, `1.0.3`, and `1.0.4` release
 
 Community catalog changes and new integration-specific layouts do not alter this repository's Agent-neutral governance contract.
 
+## 2026-09-21 upstream update maintenance impact
+
+This maintenance change is `POLICY` and `REFERENCE` impact. It separates
+upstream Spec Kit maintenance from central Reference maintenance. Every Agent
+session entering an existing `.specify/` project performs at most one
+read-only `specify self check`, regardless of whether a central Reference or
+local `docs/spec-kit/**` package exists. A reported CLI update requires explicit
+user approval for `specify self upgrade`; supported refreshes of installed
+integrations, extensions, and workflows are automatic without `--force`.
+Modified managed files, unsafe scope, or another irreversible choice stops the
+automatic refresh and requests user review. The central Reference check remains
+separately source-gated and session-gated.
+
+Affected files include `GLOBAL_POLICY.md`, `SPEC_KIT_REFERENCE.md`, the
+portable and bridge project policy/loader/reference documents, the manager's
+lightweight reminder block, and the security/test/history records. No manager
+operation directly edits `.specify/**` or `specs/**`; supported upstream CLI
+commands remain responsible for their generated artifacts.
+
+Validation:
+
+The reminder plan preserves existing anchor bytes and upstream project files;
+regression tests assert the independent session check, explicit CLI approval,
+automatic no-force component refresh contract, and the unchanged central
+Reference source gate.
+
 ## 2026-09-21 local policy and runtime impact
 
 This maintenance change is `POLICY` and `REFERENCE` impact. The Reference now routes by intent and risk, recognizes the official Assessment and Bug Fix extensions, and keeps the high-assurance companion as an opt-in profile. Existing mandatory v2 defaults are automatically migrated to `upstream-adaptive`; no `legacy-strict` profile is retained.

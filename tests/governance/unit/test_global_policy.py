@@ -23,7 +23,7 @@ class GlobalPolicyTemplateTests(unittest.TestCase):
         self.assertEqual(lines[-2], "")
         self.assertEqual(lines[-1], "<!-- SPEC-KIT-GLOBAL-POLICY:END -->")
         self.assertEqual(sum(line.startswith("# ") for line in lines), 1)
-        self.assertEqual(sum(line.startswith("## ") for line in lines), 5)
+        self.assertEqual(sum(line.startswith("## ") for line in lines), 6)
         self.assertEqual(text.count("<ABSOLUTE_PATH_TO_SPEC_KIT_REFERENCE_REPOSITORY>"), 0)
         self.assertIn("SPEC_KIT_GOVERNANCE_SOURCE: " + SOURCE, text)
         self.assertLessEqual(sum(bool(line.strip()) for line in lines), 40)

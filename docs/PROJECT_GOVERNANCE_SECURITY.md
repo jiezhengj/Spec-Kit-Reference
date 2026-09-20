@@ -14,7 +14,7 @@ Any unwritable native target, managed file repair, or context anchor, or any per
 
 The manager rejects direct mutations to `.specify/**`, `specs/**`, and native Agent-generated integration files with `REFERENCE_OWNERSHIP_VIOLATION`. Those artifacts remain under project or upstream CLI ownership. Supported `specify` CLI calls may still be represented as scoped external operations; their output is inventoried and never silently treated as manager-owned content.
 
-The optional update reminder is a separate managed block in the explicit context anchor. Its only runtime command is the upstream read-only `specify self check`; it must not invoke `specify self upgrade` without explicit user approval, and an offline check is non-blocking.
+The optional update reminder is a separate managed block in the explicit context anchor. It runs the upstream read-only `specify self check` at most once per new session, must not invoke `specify self upgrade` without explicit user approval, and may automatically invoke supported integration, installed-extension, and installed-workflow refresh commands. It must never add `--force`; modified-file conflicts and other irreversible choices require user review. An offline check is non-blocking.
 
 # Central Reference update security
 

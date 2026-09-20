@@ -16,7 +16,7 @@ First confirm the project root, read `docs/spec-kit/START_HERE.md`, and inspect 
 
 If an exact integration key, a context anchor, a writable native target, or the required command capability is unavailable, the manager must stop; it must neither guess the product nor switch to generic. A CLI version outside the last tested release is not, by itself, a failure.
 
-For an existing `.specify/` project that does not carry `docs/spec-kit/**`, Reference is inactive. The Agent may continue through upstream Spec Kit without a central Reference dependency.
+For an existing `.specify/` project that does not carry `docs/spec-kit/**`, the central Reference is inactive, but the independent upstream update protocol still applies when loaded from the global Policy or a project-local reminder block. The Agent may continue through upstream Spec Kit without a central Reference dependency. In each new session, `specify self check` runs at most once; a newer CLI requires user approval, while supported installed integration, extension, and workflow refreshes are automatic without `--force`.
 
 # Daily feature workflow
 

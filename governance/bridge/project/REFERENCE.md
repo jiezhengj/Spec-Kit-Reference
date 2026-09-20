@@ -69,7 +69,16 @@ specify self check
 specify self upgrade
 specify integration upgrade <key>
 specify extension update
+specify workflow update
 ```
+
+At most once per new Agent session, an existing `.specify/` project must run the
+read-only `specify self check`, regardless of whether this project carries the
+governance package or the current computer has a central Reference. A newer CLI
+requires explicit user approval before `specify self upgrade`. Supported
+refreshes of installed integration, extension, and workflow components are
+automatic after inspection with the current CLI's contracts. Never add
+`--force`; conflicts require user review.
 
 # Central Reference update check
 
