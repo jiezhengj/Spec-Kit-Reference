@@ -1713,6 +1713,7 @@ def cmd_doctor(root: Path) -> dict[str, Any]:
         result["workflow_profile"] = config.get("workflow_governance", {}).get("mode", "upstream-adaptive")
         result["strict_feature_governance"] = "OPT_IN" if result["workflow_profile"] == "governed-sdd" else "DISABLED_BY_DEFAULT"
         result["integration_status"] = integration_capability_status(root)
+        result["constitution"] = constitution_status(root) if (root / ".specify").is_dir() else None
         if (root / ".specify").is_dir() and version is not None:
             companion = companion_status(root)
             result["companion"] = companion
@@ -1784,6 +1785,23 @@ def integration_capability_status(root: Path) -> dict[str, Any]:
         "active_integration": active_key,
         "installed_integrations": installed,
         "inventory_sha256": sha256_bytes(canonical_json(data)),
+    }
+
+
+def constitution_status(root: Path) -> dict[str, Any]:
+    """Detect whether Feature work has a usable project Constitution."""
+    path = root / ".specify/memory/constitution.md"
+    if not path.is_file():
+        return {"status": "MISSING", "path": ".specify/memory/constitution.md"}
+    text = path.read_text(encoding="utf-8", errors="replace")
+    lower = text.lower()
+    placeholder_tokens = ("[project_name]", "[principle_", "[section_", "[project principle")
+    placeholder = any(token in lower for token in placeholder_tokens)
+    return {
+        "status": "PLACEHOLDER" if placeholder else "READY",
+        "path": ".specify/memory/constitution.md",
+        "content_sha256": sha256_file(path),
+        "feature_action": "RUN_SPECKIT_CONSTITUTION" if placeholder else None,
     }
 
 
@@ -2740,20 +2758,32 @@ def dispatch(root: Path, args: argparse.Namespace) -> dict[str, Any]:
         integration = integration_capability_status(root) if cli_status in {"READY", "CLI_CONTRACT_UNVERIFIED"} else {"status": cli_status, "active_integration": None}
         extensions = official_extension_status(root)
         missing = extensions.get("missing", []) if isinstance(extensions, dict) else []
+        constitution = constitution_status(root)
+        workflow_actions: list[str] = []
         if cli_status == "CLI_MISSING":
             required_action = "ASK_USER_TO_INSTALL_SPECIFY"
+            workflow_actions.append(required_action)
         elif integration.get("status") not in {"READY", "PROJECT_NOT_INITIALIZED"}:
             required_action = "ASK_USER_TO_CONFIGURE_ACTIVE_INTEGRATION"
+            workflow_actions.append(required_action)
         elif missing:
             required_action = "ASK_USER_TO_INSTALL_MISSING_OFFICIAL_EXTENSIONS"
+            workflow_actions.append(required_action)
+        elif constitution.get("status") in {"MISSING", "PLACEHOLDER"}:
+            required_action = "ESTABLISH_CONSTITUTION_BEFORE_FEATURE"
+            workflow_actions.append(required_action)
         else:
             required_action = "READY"
+        if constitution.get("status") in {"MISSING", "PLACEHOLDER"}:
+            workflow_actions.append("ESTABLISH_CONSTITUTION_BEFORE_FEATURE")
         return {
             "status": "READY" if cli_status == "READY" and integration.get("status") in {"READY", "PROJECT_NOT_INITIALIZED"} and not missing else (cli_status if cli_status != "READY" else "CAPABILITY_MISSING"),
             "cli_status": cli_status,
             "specify_version": cli_version(),
             "integration": integration,
             "official_extensions": extensions,
+            "constitution": constitution,
+            "workflow_actions": list(dict.fromkeys(workflow_actions)),
             "required_action": required_action,
             "companion": companion_status(root) if (root / ".specify").is_dir() and (root / PROJECT_PACKAGE).is_dir() else None,
         }

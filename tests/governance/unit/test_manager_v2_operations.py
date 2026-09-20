@@ -144,6 +144,17 @@ class ManagerV2OperationTests(unittest.TestCase):
         migrated = manager.adaptive_project_config(config)
         self.assertEqual(migrated["workflow_governance"], {"mode": "upstream-adaptive", "discovery": "risk-based"})
 
+    def test_constitution_status_distinguishes_placeholder_from_usable(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            path = root / ".specify/memory/constitution.md"
+            self.assertEqual(manager.constitution_status(root)["status"], "MISSING")
+            path.parent.mkdir(parents=True)
+            path.write_text("# [PROJECT_NAME] Constitution\n[PRINCIPLE_1_NAME]\n", encoding="utf-8")
+            self.assertEqual(manager.constitution_status(root)["status"], "PLACEHOLDER")
+            path.write_text("# Project Constitution\n\n## Principles\n\n- Protect user data.\n", encoding="utf-8")
+            self.assertEqual(manager.constitution_status(root)["status"], "READY")
+
 
 
 if __name__ == "__main__":
