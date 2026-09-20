@@ -247,6 +247,14 @@ The range contains 60 commits spanning the `1.0.2`, `1.0.3`, and `1.0.4` release
 
 Community catalog changes and new integration-specific layouts do not alter this repository's Agent-neutral governance contract.
 
+## 2026-09-21 local policy and runtime impact
+
+This maintenance change is `POLICY` and `REFERENCE` impact. The Reference now routes by intent and risk, recognizes the official Assessment and Bug Fix extensions, and keeps the high-assurance companion as an opt-in profile. Existing mandatory v2 defaults are automatically migrated to `upstream-adaptive`; no `legacy-strict` profile is retained.
+
+Specify compatibility is now capability-based. Observed CLI versions remain diagnostic metadata, while help surfaces, supported commands, installed component inventories, active integration state, and postconditions determine whether an operation can proceed. A missing CLI or official extension produces an installation offer; a user refusal hands the task back to the current Agent without a permanent Reference blocker.
+
+Central Reference synchronization uses a generated, hash-bound `auto-upgrade` operation. It requires no project-owner approval because its mutation set is restricted to Reference-owned governance files and managed context-anchor blocks. It never mutates `.specify/**`, `specs/**`, native Agent-generated files, or business code. Projects without GLOBAL_POLICY and the central Reference remain self-contained when they carry the local package; pure upstream projects remain outside this Reference layer.
+
 ## Local impact
 
 `SPEC_KIT_REFERENCE.md` now records the bundled workflow's actual scope and its distinction from individual Skill execution. It also records the workflow-slot boundary, the current setup-plan JSON key, and the fail-fast prerequisites for `analyze` and `converge`.
@@ -257,8 +265,8 @@ No change to `GLOBAL_POLICY.md` is justified by the upstream range. Any stronger
 
 ## Runtime compatibility
 
-The installed local runtime is `specify 1.0.4`. Its workflow, preset, and extension help surfaces were verified. The reviewed upstream source is currently `1.0.5.dev0`; source revision, installed CLI version, and target-project generated Skills remain separate facts and must not be inferred from one another.
+The installed local runtime observed during this review is `specify 1.0.5`. Its workflow, preset, and extension help surfaces were verified. The reviewed upstream source is newer than that installed runtime; source revision, installed CLI version, and target-project generated Skills remain separate facts and must not be inferred from one another.
 
 ## Conclusion
 
-The range is `REFERENCE`: it changes current operational mechanics and available extension points without replacing the local lifecycle or ownership policy. After repository validation, advance `UPSTREAM_BASELINE` to `df6b3187022ce986759bd854467e8a4bb56bb0f4` as the final maintenance mutation.
+The range is `REFERENCE`: it changes current operational mechanics and available extension points without replacing the local lifecycle or ownership policy. After repository validation, advance `UPSTREAM_BASELINE` to `d4229c071c7ea3885b43e8a7739847300f618f13` as the final maintenance mutation.

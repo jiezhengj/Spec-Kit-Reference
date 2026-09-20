@@ -7,7 +7,7 @@ The following workflow step IDs are the only companion-defined extension anchors
 - `slot-localization` follows `slot-design` and precedes plan-bundle review.
 - `slot-release` follows `converge` and precedes completion review.
 
-Spec Kit 1.0.4 does not offer a native workflow `slot` type. Each anchor is therefore an explicit human gate. A project can use `specify workflow overlay add` to insert, replace, or surround a stable anchor using the upstream overlay grammar. The overlay must be project-owned and approved through the normal governance operation plan; it must not remove a mandatory gate or introduce a silent bypass.
+The installed Spec Kit CLI may or may not offer a native workflow `slot` type. Each anchor is therefore an explicit human gate unless capability probing proves an upstream overlay contract. A project can use `specify workflow overlay add` only when the installed CLI exposes that command. The overlay must be project-owned and approved through the normal governance operation plan; it must not remove a mandatory gate or introduce a silent bypass.
 
 # Overlay requirements
 

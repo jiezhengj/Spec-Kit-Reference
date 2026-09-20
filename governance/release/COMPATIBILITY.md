@@ -12,7 +12,7 @@ pass `scripts/validate_governance_release.py`.
 | --- | --- | --- | --- |
 | `1.2.x` and earlier | v1 | Existing upstream Spec Kit lifecycle; no governed companion contract | May upgrade only to the `1.3.0` bridge first |
 | `1.3.0` bridge | v1, with v2 migration planning support | Preserves existing behavior; never enables strict workflow gates | Required staging line before `2.0.0` |
-| `2.0.0` | v2 | Governed SDD, explicit artifact reviews, tiny-model task readiness, and cold-start review | Only from a verified `1.3.0` bridge plan |
+| `2.0.0` | v2 | Adaptive upstream workflow by default; optional governed SDD with explicit artifact reviews, tiny-model task readiness, and cold-start review | Only from a verified `1.3.0` bridge plan |
 
 No manager may silently treat a v1 project as v2. A direct v1-to-v2 write, a
 partially applied major migration, or an unverified bridge is
@@ -34,14 +34,15 @@ project-local subtree. It must prove that business files, `.specify/**`,
 rules outside managed blocks are byte-identical after bridge installation and
 after a bridge rollback.
 
-## Strict release: 2.0.0
+## Adaptive release: 2.0.0
 
 `2.0.0` requires project-config schema v2 and a completed bridge-generated
 migration record. It adds a companion source bundle and a Reference-owned
-review-evidence sidecar. The companion uses upstream `specify` workflow,
-preset, and extension primitives; it does not replace the upstream lifecycle
-or grant the manager ownership of `.specify/**`, `specs/**`, or native Agent
-files.
+review-evidence sidecar for the opt-in `governed-sdd` high-assurance profile.
+The default project profile is `upstream-adaptive`; it does not retain a
+legacy-strict mode. The companion uses upstream `specify` workflow, preset,
+and extension primitives; it does not replace the upstream lifecycle or grant
+the manager ownership of `.specify/**`, `specs/**`, or native Agent files.
 
 Before any companion install or v2 apply operation, the manager must discover
 the installed CLI version and capabilities. Missing workflow, preset,
@@ -50,10 +51,12 @@ The manager must not substitute a weaker workflow or mark the project ready.
 
 ## Upgrade and rollback
 
-Every upgrade starts with a read-only compatibility check and a reviewed
+Every upgrade starts with a read-only compatibility check and a generated
 operation plan. The plan binds old hashes, source hashes, allowed manager
-paths, external CLI argv, backups, and recovery actions. User approval binds
-the exact plan ID and plan hash. A changed input invalidates that approval.
+paths, external CLI argv, backups, and recovery actions. Reference-owned
+central upgrades automatically authorize that exact plan; a changed input
+invalidates it. Other explicitly user-authorized mutations retain their
+normal approval boundary.
 
 Rollback follows the journal created by the approved plan. Governance rollback
 may restore the v1 portable policy, config, and manager only through the bridge

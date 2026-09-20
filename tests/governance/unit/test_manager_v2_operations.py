@@ -66,12 +66,12 @@ class ManagerV2OperationTests(unittest.TestCase):
             self.assertRegex(record["plan_binding_sha256"], r"^[0-9a-f]{64}$")
             self.assertIn("docs/spec-kit/features", record["preserved_subtrees"])
             self.assertEqual(manifest["companion"]["extension"], "governance-discovery")
-            self.assertEqual(manifest["specify_compatibility"]["minimum_version"], "1.0.4")
-            self.assertEqual(manifest["specify_compatibility"]["tested_version"], "1.0.4")
+            self.assertEqual(manifest["specify_compatibility"]["contract_schema"], 1)
+            self.assertIn("extension.add", manifest["specify_compatibility"]["required_capabilities"])
             self.assertEqual(sidecar.read_text(encoding="utf-8"), "user evidence\n")
             self.assertNotIn("docs/spec-kit/features/demo/DISCOVERY.md", by_path)
 
-    def test_companion_plan_uses_independent_104_argv(self) -> None:
+    def test_companion_plan_uses_capability_contract_argv(self) -> None:
         snapshot = {"source_root": str(ROOT), "tree_sha256": "4" * 64}
         with mock.patch.object(manager, "require_companion_cli_contract"), mock.patch.object(
             manager, "companion_allowed_prefixes", return_value=[".specify/", ".agents/skills/"]
@@ -96,8 +96,54 @@ class ManagerV2OperationTests(unittest.TestCase):
             mutations = manager.governance_update_mutations(root, ROOT)
             by_path = {item["path"]: item for item in mutations}
             updated = json.loads(base64.b64decode(by_path["docs/spec-kit/MANIFEST.json"]["content_b64"]))
-            self.assertEqual(updated["specify_compatibility"]["minimum_version"], "1.0.4")
-            self.assertEqual(updated["specify_compatibility"]["tested_version"], "1.0.4")
+            self.assertEqual(updated["specify_compatibility"]["contract_schema"], 1)
+            self.assertIn("workflow.list", updated["specify_compatibility"]["optional_capabilities"])
+
+    def test_cli_version_is_diagnostic_not_a_mutation_gate(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            with mock.patch.object(manager.shutil, "which", return_value="/usr/local/bin/specify"), mock.patch.object(manager, "cli_version", return_value="99.99.99"):
+                self.assertEqual(manager.cli_compatibility(root), "READY")
+
+    def test_capability_check_requests_cli_when_it_is_missing(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            with mock.patch.object(manager.shutil, "which", return_value=None):
+                result = manager.official_extension_status(root)
+                self.assertEqual(result["status"], "CLI_MISSING")
+                self.assertEqual(result["missing"], ["assess", "bug"])
+
+    def test_capability_check_exposes_active_integration_and_install_offer(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / ".specify").mkdir()
+            args = type("Args", (), {"command": "check-capabilities"})()
+            with mock.patch.object(manager, "cli_compatibility", return_value="READY"), mock.patch.object(
+                manager, "cli_version", return_value="99.99.99"
+            ), mock.patch.object(
+                manager, "integration_capability_status",
+                return_value={"status": "READY", "active_integration": "codex"},
+            ), mock.patch.object(
+                manager, "official_extension_status",
+                return_value={"status": "CAPABILITY_MISSING", "missing": ["assess", "bug"], "extensions": {}},
+            ):
+                result = manager.dispatch(root, args)
+            self.assertEqual(result["integration"]["active_integration"], "codex")
+            self.assertEqual(result["required_action"], "ASK_USER_TO_INSTALL_MISSING_OFFICIAL_EXTENSIONS")
+            self.assertEqual(result["status"], "CAPABILITY_MISSING")
+
+    def test_adaptive_profile_drops_high_assurance_defaults(self) -> None:
+        config = json.loads((ROOT / "governance/project/PROJECT_CONFIG.default.json").read_text(encoding="utf-8"))
+        config["workflow_governance"].update({
+            "mode": "governed-sdd-required",
+            "artifact_reviews": ["DISCOVERY"],
+            "approval_evidence": "committed-project-local",
+            "tiny_model_tasks": "required",
+            "cold_start_review": {"required": True, "minimum_samples": 3},
+        })
+        migrated = manager.adaptive_project_config(config)
+        self.assertEqual(migrated["workflow_governance"], {"mode": "upstream-adaptive", "discovery": "risk-based"})
+
 
 
 if __name__ == "__main__":

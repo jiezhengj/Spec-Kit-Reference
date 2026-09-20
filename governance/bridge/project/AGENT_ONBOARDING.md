@@ -10,7 +10,7 @@
 8. Any unwritable native target, permission, sandbox, repair, or installation error returns `NATIVE_INSTALL_BLOCKED`; preserve the existing state and stop.
 9. A context anchor may come only from an active binding or from a project-relative path explicitly supplied by the user, and it must carry compatibility evidence through `plan-onboard --anchor-evidence <project-relative-json>`. Stop for an unknown or unsupported format.
 10. Materialized delivery is allowed only when Loader fresh-session validation fails and the user explicitly requests it; `--loader-failure-evidence <project-relative-json>` must be supplied at the same time.
-11. Perform the sole apply only after the user authorizes it with `apply-plan --approve-plan-id <id> --approve-plan-sha256 <hash>`.
+11. Perform the sole apply only after the exact plan has been generated and validated. Reference-owned automatic upgrades may authorize that exact plan without a project-owner approval prompt.
 12. In a new session, verify the anchor, Loader, Policy version, probe token, runtime ID, integration key, native workflow, and existing inventory; save project-relative verification evidence, then generate `plan-activate-binding`. Until that plan is applied, the binding may only be `provisional` and must not be reported as `READY`.
 
 13. If the project already has the runtime-selected context anchor, onboarding may only inject or update the managed loader region; every byte outside that region must be preserved byte-for-byte. Overwriting, deleting, reordering, normalizing, or whole-file formatting is prohibited. If the anchor is absent, create only the exact runtime- or user-supplied path after evidence validation; never guess a filename.

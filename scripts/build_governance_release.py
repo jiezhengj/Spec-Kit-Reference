@@ -65,9 +65,9 @@ def release_contract(version: str) -> dict[str, object]:
         }
     if major >= 2:
         return {
-            "release_line": "strict",
+            "release_line": "adaptive",
             "project_config_schema_version": 2,
-            "strict_workflow_governance": True,
+            "strict_workflow_governance": False,
             "requires_bridge_migration": True,
             "minimum_bridge_version": "1.3.0",
         }

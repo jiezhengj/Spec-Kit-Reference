@@ -56,7 +56,7 @@ When the native init target, integration target, managed-file repair, anchor, or
 
 The central check is session-gated and source-gated: it runs only when the current Agent has loaded the global Policy, the Policy exposes `SPEC_KIT_GOVERNANCE_SOURCE`, and the target carries the committed governance package. Missing Policy, missing source, unavailable source, dirty source, or failed verification is silent and non-blocking during normal project work; no arbitrary directory scan is allowed.
 
-When the check reports `UPDATE_AVAILABLE`, present the source revision and changed paths to the user. Do not modify the project until the user approves the exact Reference synchronization plan. `REVIEW_REQUIRED` requires human review before any Policy-related deployment.
+When the check reports `UPDATE_AVAILABLE`, run the exact hash-bound `auto-upgrade` operation immediately. Project-owner approval is not required because the operation is limited to Reference-owned files and managed context-anchor blocks. `REVIEW_REQUIRED` remains a divergent-baseline condition and requires human review before any synchronization.
 
 # Upgrade and rollback
 

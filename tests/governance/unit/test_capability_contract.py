@@ -123,10 +123,10 @@ class CapabilityContractTests(unittest.TestCase):
             for artifact in ("specification", "plan", "tasks"):
                 self.assertIn(artifact, content)
 
-    def test_analyze_is_required_for_substantive_work(self):
+    def test_adaptive_profile_triggers_analyze_by_risk(self):
         config = json.loads(read("governance/project/PROJECT_CONFIG.default.json"))
-        self.assertEqual(config["quality_gates"]["analyze"], "required")
-        self.assertIn("Analyze, validate, and converge are required", read("governance/project/POLICY.md"))
+        self.assertEqual(config["quality_gates"]["analyze"], "risk-triggered")
+        self.assertIn("validate and converge remain required", read("governance/project/POLICY.md"))
 
     def test_reference_owned_boundary_is_documented_and_enforced(self):
         agents = read("AGENTS.md")
@@ -317,7 +317,8 @@ class CapabilityContractTests(unittest.TestCase):
         self.assertIn("<!-- SPEC-KIT-GLOBAL-POLICY:END -->", policy)
         self.assertEqual(policy.count("\n## "), 5)
         self.assertEqual(policy.count("SPEC_KIT_GOVERNANCE_SOURCE:"), 1)
-        self.assertEqual(policy.count("<ABSOLUTE_PATH_TO_SPEC_KIT_REFERENCE_REPOSITORY>"), 1)
+        self.assertEqual(policy.count("<ABSOLUTE_PATH_TO_SPEC_KIT_REFERENCE_REPOSITORY>"), 0)
+        self.assertIn("SPEC_KIT_GOVERNANCE_SOURCE: /Users/jiezhengj/Documents/Project/SpecKitReference", policy)
 
     def test_global_policy_deployment_updates_only_managed_block(self):
         protocol = read("docs/GLOBAL_POLICY_DEPLOYMENT.md")

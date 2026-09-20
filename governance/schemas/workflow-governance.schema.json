@@ -6,15 +6,11 @@
   "additionalProperties": false,
   "required": [
     "mode",
-    "discovery",
-    "artifact_reviews",
-    "approval_evidence",
-    "tiny_model_tasks",
-    "cold_start_review"
+    "discovery"
   ],
   "properties": {
-    "mode": { "const": "governed-sdd-required" },
-    "discovery": { "const": "required-for-substantive" },
+    "mode": { "enum": ["upstream-adaptive", "governed-sdd"] },
+    "discovery": { "enum": ["risk-based", "required-for-high-risk", "required-for-substantive"] },
     "artifact_reviews": {
       "type": "array",
       "minItems": 5,

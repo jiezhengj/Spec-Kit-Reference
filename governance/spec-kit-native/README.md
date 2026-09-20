@@ -8,7 +8,7 @@ The companion has three independently installable components:
 - `presets/tiny-model-tasks` wraps the upstream `speckit.tasks` command with the tiny-model task contract.
 - `workflows/governed-sdd` provides the gated lifecycle orchestration.
 
-For Spec Kit 1.0.4, the Reference manager must install the components individually through their native CLI primitives, in this order:
+The Reference manager installs the components individually through their native CLI primitives, in this order. The installed CLI's actual command contract, not a fixed release number, is the compatibility authority:
 
 ```text
 specify extension add governance/spec-kit-native/extensions/discovery --dev
@@ -20,7 +20,7 @@ Those commands are examples for a reviewed manager-generated operation plan. The
 
 # Bundle compatibility boundary
 
-`bundle.yml` follows the current Spec Kit 1.0 bundle-manifest schema and can be structurally validated and reproducibly built. The 1.0.4 bundle installer does not consume a component reference's relative `source` field: it resolves extensions, presets, and workflows only from the CLI core pack, an installed component, or a configured catalog. Consequently, a built archive is a distributable provenance artifact, not a self-installing bundle on 1.0.4.
+`bundle.yml` follows the current bundle-manifest schema and can be structurally validated and reproducibly built. The bundle installer may not consume a component reference's relative `source` field on every CLI release: it resolves extensions, presets, and workflows according to the installed CLI's supported sources. Consequently, a built archive is a distributable provenance artifact, not a promise of one fixed CLI implementation.
 
 The manager must fail closed with `COMPANION_CAPABILITY_UNAVAILABLE` if a future CLI changes this contract incompatibly. It must not claim that `specify bundle install` installed these relative sources until an upstream release supports that operation and the compatibility baseline is updated.
 
@@ -30,7 +30,7 @@ The extension commands create and read only `docs/spec-kit/features/<feature-id>
 
 # Slot boundary
 
-Spec Kit 1.0.4 has workflow overlays but no declared `slot` step type. The workflow therefore exposes stable, named anchor gates (`slot-security`, `slot-design`, `slot-localization`, and `slot-release`) that a project overlay can replace or surround using the upstream overlay mechanism. The contract for those anchors is in [slots/README.md](slots/README.md). An unfilled anchor is intentionally a human gate, not an automatic skip: governance must never silently bypass a required project review.
+The workflow exposes stable, named anchor gates (`slot-security`, `slot-design`, `slot-localization`, and `slot-release`) that a project overlay can replace or surround when the installed CLI supports that upstream overlay mechanism. The contract for those anchors is in [slots/README.md](slots/README.md). An unfilled anchor is intentionally a human gate, not an automatic skip: governance must never silently bypass a required project review.
 
 # Validation
 

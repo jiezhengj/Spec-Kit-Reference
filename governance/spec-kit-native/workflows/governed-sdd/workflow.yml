@@ -9,7 +9,7 @@ workflow:
   integration: "auto"
 
 requires:
-  speckit_version: ">=1.0.4"
+  speckit_version: ">=0.0.0"
   integrations:
     any:
       - "codex"

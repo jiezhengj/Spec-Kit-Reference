@@ -8,7 +8,7 @@ The optional update-reminder path must prove that `plan-install-update-reminder`
 
 # Governed workflow and review evidence
 
-The strict v2 workflow must prove that a substantive request begins with
+The opt-in governed v2 workflow must prove that a high-risk request begins with
 Discovery, that product and safety decisions cannot be silently defaulted, and
 that a non-interactive run pauses at every required human review. Missing,
 stale, superseded, self-signed, malformed, absolute-path, traversal-path, or
@@ -30,15 +30,15 @@ question, missing prerequisite, or unavailable referenced artifact must fail
 the readiness gate. Unfilled project workflow slots must safely skip; filled
 slots must preserve declared outputs for their successor.
 
-# Bridge and strict-release migration
+# Bridge and adaptive-release migration
 
 The `1.3.0` bridge must preserve v1 behavior and may only generate a v2 plan;
-it must not enable strict gates, write v2 config, install the companion, or
+it must not enable governed gates, write v2 config, install the companion, or
 change feature behavior. Its plan must contain a complete backup inventory,
 rollback journal, source and input hashes, and a preserved
 `docs/spec-kit/features/**` subtree declaration.
 
-The `2.0.0` path must reject direct v1 manager overwrite and require a verified
+The `2.0.0` adaptive path must reject direct v1 manager overwrite and require a verified
 bridge migration record. Upgrade and rollback fixtures must prove that business
 files, `.specify/**`, `specs/**`, native Agent-generated files, user-owned
 anchor bytes outside managed blocks, and feature-sidecar evidence remain

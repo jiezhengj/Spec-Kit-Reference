@@ -8,4 +8,4 @@ The workflow dispatches `speckit.governance-discovery.*` commands supplied by th
 
 # Revision behavior
 
-Spec Kit 1.0.4 gates can pause or abort, but cannot route a rejected gate back to a previous arbitrary command. A rejection therefore aborts the run deliberately. The operator corrects the artifact using the relevant command, records no approval until it is ready, and starts a new governed run or resumes only when the run state and artifact hashes remain valid. The governance manager is responsible for rejecting stale hashes.
+The installed Spec Kit CLI may pause or abort at gates, but the Reference manager does not assume a particular release's routing grammar. A rejection therefore remains an explicit workflow outcome. The operator corrects the artifact using the relevant upstream command, and the manager rejects stale hashes when high-assurance review evidence is in use.

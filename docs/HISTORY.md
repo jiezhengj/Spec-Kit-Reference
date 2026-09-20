@@ -1,5 +1,12 @@
 # Maintenance history
 
+## 2026-09-21 — Adaptive routing, automatic Reference upgrades, and official extensions
+
+- Replaced the mandatory governed default with the adaptive upstream profile; the former `governed-sdd-required` configuration is migrated automatically and no legacy-strict profile is retained.
+- Added version-neutral CLI contract probing and removed exact Specify release gating.
+- Added `check-capabilities`, official `assess`/`bug` capability detection, consented native extension installation, and `HANDOFF_TO_AGENT` behavior after refusal.
+- Added hash-bound `auto-upgrade` for Reference-owned synchronization without a project-owner approval prompt while preserving the `.specify/**`, `specs/**`, native integration, and business-code ownership boundary.
+
 ## 2026-09-04 — Governed discovery and executable task contracts
 
 - Added mandatory structured Discovery for substantive Spec intent, with explicit exit criteria for blocking questions, high-impact assumptions, scope, primary journeys, and user-approved snapshots.
@@ -13,7 +20,7 @@
 - Reviewed `5aa8bea7823dcd056f111f847bf2d576bad3f0a5` through `df6b3187022ce986759bd854467e8a4bb56bb0f4` after fetching `upstream/main`.
 - Classified the range as `REFERENCE`: workflow slots, bundled workflow `1.0.1`, stricter artifact prerequisites, `FEATURE_DIR` script output, new integrations, and runtime hardening were reviewed without promoting upstream content into local Policy.
 - Documented that the bundled workflow gates only specification and planning and does not automatically provide clarification, task review, analysis, validation, or convergence.
-- Verified the installed `specify 1.0.4` workflow, preset, and extension command surfaces; kept installed CLI, reviewed source, and generated project Skills as separate versioned layers.
+- The earlier baseline review recorded `specify 1.0.4` for its workflow, preset, and extension command surfaces; current CLI versions remain runtime evidence rather than a package compatibility pin.
 - Advanced the baseline only after the Reference update and repository validation completed.
 
 ## 2026-08-28 — Central Reference update handoff

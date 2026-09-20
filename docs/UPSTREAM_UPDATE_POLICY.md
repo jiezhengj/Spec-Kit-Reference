@@ -52,4 +52,4 @@ The methodology, lifecycle, completion semantics, integration architecture, or p
 
 ## Automation boundary
 
-The checker and GitHub Action may detect and notify. They must not automatically edit or merge local policy. Semantic assessment is a review step, and baseline advancement happens only after that review is complete.
+The checker and GitHub Action may detect and notify; they do not themselves edit or merge local policy. The runtime manager may automatically synchronize an already-reviewed central Reference package into Reference-owned target files through its hash-bound `auto-upgrade` operation. Semantic upstream assessment and baseline advancement remain separate maintenance steps.

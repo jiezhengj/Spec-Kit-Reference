@@ -25,10 +25,15 @@
     "specify_compatibility": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["minimum_version", "tested_version", "maximum_version_exclusive", "approved_install_ref"],
+      "required": ["required_capabilities", "contract_schema", "approved_install_ref"],
       "properties": {
-        "minimum_version": { "$ref": "#/$defs/cliVersion" },
-        "tested_version": { "$ref": "#/$defs/cliVersion" },
+        "required_capabilities": { "type": "array", "uniqueItems": true, "items": { "type": "string", "minLength": 1 } },
+        "optional_capabilities": { "type": "array", "uniqueItems": true, "items": { "type": "string", "minLength": 1 } },
+        "contract_schema": { "type": "integer", "minimum": 1 },
+        "observed_version": { "type": ["null", "string"], "minLength": 1 },
+        "contract_fingerprint": { "type": ["null", "string"], "pattern": "^[0-9a-f]{64}$" },
+        "minimum_version": { "anyOf": [{ "type": "null" }, { "$ref": "#/$defs/cliVersion" }] },
+        "tested_version": { "anyOf": [{ "type": "null" }, { "$ref": "#/$defs/cliVersion" }] },
         "maximum_version_exclusive": { "anyOf": [{ "type": "null" }, { "$ref": "#/$defs/cliVersion" }] },
         "approved_install_ref": { "$ref": "#/$defs/gitSha" }
       }

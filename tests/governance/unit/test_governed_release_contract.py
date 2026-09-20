@@ -40,7 +40,7 @@ class GovernedReleaseContractTests(unittest.TestCase):
             stderr=subprocess.PIPE,
         )
 
-    def test_release_notes_define_bridge_before_strict_upgrade(self) -> None:
+    def test_release_notes_define_bridge_before_adaptive_upgrade(self) -> None:
         compatibility = (ROOT / "governance/release/COMPATIBILITY.md").read_text(encoding="utf-8")
         changelog = (ROOT / "governance/release/CHANGELOG.md").read_text(encoding="utf-8")
         migration = (ROOT / "docs/PROJECT_GOVERNANCE_MIGRATION.md").read_text(encoding="utf-8")
@@ -52,7 +52,7 @@ class GovernedReleaseContractTests(unittest.TestCase):
         self.assertIn("docs/spec-kit/features/**", compatibility)
         self.assertIn("COMPANION_CAPABILITY_UNAVAILABLE", compatibility)
 
-    def test_strict_release_is_deterministic_and_contains_governed_contracts(self) -> None:
+    def test_adaptive_release_is_deterministic_and_contains_optional_governed_contracts(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             first_root = Path(directory) / "first"
             second_root = Path(directory) / "second"
@@ -87,7 +87,7 @@ class GovernedReleaseContractTests(unittest.TestCase):
                 self.assertIn("governance/spec-kit-native/bundle.yml", extension_names)
                 metadata = json.loads(portable_zip.read("governance/release/SOURCE_METADATA.json"))
                 self.assertEqual(metadata["schema_version"], 2)
-                self.assertEqual(metadata["compatibility"]["release_line"], "strict")
+                self.assertEqual(metadata["compatibility"]["release_line"], "adaptive")
                 self.assertEqual(metadata["compatibility"]["project_config_schema_version"], 2)
                 self.assertTrue(metadata["compatibility"]["requires_bridge_migration"])
                 shared = "governance/manager/speckit_governance.py"

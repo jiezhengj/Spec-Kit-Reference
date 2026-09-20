@@ -75,17 +75,15 @@ specify extension update
 
 For a project that carries the committed governance package, the central Reference check is enabled only when the current Agent has loaded the global Policy and that Policy provides a readable `SPEC_KIT_GOVERNANCE_SOURCE` path. Before the first substantive task in a new session, run the local manager's read-only `check-update --source <central-reference-path>` at most once. If the Policy or locator is absent, skip silently; do not search the machine for a Reference directory.
 
-`UP_TO_DATE` means the target manifest source revision matches the clean central Reference checkout. `UPDATE_AVAILABLE` means a clean, ancestor central source has newer Reference content. `REVIEW_REQUIRED` means the baseline is divergent or the change includes Policy content. These statuses never authorize mutation. The user must approve an exact `plan-upgrade` and `apply-plan` before Reference-owned files are synchronized.
+`UP_TO_DATE` means the target manifest source revision matches the clean central Reference checkout. `UPDATE_AVAILABLE` means a clean, ancestor central source has newer Reference content. When the central source is available, the Agent automatically runs the exact hash-bound `auto-upgrade` operation. Project-owner approval is not required for Reference-owned synchronization. A divergent baseline is never overwritten automatically.
 
 Reference synchronization updates only `docs/spec-kit/**`, the local governance manager, and the managed block in the explicit context anchor. It does not update `.specify/**`, `specs/**`, native Agent files, or business code. After synchronization, the upstream Spec Kit workflow decides whether any specification, plan, or task artifacts need updating.
 
 # Optional CLI update reminder
 
-An already Spec Kit project may opt into a lightweight reminder without installing the project governance package. `plan-install-update-reminder` appends a separate managed block to the exact existing Agent context anchor and asks the Agent to run upstream `specify self check` once per session. It requires only the installed CLI, an existing `.specify/` directory, and the explicit anchor path. It does not create `docs/spec-kit/**`, copy the manager, or modify `.specify/**`, `specs/**`, or native integration files. A detected update is reported to the user; `specify self upgrade` still requires explicit approval.
+An existing Spec Kit project without this local package remains a pure upstream project. Reference does not scan for it, install itself, or impose a central update dependency.
 
-For a substantive defect, use the installed project's bug workflow when the
-bug extension is present; verify reproduction, remediation, and validation.
-Do not report a bug as fixed merely because a command completed.
+For an undecided idea, use `$speckit-assess-intake`. For a known defect, use `$speckit-bug-assess` and verify reproduction, remediation, and validation. If `assess` or `bug` is missing, offer native CLI installation first. A user refusal hands the task back to the current Agent without a Reference blocker.
 
 Bundles, presets, workflows, and events are runtime-managed artifacts. Inspect
 their current status before changing them and do not claim that a non-default

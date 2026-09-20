@@ -7,6 +7,6 @@ The native companion does not implement a second lifecycle engine. Its validator
 - `verify-task-package --feature-dir docs/spec-kit/features/<feature-id>`;
 - `check-companion-status`.
 
-The commands must be implemented by the governance manager before any project enables `governed-sdd-required`. Until then, the companion commands must report `COMPANION_CAPABILITY_UNAVAILABLE` and stop before `speckit.implement`.
+The commands are used only when a project explicitly enables `governed-sdd`. Adaptive projects do not require the companion commands and continue through the upstream short or full path selected by the Agent.
 
 Validators may read upstream-owned files and write only their Reference-owned report paths. They must never write `.specify/**`, `specs/**`, or native Agent-generated files, and a successful audit must never be converted into a user approval event.

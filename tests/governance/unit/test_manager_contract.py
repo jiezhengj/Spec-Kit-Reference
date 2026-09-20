@@ -529,6 +529,38 @@ class ManagerContractTests(unittest.TestCase):
             self.assertEqual(manifest["source"]["revision"], manager.git_value(source, "rev-parse", "HEAD"))
             self.assertIn("reference release change", (project / "docs/spec-kit/REFERENCE.md").read_text(encoding="utf-8"))
 
+    def test_auto_upgrade_migrates_old_profile_without_owner_approval(self):
+        with tempfile.TemporaryDirectory() as directory:
+            workspace = Path(directory)
+            source = self.make_source_fixture(workspace)
+            project = workspace / "target"
+            project.mkdir()
+            subprocess.run(["git", "init", "-q", str(project)], check=True)
+            bootstrap = json.loads(self.run_manager(
+                project, "plan-governance-bootstrap", "--source", str(source),
+                "--context-anchor", "AGENTS.md",
+            ).stdout)
+            self.run_manager(project, "apply-plan", "--plan", bootstrap["path"], "--approve-plan-id", bootstrap["plan_id"], "--approve-plan-sha256", bootstrap["plan_sha256"])
+            config_path = project / "docs/spec-kit/PROJECT_CONFIG.json"
+            config = json.loads(config_path.read_text(encoding="utf-8"))
+            config["workflow_governance"]["mode"] = "governed-sdd-required"
+            config["workflow_governance"]["discovery"] = "required-for-substantive"
+            config["quality_gates"]["clarify"] = "required"
+            config_path.write_text(json.dumps(config, sort_keys=True) + "\n", encoding="utf-8")
+            (source / "governance/project/REFERENCE.md").write_text(
+                (source / "governance/project/REFERENCE.md").read_text(encoding="utf-8") + "\nautomatic release\n",
+                encoding="utf-8",
+            )
+            subprocess.run(["git", "add", "-A"], cwd=source, check=True)
+            subprocess.run(["git", "-c", "user.name=Spec Kit Test", "-c", "user.email=test@example.com", "commit", "-qm", "automatic release"], cwd=source, check=True)
+            result = json.loads(self.run_manager(project, "auto-upgrade", "--source", str(source)).stdout)
+            self.assertEqual(result["status"], "AUTO_UPGRADED")
+            self.assertFalse(result["owner_approval_required"])
+            updated = json.loads(config_path.read_text(encoding="utf-8"))
+            self.assertEqual(updated["workflow_governance"]["mode"], "upstream-adaptive")
+            self.assertEqual(updated["workflow_governance"]["discovery"], "risk-based")
+            self.assertEqual(updated["quality_gates"]["clarify"], "risk-triggered")
+
     def test_plan_init_records_isolated_rehearsal(self):
         with tempfile.TemporaryDirectory() as directory:
             project = Path(directory)

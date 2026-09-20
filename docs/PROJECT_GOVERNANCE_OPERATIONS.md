@@ -1,6 +1,6 @@
 # Operational entry point
 
-The fixed public entry point for Reference-owned governance changes is `tools/spec-kit-governance/governance.py`. Its read-only commands are `doctor`, `resolve-agent`, `verify`, and `check-update`; every manager mutation must first generate an operation plan and then be executed with `apply-plan --approve-plan-id <id> --approve-plan-sha256 <hash>`.
+The fixed public entry point for Reference-owned governance changes is `tools/spec-kit-governance/governance.py`. Its read-only commands are `doctor`, `resolve-agent`, `verify`, `check-capabilities`, and `check-update`; ordinary mutations generate an operation plan and apply it with the exact plan ID and hash. Central Reference synchronization uses `auto-upgrade`, which self-authorizes only its generated Reference-owned plan.
 
 The manager is not a second Spec Kit executor. The upstream `specify` CLI owns `.specify/**`, `specs/**`, and native Agent-generated integration files. The manager may invoke supported upstream CLI commands as an opaque external step, but its own file mutations are restricted to `docs/spec-kit/**`, `tools/spec-kit-governance/governance.py`, `.spec-kit-governance/**`, and the separately managed loader and Reference-update-check blocks in the explicitly selected context anchor.
 
@@ -8,15 +8,15 @@ The manager is not a second Spec Kit executor. The upstream `specify` CLI owns `
 
 When the current Agent has actually loaded the global Policy and its `SPEC_KIT_GOVERNANCE_SOURCE` locator points to a clean central Reference checkout, the manager may run `check-update --source <central-source>` once before the first substantive task in a new session. The check is read-only. If the global Policy or source locator is absent, unavailable, dirty, or unverifiable, normal project work skips it silently and never searches arbitrary directories.
 
-`UP_TO_DATE` produces no notice. `UPDATE_AVAILABLE` is an informational prompt only. After explicit approval, stage the source and generate `plan-upgrade --source <staged-source>`. The plan may update the committed governance package, the project manager, and the separately managed governance-loader and Reference-update-check blocks in the context anchor. It must not update `.specify/**`, `specs/**`, native Agent files, or business code. Once the governance layer is current, upstream Spec Kit decides whether its specification, plan, or task artifacts need alignment.
+`UP_TO_DATE` produces no notice. `UPDATE_AVAILABLE` is automatically handled by `auto-upgrade --source <staged-source>`. The generated plan may update the committed governance package, the project manager, the project configuration profile, and the separately managed governance-loader and Reference-update-check blocks in the context anchor. It must not update `.specify/**`, `specs/**`, native Agent files, or business code. Once the governance layer is current, upstream Spec Kit decides whether its specification, plan, or task artifacts need alignment.
 
 # Standard sequence
 
 First confirm the project root, read `docs/spec-kit/START_HERE.md`, and inspect `.specify/` and `specify integration status --json`. For a new project, run `plan-governance-bootstrap` first, then run `plan-init`/`plan-onboard` with explicit `--runtime-id`, `--integration-key`, and `--context-anchor` values; onboarding the current Agent must first pass the native resolver. Install an Extension separately with `plan-extension-install`; it must not be an implicit side effect of bootstrap. A successfully installed CLI integration remains provisional; fresh-session evidence must be provided when running `plan-activate-binding`, or `READY` must not be reported.
 
-If an exact integration key, a context anchor, a writable native target, or compatibility with the current CLI version is unavailable, the manager must stop; it must neither guess the product nor switch to generic.
+If an exact integration key, a context anchor, a writable native target, or the required command capability is unavailable, the manager must stop; it must neither guess the product nor switch to generic. A CLI version outside the last tested release is not, by itself, a failure.
 
-For an existing `.specify/` project that does not carry `docs/spec-kit/**`, the optional `plan-install-update-reminder` operation is the lightweight reminder path. It requires an existing exact context anchor and installed CLI, appends only the separate managed reminder block, and leaves `.specify/**`, `specs/**`, and native integration files untouched. The block delegates update detection to upstream `specify self check`; it does not auto-upgrade.
+For an existing `.specify/` project that does not carry `docs/spec-kit/**`, Reference is inactive. The Agent may continue through upstream Spec Kit without a central Reference dependency.
 
 # Daily feature workflow
 
@@ -27,8 +27,10 @@ After a substantive discussion, approval such as “方案可以” authorizes a
 # Governed SDD workflow
 
 For a project configured with `workflow_governance.mode` of
-`governed-sdd-required`, a request such as “按 Spec 制定方案” begins with
-Discovery rather than an immediate specification draft. Record the objective,
+`governed-sdd`, a high-risk request such as “按 Spec 制定方案” begins with
+Discovery rather than an immediate specification draft. Adaptive projects route
+undecided ideas to Assessment, known defects to Bug Fix, and low-risk Features
+to the upstream short path. Record the objective,
 users, scenarios, data, boundaries, risks, acceptance evidence, known facts,
 open questions, and provisional assumptions. Product, safety, privacy, and
 release decisions remain questions for the user when they materially affect the
@@ -60,15 +62,15 @@ result, completion evidence, and escalation condition. Run the read-only
 readiness audit and required cold-start review. A package that needs material
 context from the original conversation is not ready for a small isolated model.
 
-# V1 to v2 execution
+# Profile and compatibility execution
 
-Strict governed SDD is available only after the project has completed the
-`1.3.0` bridge and an approved v2 migration plan. The bridge may plan but must
-not activate strict gates. The v2 plan requires companion capability discovery
-and exact upstream CLI argv in its operation plan. If a required workflow,
-preset, extension, or validator cannot be resolved, return
-`COMPANION_CAPABILITY_UNAVAILABLE`; do not silently run the legacy path while
-claiming governed completion.
+The adaptive profile is the default after every automatic Reference upgrade.
+The high-assurance `governed-sdd` profile remains available when a project
+needs its review ledger, readiness, and cold-start contracts. Existing v2
+projects are migrated from the former mandatory default to the adaptive
+profile by the exact automatic upgrade plan; no legacy-strict profile is
+retained. Companion capability is required only when the high-assurance
+profile or a specific companion-backed route is selected.
 
 # Failure handling
 

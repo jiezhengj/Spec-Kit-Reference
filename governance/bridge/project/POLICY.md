@@ -4,7 +4,7 @@ GitHub Spec Kit is used for substantive software engineering work. Read-only inv
 
 # Conversation approval and implementation boundary
 
-For substantive work, the upstream Spec Kit artifacts are the implementation contract. A conversation, design note, or user message is not itself a spec, plan, task list, or completion record.
+For substantive Feature work, ensure the project Constitution exists first; if it is absent or only a placeholder, invoke `/speckit-constitution` once and review it. The upstream Spec Kit artifacts are the implementation contract. A conversation, design note, or user message is not itself a spec, plan, task list, or completion record.
 
 User approval phrases such as “the plan is acceptable” or “proceed with this approach” approve the discussed direction only. They authorize the Agent to advance that direction into the upstream Spec Kit workflow; this approval does not authorize direct application-code edits that skip artifact alignment.
 
@@ -60,6 +60,6 @@ Completion requires agreement among user intent, accepted artifacts, implementat
 
 When the global Policy is actually loaded and provides a readable `SPEC_KIT_GOVERNANCE_SOURCE`, an existing `.specify/` project with this committed governance package may perform one read-only central Reference check before the first substantive task in a new Agent session. If the global Policy, source locator, or source verification is absent, skip the check silently and never scan the computer for a Reference directory.
 
-A verified Reference update is a notification, not permission to edit the project. After explicit approval, synchronize only the Reference-owned governance package, manager, and managed context-anchor block through `plan-upgrade` and `apply-plan`. Never update `.specify/**`, `specs/**`, native Agent files, or business code as part of this sync.
+A verified Reference update is automatically synchronized through the exact hash-bound `auto-upgrade` operation. Project-owner approval is not required because only Reference-owned files are in scope. Never update `.specify/**`, `specs/**`, native Agent files, or business code as part of this sync.
 
 After synchronization, inspect the current upstream Spec Kit artifacts and let the upstream workflow decide whether a specification, plan, task list, or other Spec artifact needs updating. A Reference update is not evidence that any such artifact is stale.

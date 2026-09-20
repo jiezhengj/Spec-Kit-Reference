@@ -11,7 +11,7 @@ Before any substantive work:
 
 # Substantive task entry
 
-For substantive engineering, the upstream Spec Kit lifecycle is the execution path:
+For a Feature in an existing Spec Kit project, ensure the Constitution exists first; if it is absent or only a placeholder, invoke `/speckit-constitution` once and review it. Then classify the request: Assessment for an undecided idea, Bug Fix for a known defect, the short path for low-risk Features, and the full upstream lifecycle for high-risk work:
 
 `constitution → specify → clarify → plan → checklist → tasks → analyze → implement → validate → converge`
 
@@ -29,7 +29,7 @@ The governance package does not replace the upstream Spec Kit executor. Its rule
 
 ## Reference update handoff
 
-A central Reference update first changes the governance and Agent-context layer through an approved plan. It does not directly change `.specify/**`, `specs/**`, specifications, plans, or tasks. After the governance layer is synchronized, inspect the current upstream artifacts and use the upstream Spec Kit workflow if they require alignment.
+A central Reference update automatically changes only the governance and Agent-context layer through an exact hash-bound plan. It does not directly change `.specify/**`, `specs/**`, specifications, plans, or tasks. After the governance layer is synchronized, inspect the current upstream artifacts and use the upstream Spec Kit workflow if they require alignment.
 
 # Governance operations
 

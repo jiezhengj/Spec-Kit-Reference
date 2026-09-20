@@ -1,7 +1,13 @@
-# Planned 2.0.0 release
+# Planned 2.0.0 adaptive release
 
 ## 2.0.0
 
+- Uses `upstream-adaptive` as the default project profile; the high-assurance
+  `governed-sdd` profile remains opt-in and no legacy-strict runtime profile is
+  retained.
+- Adds capability-based Specify CLI compatibility, automatic Reference-owned
+  upgrades, official Assessment/Bug Fix capability detection, and user-choice
+  handoff when installation is declined.
 - Introduces project-config schema v2 and the `workflow_governance` contract.
 - Requires explicit Discovery, artifact-specific human review evidence, and
   hash-bound approval before each governed lifecycle transition.

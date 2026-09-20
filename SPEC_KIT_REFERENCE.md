@@ -75,13 +75,13 @@ specify extension update
 
 ## Central Reference update check
 
-For a project that carries the committed governance package, the central Reference check is enabled only when the current Agent has loaded the global Policy and that Policy provides a readable `SPEC_KIT_GOVERNANCE_SOURCE` path. Before the first substantive task in a new session, run the local manager's read-only `check-update --source <central-reference-path>` at most once. If the Policy or locator is absent, skip silently; do not search the machine for a Reference directory.
+For a project that carries the committed governance package, the central Reference check is enabled only when the current Agent has loaded the global Policy and that Policy provides a readable `SPEC_KIT_GOVERNANCE_SOURCE` path. Before the first substantive task in a new session, run the local manager's read-only `check-update --source <central-reference-path>` at most once. If the result is `UPDATE_AVAILABLE`, run `auto-upgrade --source <central-reference-path>` immediately. If the Policy or locator is absent, skip silently; do not search the machine for a Reference directory.
 
-`UP_TO_DATE` means the target manifest source revision matches the clean central Reference checkout. `UPDATE_AVAILABLE` means a clean, ancestor central source has newer Reference content. `REVIEW_REQUIRED` means the baseline is divergent or the change includes Policy content. These statuses never authorize mutation. The user must approve an exact `plan-upgrade` and `apply-plan` before Reference-owned files are synchronized.
+`UP_TO_DATE` means the target manifest source revision matches the clean central Reference checkout. `UPDATE_AVAILABLE` means a clean, ancestor central source has newer Reference content. `REVIEW_REQUIRED` means the baseline is divergent. An exact generated plan is still applied and hash-validated, but project-owner approval is not required for Reference-owned automatic synchronization.
 
 Reference synchronization updates only `docs/spec-kit/**`, the local governance manager, and the managed block in the explicit context anchor. It does not update `.specify/**`, `specs/**`, native Agent files, or business code. After synchronization, the upstream Spec Kit workflow decides whether any specification, plan, or task artifacts need updating.
 
-If an existing Spec Kit project intentionally has no global Policy and no `docs/spec-kit/**` package, the optional Reference operation `plan-install-update-reminder` can append a separate managed reminder to the exact existing Agent context anchor. It requires only the installed CLI, an existing `.specify/` project, and the explicit anchor path; it does not copy the manager or modify `.specify/**`, `specs/**`, or native integration files. The reminder delegates detection to upstream `specify self check` and never upgrades the CLI without explicit user approval.
+If an existing Spec Kit project intentionally has no global Policy and no `docs/spec-kit/**` package, Reference is inactive. The Agent may use upstream Spec Kit directly. A local reminder is optional and never makes the central Reference a runtime prerequisite.
 
 The actual installed CLI and project integration are authoritative if this reference differs from runtime behavior.
 
@@ -93,11 +93,13 @@ The canonical conceptual lifecycle is:
 constitution → specify → clarify → plan → checklist → tasks → analyze → implement → validate → converge
 ```
 
-Under project configuration v2 governed mode, `clarify`, `checklist`, `analyze`, `validate`, and `converge` are required. Human review gates are separate from these Agent or tool checks and cannot be inferred from a successful command. Invocation syntax depends on the current Agent integration.
+Constitution is a once-per-project prerequisite for Feature work. At the first Feature entry, if the project has no usable Constitution or still contains a placeholder, invoke `/speckit-constitution` and review it before `/speckit-specify`. Assessment and Bug Fix are independent entry workflows; a `go` Assessment may hand off to Feature SDD after the Constitution is established, while Bug Fix remains assess → fix → test.
 
-The upstream quickstart documents both a shorter path and a full path with optional quality gates. This project's committed governance policy intentionally strengthens the completion contract: `analyze`, `validate`, and `converge` remain required before substantive completion.
+Under project configuration v2 adaptive mode, `clarify`, `checklist`, and `analyze` are risk-triggered; `validate` and `converge` remain required for substantive implementation. The `governed-sdd` mode enables the stronger review contract. Human review gates are separate from these Agent or tool checks and cannot be inferred from a successful command. Invocation syntax depends on the current Agent integration.
 
-Governance package v2 further strengthens substantive Feature entry and handoff. Natural-language requests to use Spec or form a substantive plan begin with structured Discovery. The required review objects are `DISCOVERY`, clarified `SPECIFICATION`, `PLAN_BUNDLE`, `TASK_PACKAGE`, and any `REMEDIATION` produced by analyze or implementation drift. These gates are user decisions bound to artifact hashes; upstream checklists and Agent self-review do not substitute for them.
+The upstream quickstart documents both a shorter path and a full path with optional quality gates. This Reference routes undecided ideas to Assessment, known defects to Bug Fix, low-risk Features to the shorter path, and high-risk Features to the full path.
+
+Governance package v2 provides an adaptive route for ordinary work and retains the companion workflow as an optional high-assurance profile. Natural-language requests are classified before execution. The full profile may use `DISCOVERY`, clarified `SPECIFICATION`, `PLAN_BUNDLE`, `TASK_PACKAGE`, and `REMEDIATION`; the adaptive profile does not manufacture those artifacts for every small task.
 
 The Reference-maintained companion bundle uses supported upstream extension, preset, and workflow primitives. Its `governed-sdd` workflow orchestrates discovery, mandatory clarify and checklist, review gates, task readiness, cold-start review, analyze, implementation, validation, and convergence. It does not replace upstream commands or authorize direct edits to upstream-owned `.specify/**`, `specs/**`, or generated integrations.
 
@@ -113,9 +115,11 @@ The upstream Spec Kit CLI owns `.specify/**`, `specs/**`, and native Agent integ
 
 A conversational approval such as “方案可以” advances a direction into the upstream Spec Kit workflow; it does not authorize direct code edits before the specification, plan, and tasks are aligned. The central Reference and global Policy are not runtime prerequisites for a target project whose local governance package and loader are present.
 
-## Bug workflow
+## Assessment and bug workflows
 
-The bundled bug extension may be installed with `specify extension add bug`. Use the integration-specific workflow exposed by the project, and verify the reproduction and remediation.
+For an undecided idea, use the official Assessment extension with `$speckit-assess-intake`. For a known defect, use the official Bug Fix extension with `$speckit-bug-assess`. If the CLI or either extension is missing, ask the user whether to install it through the native CLI. If the user declines, return `HANDOFF_TO_AGENT` and let the current Agent proceed without Reference governance for that capability.
+
+At Spec Kit project entry, run a capability check for `specify`, the active integration, `assess`, and `bug`. A missing CLI or extension is an installation offer, not a permanent project blocker.
 
 ## Source-of-truth order
 
@@ -154,7 +158,7 @@ Reviewed upstream commit: `github/spec-kit @ df6b3187022ce986759bd854467e8a4bb56
 
 Reference last reviewed: `2026-09-04`.
 
-Verified local CLI: `specify 1.0.4`; `specify workflow --help`, `specify preset --help`, and `specify extension --help` succeed. This governance repository still has no `.specify/` project, so project-level integration and generated-Skill verification must be performed from an initialized target project.
+The locally observed CLI version is diagnostic only. Compatibility is established by the command, extension, workflow, preset, integration, and postcondition probes required by the selected operation; no exact Specify version is required by this Reference.
 
 The integration commands should be rechecked from an actual Spec Kit project root when project-level runtime verification is needed.
 

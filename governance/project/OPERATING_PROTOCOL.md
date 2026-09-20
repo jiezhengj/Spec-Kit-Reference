@@ -14,11 +14,11 @@ Extract the portable artifact to `.spec-kit-governance/staging/<plan-id>/`, vali
 
 For an existing `.specify/` project that intentionally does not carry `docs/spec-kit/**` and does not use a global Policy, `plan-install-update-reminder` may append only the separate Reference-owned update reminder to the exact existing context anchor. It requires the installed `specify` CLI, an existing anchor path supplied by the current Agent runtime or user, and an approved plan. It does not create the governance package, copy the manager, or edit `.specify/**`, `specs/**`, or native Agent integration files. The reminder delegates the check to upstream `specify self check`; it is informational and never runs `specify self upgrade` without explicit user approval.
 
-# Daily governed Feature workflow
+# Daily adaptive Feature workflow
 
-For substantive feature work, use the installed governed companion and upstream Spec Kit artifacts:
+For feature work, select the shortest suitable upstream route:
 
-`discovery → REVIEW_REQUESTED → user decision → specify/clarify → specification review → plan bundle review → checklist/tasks → readiness and cold-start review → task package review → analyze → remediation review when needed → implement → validate → converge → completion review`
+`assessment → decide`, `assess → fix → test`, `specify → plan → tasks → implement → converge`, or the full high-assurance sequence when risk requires it.
 
 At each review gate, show the object type, artifact paths, hashes, concise changes, open risks, and permitted next stage. Record `REVIEW_REQUESTED`, `APPROVED`, `CHANGES_REQUESTED`, and `SUPERSEDED` as append-only events. Derive `STALE` whenever a live artifact hash differs from the approved hash or an upstream review object has been superseded. Never rewrite history to change a decision.
 
@@ -34,7 +34,7 @@ If the user is only discussing alternatives, do not edit application files. If i
 - A readiness or cold-start failure returns the task package to revision.
 - High-severity analyze findings require a `REMEDIATION` review before artifact or implementation changes continue.
 - A non-interactive run pauses at every human gate. It must not synthesize approval.
-- Missing companion capability, incompatible CLI range, invalid ledger, unsafe path, or hash mismatch blocks progress with a stable diagnostic.
+- Missing optional companion capability, unsupported exact CLI version, or missing official extension does not block adaptive work. Ask before installing the missing CLI/extension; a refusal returns `HANDOFF_TO_AGENT`. Invalid ledger, unsafe path, or hash mismatch still blocks the operation that depends on it.
 
 ## Tiny-model task-package handoff
 
@@ -74,7 +74,7 @@ When the native init target, integration target, managed-file repair, anchor, or
 
 The central check is session-gated and source-gated: it runs only when the current Agent has loaded the global Policy, the Policy exposes `SPEC_KIT_GOVERNANCE_SOURCE`, and the target carries the committed governance package. Missing Policy, missing source, unavailable source, dirty source, or failed verification is silent and non-blocking during normal project work; no arbitrary directory scan is allowed.
 
-When the check reports `UPDATE_AVAILABLE`, present the source revision and changed paths to the user. Do not modify the project until the user approves the exact Reference synchronization plan. `REVIEW_REQUIRED` requires human review before any Policy-related deployment.
+When the check reports `UPDATE_AVAILABLE`, run the exact hash-bound `auto-upgrade` operation immediately. Project-owner approval is not required because the operation is limited to Reference-owned files and managed context-anchor blocks. `REVIEW_REQUIRED` remains a divergent-baseline condition and requires human review before any synchronization.
 
 # Upgrade and rollback
 

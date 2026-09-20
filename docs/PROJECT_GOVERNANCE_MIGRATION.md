@@ -5,19 +5,24 @@ version; a compatible `POLICY` change bumps the minor version; an incompatible
 change to a fixed path, schema, manager contract, adapter contract, marker, or
 hash contract bumps the major version.
 
-`1.3.0` is the mandatory compatibility bridge between the v1 package and the
-strict v2 governance contract. `2.0.0` may not silently reinterpret v1
-configuration. A v1 project that has not completed the bridge-generated plan
-is `MIGRATION_REQUIRED`, not eligible for a direct upgrade.
+The current package uses the adaptive v2 profile as its default. A project
+upgrade preserves user-owned evidence and automatically migrates the former
+mandatory companion defaults to `upstream-adaptive`; no legacy-strict profile
+is retained.
+
+The historical `1.3.0` bridge and `2.0.0` release artifacts remain readable
+for package and rollback compatibility. `MIGRATION_REQUIRED` describes an
+unconverted v1 artifact boundary only; it is not a runtime workflow profile
+and does not justify retaining a legacy-strict project mode.
 
 # Routine v1 update
 
-For a compatible v1 update, first check the clean central Reference checkout,
-compare its Git revision with the target manifest, generate
-`plan-upgrade --source <central-or-staged-source>`, review the Policy,
-Reference, manager, separately managed governance-loader and
-Reference-update-check context-anchor blocks, adapter, manifest, and capability
-inventory, and then apply the approved plan. The project-owned
+For a compatible update, first check the clean central Reference checkout,
+compare its Git revision with the target manifest, generate and automatically
+apply `auto-upgrade --source <central-or-staged-source>`. The exact plan still
+reviews the Policy, Reference, manager, separately managed governance-loader
+and Reference-update-check context-anchor blocks, adapter, manifest, project
+profile, and capability inventory. The project-owned
 `LOCAL_OVERRIDES.md`, `PROJECT_CONFIG.json`, and `ADAPTERS.json` are not
 overwritten by the central package. An upgrade must not modify `.specify/**`,
 `specs/**`, or native Agent-generated integration files; those remain under
@@ -32,11 +37,10 @@ argv, backup locations, and rollback journal. It must name
 `docs/spec-kit/features/**` as a preserved project-local subtree and must not
 rewrite its contents.
 
-Before approval, review all of the following: the v2 config conversion,
-workflow-governance settings, companion capability discovery, context-anchor
-managed blocks, feature-review evidence path, rollback journal, and any
-required upstream workflow/preset/extension installation. Approval is valid
-only for the displayed plan ID and SHA-256. Any changed input, source, feature
+The exact plan validates the v2 config conversion, workflow-governance
+settings, companion capability discovery, context-anchor managed blocks,
+feature-review evidence path, rollback journal, and any required upstream
+workflow/preset/extension installation. Any changed input, source, feature
 artifact hash, or CLI capability invalidates the plan.
 
 Applying a v2 plan may write only Reference-owned governance additions and
@@ -50,7 +54,7 @@ The session check is enabled only when the current Agent has actually loaded the
 
 The central Reference and global Policy are maintenance inputs, not runtime prerequisites. A target project remains operational with its committed `docs/spec-kit/**` package, local manager, runtime state, and managed governance-loader/Reference-update-check blocks, even when the maintainer's central Reference directory or global Policy is unavailable.
 
-Central Reference update detection is deliberately conditional: the current Agent must have actually loaded the global Policy and that Policy must provide the explicit central source locator. Without either, the target continues from its committed local snapshot and receives no Reference update notice. When a clean central source is newer, the Agent reports the candidate and waits for explicit approval before synchronizing only the governance and context layer. The upstream Spec Kit workflow then decides whether any specification, plan, tasks, or other upstream artifacts require changes.
+Central Reference update detection is deliberately conditional: the current Agent must have actually loaded the global Policy and that Policy must provide the explicit central source locator. Without either, the target continues from its committed local snapshot and receives no Reference update notice. When a clean central source is newer, the Agent automatically synchronizes only the governance and context layer through the exact generated plan. The upstream Spec Kit workflow then decides whether any specification, plan, tasks, or other upstream artifacts require changes.
 
 # Rollback
 

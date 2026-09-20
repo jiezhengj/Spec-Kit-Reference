@@ -90,7 +90,7 @@
       "additionalProperties": false,
       "required": ["review_mode"],
       "properties": {
-        "review_mode": { "const": "pull-request-required" }
+        "review_mode": { "enum": ["automatic-reference-upgrade", "pull-request-required"] }
       }
     },
     "quality_gates": {
@@ -98,11 +98,11 @@
       "additionalProperties": false,
       "required": ["clarify", "checklist", "analyze", "validate", "converge"],
       "properties": {
-        "clarify": { "const": "required" },
-        "checklist": { "const": "required" },
-        "analyze": { "const": "required" },
-        "validate": { "const": "required" },
-        "converge": { "const": "required" }
+        "clarify": { "enum": ["required", "risk-triggered", "recommended", "off"] },
+        "checklist": { "enum": ["required", "risk-triggered", "recommended", "off"] },
+        "analyze": { "enum": ["required", "risk-triggered", "recommended", "off"] },
+        "validate": { "enum": ["required", "risk-triggered", "recommended", "off"] },
+        "converge": { "enum": ["required", "risk-triggered", "recommended", "off"] }
       }
     },
     "workflow_governance": { "$ref": "#/$defs/workflowGovernance" }
@@ -113,15 +113,11 @@
       "additionalProperties": false,
       "required": [
         "mode",
-        "discovery",
-        "artifact_reviews",
-        "approval_evidence",
-        "tiny_model_tasks",
-        "cold_start_review"
+        "discovery"
       ],
       "properties": {
-        "mode": { "const": "governed-sdd-required" },
-        "discovery": { "const": "required-for-substantive" },
+        "mode": { "enum": ["upstream-adaptive", "governed-sdd"] },
+        "discovery": { "enum": ["risk-based", "required-for-high-risk", "required-for-substantive"] },
         "artifact_reviews": {
           "type": "array",
           "minItems": 5,

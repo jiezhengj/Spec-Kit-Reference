@@ -5,7 +5,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[3]
-PLACEHOLDER = "<ABSOLUTE_PATH_TO_SPEC_KIT_REFERENCE_REPOSITORY>"
+SOURCE = "/Users/jiezhengj/Documents/Project/SpecKitReference"
 
 
 class GlobalPolicyTemplateTests(unittest.TestCase):
@@ -13,7 +13,7 @@ class GlobalPolicyTemplateTests(unittest.TestCase):
         self.assertTrue((ROOT / "GLOBAL_POLICY.md").is_file())
         self.assertFalse((ROOT / "global-policy.md").exists())
 
-    def test_template_has_title_sections_and_placeholder(self) -> None:
+    def test_template_has_title_sections_and_verified_source(self) -> None:
         text = (ROOT / "GLOBAL_POLICY.md").read_text(encoding="utf-8")
         self.assertTrue(text.endswith("\n"))
         lines = text.splitlines()
@@ -24,8 +24,8 @@ class GlobalPolicyTemplateTests(unittest.TestCase):
         self.assertEqual(lines[-1], "<!-- SPEC-KIT-GLOBAL-POLICY:END -->")
         self.assertEqual(sum(line.startswith("# ") for line in lines), 1)
         self.assertEqual(sum(line.startswith("## ") for line in lines), 5)
-        self.assertEqual(text.count(PLACEHOLDER), 1)
-        self.assertIn("SPEC_KIT_GOVERNANCE_SOURCE: " + PLACEHOLDER, text)
+        self.assertEqual(text.count("<ABSOLUTE_PATH_TO_SPEC_KIT_REFERENCE_REPOSITORY>"), 0)
+        self.assertIn("SPEC_KIT_GOVERNANCE_SOURCE: " + SOURCE, text)
         self.assertLessEqual(sum(bool(line.strip()) for line in lines), 40)
 
     def test_deployment_protocol_exists(self) -> None:

@@ -26,12 +26,12 @@
     "scope": "new-and-substantively-rewritten-project-documentation"
   },
   "upgrade": {
-    "review_mode": "pull-request-required"
+    "review_mode": "automatic-reference-upgrade"
   },
   "quality_gates": {
     "clarify": "risk-triggered",
     "checklist": "risk-triggered",
-    "analyze": "required",
+    "analyze": "risk-triggered",
     "validate": "required",
     "converge": "required"
   }

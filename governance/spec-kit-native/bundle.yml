@@ -10,11 +10,13 @@ bundle:
   license: "MIT"
 
 requires:
-  speckit_version: ">=1.0.4"
+  # CLI compatibility is verified by the Reference manager's capability
+  # probes; this broad metadata range is not a release-version gate.
+  speckit_version: ">=0.0.0"
 
 # `source` records the component directory inside this bundle. It is retained
-# for provenance and for the Reference manager's installation plan. Spec Kit
-# 1.0.4 validates this manifest structurally, but bundle installation currently
+# for provenance and for the Reference manager's installation plan. The
+# installed CLI validates this manifest structurally, but bundle installation currently
 # resolves component IDs only from bundled assets or catalogs; it does not yet
 # install these relative sources. See README.md for the supported CLI sequence.
 provides:
