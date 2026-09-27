@@ -34,6 +34,8 @@ def git(*args: str, check: bool = True) -> str:
         cwd=ROOT,
         check=False,
         text=True,
+        encoding="utf-8",
+        errors="replace",
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
     )
@@ -75,6 +77,8 @@ def is_ancestor(older: str, newer: str) -> bool:
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         text=True,
+        encoding="utf-8",
+        errors="replace",
     )
     if result.returncode == 0:
         return True
@@ -111,6 +115,8 @@ def main() -> int:
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         text=True,
+        encoding="utf-8",
+        errors="replace",
     )
     if baseline_exists.returncode != 0:
         raise CheckError(

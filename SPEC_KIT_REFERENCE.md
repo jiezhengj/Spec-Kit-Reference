@@ -166,9 +166,9 @@ When upstream changes, classify the impact as `NONE`, `REFERENCE`, or `POLICY` b
 
 ## Review metadata
 
-Reviewed upstream commit: `github/spec-kit @ df6b3187022ce986759bd854467e8a4bb56bb0f4`.
+Reviewed upstream commit: see `UPSTREAM_BASELINE`.
 
-Reference last reviewed: `2026-09-04`.
+Reference last reviewed: `2026-09-21`; see `docs/CHANGE_IMPACT.md` for the maintenance record.
 
 The locally observed CLI version is diagnostic only. Compatibility is established by the command, extension, workflow, preset, integration, and postcondition probes required by the selected operation; no exact Specify version is required by this Reference.
 

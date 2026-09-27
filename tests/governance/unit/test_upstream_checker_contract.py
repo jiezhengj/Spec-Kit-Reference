@@ -18,6 +18,8 @@ class UpstreamCheckerContractTests(unittest.TestCase):
         self.assertIn("sys.exit(1)", source)
         self.assertNotIn("write_text", source)
         self.assertNotIn("unlink", source)
+        self.assertIn('encoding="utf-8"', source)
+        self.assertIn('errors="replace"', source)
         self.assertIsNotNone(tree)
 
 
