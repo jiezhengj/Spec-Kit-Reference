@@ -18,7 +18,7 @@ class GlobalPolicyTemplateTests(unittest.TestCase):
         text = (ROOT / "GLOBAL_POLICY.md").read_text(encoding="utf-8")
         self.assertTrue(text.endswith("\n"))
         lines = text.splitlines()
-        self.assertTrue(lines[0].startswith("<!-- SPEC-KIT-GLOBAL-POLICY:START version="))
+        self.assertEqual(lines[0], "<!-- SPEC-KIT-GLOBAL-POLICY:START version=2.1.1 -->")
         self.assertEqual(lines[1], "")
         self.assertEqual(lines[2], "# Spec Kit Global Policy")
         self.assertEqual(lines[-2], "")
@@ -27,8 +27,15 @@ class GlobalPolicyTemplateTests(unittest.TestCase):
         self.assertEqual(sum(line.startswith("## ") for line in lines), 6)
         self.assertEqual(text.count("<ABSOLUTE_PATH_TO_SPEC_KIT_REFERENCE_REPOSITORY>"), 0)
         self.assertIn("SPEC_KIT_GOVERNANCE_SOURCE: " + SOURCE, text)
-        self.assertIn("Windows source path: `" + WINDOWS_SOURCE + "`", text)
-        self.assertIn("On Windows, use this path in place of the macOS locator above", text)
+        self.assertIn(
+            f"Central source paths:\n\n- macOS: `{SOURCE}`\n- Windows: `{WINDOWS_SOURCE}`",
+            text,
+        )
+        self.assertIn(
+            "Set the unique `SPEC_KIT_GOVERNANCE_SOURCE` locator to the path listed for the current host.",
+            text,
+        )
+        self.assertNotIn("On Windows, use this path in place of the macOS locator above", text)
         self.assertLessEqual(sum(bool(line.strip()) for line in lines), 40)
 
     def test_deployment_protocol_exists(self) -> None:

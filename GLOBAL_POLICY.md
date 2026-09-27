@@ -1,4 +1,4 @@
-<!-- SPEC-KIT-GLOBAL-POLICY:START version=2.1.0 -->
+<!-- SPEC-KIT-GLOBAL-POLICY:START version=2.1.1 -->
 
 # Spec Kit Global Policy
 
@@ -54,8 +54,13 @@ When an Agent enters an existing Spec Kit project, it must check the `specify` C
 
 ## Central update source
 
+Central source paths:
+
+- macOS: `/Users/jiezhengj/Documents/Project/SpecKitReference`
+- Windows: `C:\Users\jiezhengj\Documents\Project\SpecKitReference`
+
+Set the unique `SPEC_KIT_GOVERNANCE_SOURCE` locator to the path listed for the current host. Never transform a listed path or search other directories.
 SPEC_KIT_GOVERNANCE_SOURCE: /Users/jiezhengj/Documents/Project/SpecKitReference
-Windows source path: `C:\Users\jiezhengj\Documents\Project\SpecKitReference`. On Windows, use this path in place of the macOS locator above; on macOS, use the `SPEC_KIT_GOVERNANCE_SOURCE` value. Never transform either path or search other directories.
 
 The directory must contain `SPEC_KIT_REFERENCE.md`, `GLOBAL_POLICY.md`, and `UPSTREAM_BASELINE`. When this Policy is actually loaded, and `.specify/` plus the committed project governance package exist, the Agent may additionally run the central manager's read-only `check-update --source <path>` once before the first substantive task in a new session. This is a separate maintenance check from the unconditional upstream Spec Kit update check above. If the result is `UPDATE_AVAILABLE`, the Agent must immediately run `auto-upgrade --source <path>`. This automatic upgrade is limited to Reference-owned governance files and the managed loader block; it does not require project-owner approval and never modifies `.specify/**`, `specs/**`, native Agent files, or business code. If the Policy, source, or verification is unavailable, skip only this central Reference check silently; never scan arbitrary directories or treat an unverified source as an update.
 
