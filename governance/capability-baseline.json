@@ -3,9 +3,9 @@
   "baseline_id": "BASELINE-2026-08-21-INITIAL",
   "captured_at": "2026-08-21T00:00:00+08:00",
   "source_snapshots": [
-    { "file": "GLOBAL_POLICY.md", "section": "entire file", "source_sha256": "5c932b7ce6b8257e53f1f3f84e2c9a0050c885abd36fb218a3b316d28557847d" },
+    { "file": "GLOBAL_POLICY.md", "section": "entire file", "source_sha256": "62ae1891c04084f9396a5a79db271657e22256e52cef14ec348e97edfad2f9ba" },
     { "file": "SPEC_KIT_REFERENCE.md", "section": "entire file", "source_sha256": "370451705a094f4330c6de81a058e59ab09801ee88496debf1e2cfa6d41bf532" },
-    { "file": "README.md", "section": "entire file", "source_sha256": "1b24a6fb99041859e17ab30378fb6939943279945a5c826f6bc962a0cca368e8" },
+    { "file": "README.md", "section": "entire file", "source_sha256": "4885adc9d6d018c8e64961e56be16605955f3d35ad1b56da5f957b5ca5d28ff5" },
     { "file": "AGENTS.md", "section": "entire file", "source_sha256": "2eb37dc52d0d49511f0f8a94c3e8b9a2359c08bd30d11fea610e5b6daea6877c" },
     { "file": "UPSTREAM_BASELINE", "section": "entire file", "source_sha256": "540ba5c85dbc55f6116969cbcfc9fbcd46e8fb57242e421e93e17bd3759a1fd4" },
     { "file": "docs/UPSTREAM_UPDATE_POLICY.md", "section": "entire file", "source_sha256": "5296eafc6b462643de911531d2f1166511b4adb8b4007548956471f87e54eb38" },
