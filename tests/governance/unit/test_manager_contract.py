@@ -615,7 +615,10 @@ class ManagerContractTests(unittest.TestCase):
             )
             info = json.loads(result.stdout)
             plan = json.loads(Path(info["path"]).read_text())
-            self.assertEqual(plan["rehearsal"]["argv"][-1], "native-key")
+            self.assertEqual(plan["rehearsal"]["argv"][-4:-2], ["--integration", "native-key"])
+            self.assertEqual(plan["rehearsal"]["argv"][-2:], ["--script", "py"])
+            self.assertEqual(plan["external_cli_mutations"][0]["argv"][-4:-2], ["--integration", "native-key"])
+            self.assertEqual(plan["external_cli_mutations"][0]["argv"][-2:], ["--script", "py"])
             self.assertIn(".specify/state.txt", plan["rehearsal"]["changed_files"])
             self.assertEqual(plan["documentation_language"], "mi-NZ")
             anchor_mutation = next(

@@ -32,7 +32,7 @@ Generic is allowed only when the current CLI has no native integration, project 
 
 # Spec Kit state and lifecycle
 
-New projects must use explicit `specify init --here --non-interactive --integration <approved-key>`. If a non-interactive init omits the key, the CLI may select a default product, so the manager must reject that command. In a non-empty brownfield, `--force` may appear only in a dedicated `plan-init`, with rehearsal, a scope snapshot, backup, exact authorization, and failure recovery; no other command may use `--force`.
+New projects must use explicit `specify init --here --non-interactive --integration <approved-key> --script py`. The manager must include `--script py` in both the isolated rehearsal and actual init, so generated scripts do not depend on the host OS. If the CLI rejects the flag, initialization stops; the manager must not fall back to the platform default. If a non-interactive init omits the integration key, the CLI may select a default product, so the manager must reject that command. In a non-empty brownfield, `--force` may appear only in a dedicated `plan-init`, with rehearsal, a scope snapshot, backup, exact authorization, and failure recovery; no other command may use `--force`.
 
 Substantive work follows:
 

@@ -39,7 +39,7 @@ Human review evidence is stored under `docs/spec-kit/features/<feature-id>/`. `D
 
 The readiness validator can check schema fields, safe paths, hashes, IDs, traceability, dependencies, and verification declarations. It cannot prove business correctness or model capability. An isolated cold-start reviewer checks whether a sampled task contains hidden context, decisions, conflicts, or unverifiable outcomes without access to the originating conversation.
 
-The active feature comes from `.specify/feature.json` or the `SPECIFY_FEATURE_DIRECTORY` override, not from the checked-out Git branch. For an existing non-empty project, the upstream adoption command is `specify init --here --force --integration <key>`; protect a reviewable baseline and inspect the generated diff first. The governance manager may invoke that command through its approved external operation, but does not directly edit its output.
+The active feature comes from `.specify/feature.json` or the `SPECIFY_FEATURE_DIRECTORY` override, not from the checked-out Git branch. For an existing non-empty project, the upstream adoption command is `specify init --here --force --integration <key> --script py`; protect a reviewable baseline and inspect the generated diff first. `--script py` makes generated project scripts independent of the host OS. The governance manager may invoke that command through its approved external operation, but does not directly edit its output.
 
 # Ownership and runtime independence
 

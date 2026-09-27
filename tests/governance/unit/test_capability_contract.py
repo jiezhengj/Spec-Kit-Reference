@@ -159,8 +159,14 @@ class CapabilityContractTests(unittest.TestCase):
 
     def test_reference_owned_boundary_is_documented_and_enforced(self):
         agents = read("AGENTS.md")
+        global_policy = read("GLOBAL_POLICY.md")
         reference = read("governance/project/REFERENCE.md")
         source = read("governance/manager/speckit_governance.py")
+        for content in (agents, global_policy):
+            self.assertIn("SPEC_KIT_REFERENCE.md", content)
+            self.assertIn("UPSTREAM_BASELINE", content)
+            self.assertIn("do not initialize `.specify/`", content)
+            self.assertIn("target-project Feature", content)
         for content in (agents, reference):
             self.assertIn(".specify/**", content)
             self.assertIn("specs/**", content)
@@ -365,16 +371,18 @@ class CapabilityContractTests(unittest.TestCase):
         self.assertEqual(policy.count("SPEC_KIT_GOVERNANCE_SOURCE:"), 1)
         self.assertEqual(policy.count("<ABSOLUTE_PATH_TO_SPEC_KIT_REFERENCE_REPOSITORY>"), 0)
         self.assertIn("SPEC_KIT_GOVERNANCE_SOURCE: /Users/jiezhengj/Documents/Project/SpecKitReference", policy)
+        self.assertIn(r"C:\Users\jiezhengj\Documents\Project\SpecKitReference", policy)
 
     def test_global_policy_deployment_updates_only_managed_block(self):
         protocol = read("docs/GLOBAL_POLICY_DEPLOYMENT.md")
         self.assertIn("outside the markers", protocol)
         self.assertIn("replacement span", protocol)
 
-    def test_global_policy_placeholder_is_rejected(self):
+    def test_global_policy_deployment_renders_selected_host_path(self):
         protocol = read("docs/GLOBAL_POLICY_DEPLOYMENT.md")
         self.assertIn("placeholder", protocol.lower())
-        self.assertIn("occurs exactly once", protocol)
+        self.assertIn("exactly one `SPEC_KIT_GOVERNANCE_SOURCE:` locator line", protocol)
+        self.assertIn("current host", protocol)
 
     def test_global_policy_locator_must_exist(self):
         protocol = read("docs/GLOBAL_POLICY_DEPLOYMENT.md")

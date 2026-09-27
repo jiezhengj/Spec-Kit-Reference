@@ -17,7 +17,7 @@ VALIDATE = ROOT / "scripts/validate_governance_release.py"
 
 
 class GovernedReleaseContractTests(unittest.TestCase):
-    def run_builder(self, output: Path, version: str = "2.0.0") -> dict:
+    def run_builder(self, output: Path, version: str = "2.1.0") -> dict:
         result = subprocess.run(
             [sys.executable, str(BUILD), "--version", version, "--output-dir", str(output)],
             cwd=ROOT,
@@ -47,10 +47,23 @@ class GovernedReleaseContractTests(unittest.TestCase):
         for text in (compatibility, changelog, migration):
             self.assertIn("1.3.0", text)
             self.assertIn("2.0.0", text)
+            self.assertIn("2.1.0", text)
             self.assertIn("MIGRATION_REQUIRED", text)
         self.assertLess(compatibility.index("1.3.0"), compatibility.index("2.0.0"))
+        self.assertLess(compatibility.index("2.0.0"), compatibility.index("2.1.0"))
         self.assertIn("docs/spec-kit/features/**", compatibility)
         self.assertIn("COMPANION_CAPABILITY_UNAVAILABLE", compatibility)
+
+    def test_release_docs_use_current_version_and_both_host_paths(self) -> None:
+        readme = (ROOT / "README.md").read_text(encoding="utf-8")
+        policy = (ROOT / "GLOBAL_POLICY.md").read_text(encoding="utf-8")
+        self.assertIn("--version 2.1.0", readme)
+        self.assertNotIn("--version 2.0.0", readme)
+        self.assertNotIn("<ABSOLUTE_PATH_TO_SPEC_KIT_REFERENCE_REPOSITORY>", readme)
+        self.assertIn("/Users/jiezhengj/Documents/Project/SpecKitReference", readme)
+        self.assertIn(r"C:\Users\jiezhengj\Documents\Project\SpecKitReference", readme)
+        self.assertIn("/Users/jiezhengj/Documents/Project/SpecKitReference", policy)
+        self.assertIn(r"C:\Users\jiezhengj\Documents\Project\SpecKitReference", policy)
 
     def test_adaptive_release_is_deterministic_and_contains_optional_governed_contracts(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -58,7 +71,7 @@ class GovernedReleaseContractTests(unittest.TestCase):
             second_root = Path(directory) / "second"
             first = self.run_builder(first_root)
             second = self.run_builder(second_root)
-            self.assertEqual(first["version"], "2.0.0")
+            self.assertEqual(first["version"], "2.1.0")
             self.assertEqual(first["portable_artifact"]["sha256"], second["portable_artifact"]["sha256"])
             self.assertEqual(first["extension_artifact"]["sha256"], second["extension_artifact"]["sha256"])
             self.assertEqual(
@@ -91,9 +104,12 @@ class GovernedReleaseContractTests(unittest.TestCase):
                 self.assertEqual(metadata["compatibility"]["project_config_schema_version"], 2)
                 self.assertTrue(metadata["compatibility"]["requires_bridge_migration"])
                 shared = "governance/manager/speckit_governance.py"
-                self.assertEqual(portable_zip.read(shared), extension_zip.read(shared))
-                self.assertIn(b'version: 2.0.0', extension_zip.read("extension.yml"))
-                self.assertIn(b'GOVERNANCE_PACKAGE_VERSION = "2.0.0"', portable_zip.read(shared))
+                manager_bytes = portable_zip.read(shared)
+                self.assertEqual(manager_bytes, extension_zip.read(shared))
+                self.assertIn(b'version: 2.1.0', extension_zip.read("extension.yml"))
+                self.assertIn(b'GOVERNANCE_PACKAGE_VERSION = "2.1.0"', manager_bytes)
+                self.assertIn(b'POLICY_VERSION = "2.1.0"', manager_bytes)
+                self.assertIn(b'MANAGER_VERSION = "2.1.0"', manager_bytes)
 
     def test_bridge_release_contains_migration_tools_but_no_strict_policy_or_companion(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

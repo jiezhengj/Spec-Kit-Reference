@@ -1,5 +1,23 @@
 # Maintenance history
 
+## 2026-09-27 — Compatible governance release 2.1.0
+
+- Bumped the compatible v2 package, Policy, manager, and extension to `2.1.0` so existing `2.0.0` projects can detect the update.
+- Recorded the full macOS and Windows central Reference paths and pinned governed non-interactive initialization to Python scripts.
+- Added regression coverage for the dual-host locator, release metadata, and `--script py` in both manager rehearsal and actual invocation.
+
+## 2026-09-27 — Reference source repository scope gate
+
+- Added an early source-repository boundary to `AGENTS.md` and `GLOBAL_POLICY.md` so Reference maintenance does not trigger target-project Feature routing or `.specify/` initialization.
+- Limited the exception to a checkout containing both `SPEC_KIT_REFERENCE.md` and `UPSTREAM_BASELINE`; downstream product work remains governed by the portable Policy.
+- Recorded scoped upstream impact without advancing the baseline because the full range was not reviewed.
+
+## 2026-09-27 — Platform-independent Python project initialization
+
+- Required Reference-governed non-interactive initialization to pass `--script py`, removing host-dependent PowerShell/shell selection.
+- Updated `plan-init` rehearsal and actual invocation together and synchronized the central and project policy/reference documents.
+- Recorded the scoped upstream evidence without advancing the baseline because the full intervening history was not reviewed.
+
 ## 2026-09-21 — Reference-independent upstream update maintenance
 
 - Made the Spec Kit upstream update check activate for every existing `.specify/` project, whether or not a central Reference or `docs/spec-kit/**` package is present.
