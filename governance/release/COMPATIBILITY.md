@@ -1,24 +1,23 @@
-# Release compatibility contract
-
 This document defines the compatibility obligations for a released governance
 artifact. The release index is the machine-readable authority for an artifact's
 version, immutable source revision, reviewed upstream revision, ZIP hashes, and
 per-file hashes. A release is usable only after both the index and both ZIPs
 pass `scripts/validate_governance_release.py`.
 
-## Supported release lines
+# Supported release lines
 
 | Release line | Project config | Workflow behavior | Upgrade eligibility |
 | --- | --- | --- | --- |
 | `1.2.x` and earlier | v1 | Existing upstream Spec Kit lifecycle; no governed companion contract | May upgrade only to the `1.3.0` bridge first |
 | `1.3.0` bridge | v1, with v2 migration planning support | Preserves existing behavior; never enables strict workflow gates | Required staging line before `2.0.0` |
 | `2.0.0` | v2 | Adaptive upstream workflow by default; optional governed SDD with explicit artifact reviews, tiny-model task readiness, and cold-start review | Only from a verified `1.3.0` bridge plan |
+| `2.1.0` | v2 | Compatible policy and manager update; governed non-interactive init pins Python scripts and records host-specific source paths | Direct compatible upgrade from `2.0.0`; v1 projects still require the `1.3.0` bridge |
 
 No manager may silently treat a v1 project as v2. A direct v1-to-v2 write, a
 partially applied major migration, or an unverified bridge is
 `MIGRATION_REQUIRED`; it is not a compatibility fallback.
 
-## Bridge release: 1.3.0
+# Bridge release: 1.3.0
 
 `1.3.0` is a compatibility bridge, not the strict-governance release. It must
 continue to read and write v1 manifests and `PROJECT_CONFIG.json` files exactly
@@ -34,7 +33,7 @@ project-local subtree. It must prove that business files, `.specify/**`,
 rules outside managed blocks are byte-identical after bridge installation and
 after a bridge rollback.
 
-## Adaptive release: 2.0.0
+# Adaptive release: 2.0.0
 
 `2.0.0` requires project-config schema v2 and a completed bridge-generated
 migration record. It adds a companion source bundle and a Reference-owned
@@ -49,7 +48,16 @@ the installed CLI version and capabilities. Missing workflow, preset,
 extension, or validator support returns `COMPANION_CAPABILITY_UNAVAILABLE`.
 The manager must not substitute a weaker workflow or mark the project ready.
 
-## Upgrade and rollback
+# Compatible release: 2.1.0
+
+`2.1.0` retains project-config schema v2 and the v2 manager/companion contract.
+It adds host-independent Python script selection to manager-governed
+non-interactive initialization and recognizes compatible `2.x` sources during
+v1-to-v2 migration. Existing `2.0.0` projects update through the normal
+Reference-owned auto-upgrade plan; v1 projects still pass through the verified
+`1.3.0` bridge migration.
+
+# Upgrade and rollback
 
 Every upgrade starts with a read-only compatibility check and a generated
 operation plan. The plan binds old hashes, source hashes, allowed manager
@@ -64,7 +72,7 @@ contract. It must retain v2 feature-sidecar evidence as read-only history and
 must never delete user work, upstream Spec Kit artifacts, or native Agent
 files. Incomplete journals or unsafe restoration return `RECOVERY_REQUIRED`.
 
-## Runtime scope
+# Runtime scope
 
 The package remains compatible only with a target that has an installed
 `specify` CLI, an existing Spec Kit project state when the operation requires

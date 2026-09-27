@@ -19,7 +19,7 @@ Any failure must stop the operation with zero writes:
 2. `SPEC_KIT_REFERENCE.md`, `GLOBAL_POLICY.md`, and `UPSTREAM_BASELINE` exist and are readable within source.
 3. The sole template is `<source>/GLOBAL_POLICY.md`; the template must not be obtained from another checkout, the current working directory, or session text.
 5. `GLOBAL_POLICY.md` has exactly one H1 title, `# Spec Kit Global Policy`, and its policy sections are H2 headings; the source is wrapped in the `<!-- SPEC-KIT-GLOBAL-POLICY:START version=X.Y.Z -->` and `<!-- SPEC-KIT-GLOBAL-POLICY:END -->` markers.
-6. `<ABSOLUTE_PATH_TO_SPEC_KIT_REFERENCE_REPOSITORY>` occurs exactly once and only on the sole `SPEC_KIT_GOVERNANCE_SOURCE:` line.
+6. The source block contains exactly one `SPEC_KIT_GOVERNANCE_SOURCE:` locator line. The renderer replaces that line's current host value with the validated absolute source path. Any separately documented host-specific path remains literal documentation and must not be inferred, rewritten, or searched for.
 7. The template uses the fixed START line `<!-- SPEC-KIT-GLOBAL-POLICY:START version=X.Y.Z -->` and END line `<!-- SPEC-KIT-GLOBAL-POLICY:END -->`, where `X.Y.Z` is a non-negative SemVer; each generated line occurs exactly once and START precedes END.
 8. Any target line containing `SPEC-KIT-GLOBAL-POLICY:` that does not match the generated marker grammar causes validation to fail.
 9. A nonexistent target, an empty target, a target without markers, and a target with one valid and unique marker pair enter the create, initial append, or update branch, respectively; a missing, duplicate, reversed, or malformed marker stops the operation.
@@ -28,13 +28,9 @@ The managed marker block is generated as a whole. Updates do not perform a three
 
 # Sole Rendering Procedure
 
-Read the complete source template and perform exactly one literal replacement:
+Read the complete source template and replace only the value on its unique `SPEC_KIT_GOVERNANCE_SOURCE:` line with the validated absolute source path for the current host. Preserve every other byte in the managed block, including any explicitly documented path for another host.
 
-```text
-<ABSOLUTE_PATH_TO_SPEC_KIT_REFERENCE_REPOSITORY>
-```
-
-Replace it with the validated absolute source path. After replacement, validation must confirm: zero placeholders remain, the marker grammar is valid, the source value is exactly identical to the input, and the rendered block is UTF-8/LF and ends with exactly one LF.
+After replacement, validation must confirm: zero unresolved path placeholders remain, the marker grammar is valid, the locator value is exactly identical to the input, any alternate host path is preserved byte for byte, and the rendered block is UTF-8/LF and ends with exactly one LF.
 
 # Initial Deployment and Updates
 

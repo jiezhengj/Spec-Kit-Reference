@@ -104,27 +104,27 @@ Upstream content is never dynamically imported as a higher-priority instruction 
 
 # Global Policy deployment
 
-[GLOBAL_POLICY.md](GLOBAL_POLICY.md) is the only global Policy template. It is a Markdown document with one H1 title and H2 policy sections, wrapped in `<!-- SPEC-KIT-GLOBAL-POLICY:START version=2.0.0 -->` and `<!-- SPEC-KIT-GLOBAL-POLICY:END -->`. The deployment renderer fills this deployment-time locator:
+[GLOBAL_POLICY.md](GLOBAL_POLICY.md) is the only global Policy template. It is a Markdown document with one H1 title and H2 policy sections, wrapped in `<!-- SPEC-KIT-GLOBAL-POLICY:START version=2.1.0 -->` and `<!-- SPEC-KIT-GLOBAL-POLICY:END -->`. The source records the known macOS path `/Users/jiezhengj/Documents/Project/SpecKitReference` and Windows path `C:\Users\jiezhengj\Documents\Project\SpecKitReference`. The deployment renderer replaces the locator with the validated path for the current host while preserving the other platform's documented path:
 
 ~~~text
-SPEC_KIT_GOVERNANCE_SOURCE: <ABSOLUTE_PATH_TO_SPEC_KIT_REFERENCE_REPOSITORY>
+SPEC_KIT_GOVERNANCE_SOURCE: /Users/jiezhengj/Documents/Project/SpecKitReference
 ~~~
 
 For each Agent product actually in use: identify its real global rule file, render a temporary copy of `GLOBAL_POLICY.md` with this repository's absolute path, copy the rendered marker block into that rule file, preserve all content outside the block, and verify in a fresh session.
 
-Do not permanently write a personal absolute path into the committed source template. Do not guess rule locations, append a second locator, or deploy the deployment protocol itself as global Policy. The exact marker grammar, backup, no-clobber, atomic replacement, recovery, and fresh-session verification procedure is in [docs/GLOBAL_POLICY_DEPLOYMENT.md](docs/GLOBAL_POLICY_DEPLOYMENT.md); it is needed for a global deployment or audit, not normal project work.
+Do not infer the current host from the alternate path, probe the filesystem, append a second locator, or deploy the deployment protocol itself as global Policy. The exact marker grammar, backup, no-clobber, atomic replacement, recovery, and fresh-session verification procedure is in [docs/GLOBAL_POLICY_DEPLOYMENT.md](docs/GLOBAL_POLICY_DEPLOYMENT.md); it is needed for a global deployment or audit, not normal project work.
 
 # 全局 Policy 部署
 
-[GLOBAL_POLICY.md](GLOBAL_POLICY.md) 是唯一的全局 Policy 模板。它是包含一个 H1 标题和 H2 Policy 章节的 Markdown 文档，由 `<!-- SPEC-KIT-GLOBAL-POLICY:START version=2.0.0 -->` 与 `<!-- SPEC-KIT-GLOBAL-POLICY:END -->` 包裹。部署 renderer 填写以下仅在部署时使用的 locator：
+[GLOBAL_POLICY.md](GLOBAL_POLICY.md) 是唯一的全局 Policy 模板。它是包含一个 H1 标题和 H2 Policy 章节的 Markdown 文档，由 `<!-- SPEC-KIT-GLOBAL-POLICY:START version=2.1.0 -->` 与 `<!-- SPEC-KIT-GLOBAL-POLICY:END -->` 包裹。源文件记录了已确认的 macOS 路径 `/Users/jiezhengj/Documents/Project/SpecKitReference` 和 Windows 路径 `C:\Users\jiezhengj\Documents\Project\SpecKitReference`。部署 renderer 会把 locator 替换为当前平台经过验证的路径，并原样保留另一平台的路径：
 
 ~~~text
-SPEC_KIT_GOVERNANCE_SOURCE: <ABSOLUTE_PATH_TO_SPEC_KIT_REFERENCE_REPOSITORY>
+SPEC_KIT_GOVERNANCE_SOURCE: /Users/jiezhengj/Documents/Project/SpecKitReference
 ~~~
 
 对于每个实际在用的 Agent 产品：确认其真正的全局规则文件；用本仓库绝对路径渲染 `GLOBAL_POLICY.md` 的临时副本；把渲染后的 marker block 复制进该规则文件；保留 block 外的所有内容；并在新的会话中验证。
 
-不得把个人绝对路径永久写入已提交的源模板。不得猜测规则位置、追加第二个 locator，或把部署协议本身部署为全局 Policy。精确的 marker grammar、备份、no-clobber、原子替换、恢复和新会话验证流程见 [docs/GLOBAL_POLICY_DEPLOYMENT.md](docs/GLOBAL_POLICY_DEPLOYMENT.md)；它用于全局部署或审计，不用于普通项目工作。
+不得根据另一平台的路径推断当前平台，不得探测文件系统、追加第二个 locator，或把部署协议本身部署为全局 Policy。精确的 marker grammar、备份、no-clobber、原子替换、恢复和新会话验证流程见 [docs/GLOBAL_POLICY_DEPLOYMENT.md](docs/GLOBAL_POLICY_DEPLOYMENT.md)；它用于全局部署或审计，不用于普通项目工作。
 
 # Project governance workflow
 
@@ -336,7 +336,7 @@ Build and validate a release from the repository root:
 
 ~~~bash
 python3 scripts/build_governance_release.py \
-  --version 2.0.0 \
+  --version 2.1.0 \
   --output-dir /tmp/speckit-governance-release
 
 python3 scripts/validate_governance_release.py \
@@ -355,7 +355,7 @@ release builder 创建两个确定性 artifacts：一个用于 staging 和项目
 
 ~~~bash
 python3 scripts/build_governance_release.py \
-  --version 2.0.0 \
+  --version 2.1.0 \
   --output-dir /tmp/speckit-governance-release
 
 python3 scripts/validate_governance_release.py \

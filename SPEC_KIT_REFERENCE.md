@@ -41,7 +41,7 @@ The presence of `.specify/` indicates an existing Spec Kit project. Existing pro
 
 If `.specify/` is absent for substantive engineering work, determine the current Agent integration, inspect `specify integration list` when necessary, and initialize at the actual project root. If it exists, inspect `specify integration status` and protect existing files.
 
-The active feature is determined by the project state in `.specify/feature.json` (or the `SPECIFY_FEATURE_DIRECTORY` override), not by the checked-out Git branch. When adopting Spec Kit in an existing project, the upstream command is `specify init --here --force --integration <key>`; reviewable existing work and the resulting managed-file diff must be protected before using it. The local governance manager may plan this upstream command, but it must not edit the resulting `.specify/**` or native integration files.
+The active feature is determined by the project state in `.specify/feature.json` (or the `SPECIFY_FEATURE_DIRECTORY` override), not by the checked-out Git branch. When adopting Spec Kit in an existing project, the upstream command is `specify init --here --force --integration <key> --script py`; reviewable existing work and the resulting managed-file diff must be protected before using it. The `--script py` option pins generated project scripts across platforms; without an explicit script, the CLI defaults to PowerShell on Windows and shell elsewhere. The local governance manager may plan this upstream command, but it must not edit the resulting `.specify/**` or native integration files.
 
 ## Integration lifecycle
 
@@ -55,7 +55,7 @@ Generated integration artifacts can migrate between command and Skills layouts a
 
 Do not blindly force integration conflicts or rerun `specify init --here --force` as a routine upgrade path.
 
-Upstream workflow init steps support shell, PowerShell, and Python script variants in the reviewed range. Use the installed CLI's workflow help for the exact current option and default.
+Upstream workflow init steps support shell, PowerShell, and Python script variants in the reviewed range. This workflow-step option is separate from `specify init --script py`; use the installed CLI's workflow help for its exact current option and default.
 
 Workflow execution is an optional dispatcher, not an automatic consequence of installing the CLI or invoking an individual Agent Skill. The reviewed bundled `speckit` workflow is version `1.0.1`: it selects the initialized integration when `integration=auto`, pauses after `specify` and `plan`, then runs `tasks` and `implement`. It does not include `clarify`, a task-review gate, `analyze`, validation, or convergence. Projects that require those stages or additional human approval gates must specify and verify that stronger orchestration separately.
 

@@ -10,10 +10,12 @@ upgrade preserves user-owned evidence and automatically migrates the former
 mandatory companion defaults to `upstream-adaptive`; no legacy-strict profile
 is retained.
 
-The historical `1.3.0` bridge and `2.0.0` release artifacts remain readable
-for package and rollback compatibility. `MIGRATION_REQUIRED` describes an
-unconverted v1 artifact boundary only; it is not a runtime workflow profile
-and does not justify retaining a legacy-strict project mode.
+The compatible `2.1.0` release supersedes the v2 package and manager while
+preserving project-config schema v2. The historical `1.3.0` bridge and
+`2.0.0` artifacts remain readable for migration and rollback compatibility.
+`MIGRATION_REQUIRED` describes an unconverted v1 artifact boundary only; it is
+not a runtime workflow profile and does not justify retaining a legacy-strict
+project mode.
 
 # Routine v1 update
 

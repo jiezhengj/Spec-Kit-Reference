@@ -30,10 +30,10 @@ from typing import Any, Iterable
 
 
 SCHEMA_VERSION = 1
-GOVERNANCE_PACKAGE_VERSION = "2.0.0"
-POLICY_VERSION = "2.0.0"
-REFERENCE_VERSION = "2026.09.04"
-MANAGER_VERSION = "2.0.0"
+GOVERNANCE_PACKAGE_VERSION = "2.1.0"
+POLICY_VERSION = "2.1.0"
+REFERENCE_VERSION = "2026.09.27"
+MANAGER_VERSION = "2.1.0"
 PLAN_TTL = timedelta(minutes=30)
 RUNTIME_DIR = ".spec-kit-governance"
 PROJECT_PACKAGE = "docs/spec-kit"
@@ -1193,8 +1193,10 @@ def strict_source_snapshot(source_value: str | None) -> dict[str, Any]:
     default_config_path = source / "governance/project/PROJECT_CONFIG.default.json"
     if not default_config_path.is_file() or read_json(default_config_path).get("schema_version") != 2:
         raise GovernanceError("strict governance source does not contain PROJECT_CONFIG v2", "CENTRAL_SOURCE_UNVERIFIED")
-    if source_version(source, "GOVERNANCE_PACKAGE_VERSION", None) != "2.0.0" or source_version(source, "MANAGER_VERSION", None) != "2.0.0":
-        raise GovernanceError("strict governance source is not the reviewed 2.0.0 generation", "CENTRAL_SOURCE_UNVERIFIED")
+    package_version = source_version(source, "GOVERNANCE_PACKAGE_VERSION", None)
+    manager_version = source_version(source, "MANAGER_VERSION", None)
+    if not package_version or not re.fullmatch(r"2\.\d+\.\d+", package_version) or not manager_version or not re.fullmatch(r"2\.\d+\.\d+", manager_version):
+        raise GovernanceError("strict governance source is not a compatible v2 generation", "CENTRAL_SOURCE_UNVERIFIED")
     required = [
         Path("governance/project/PROJECT_CONFIG.default.json"),
         Path("governance/manager/speckit_governance.py"),
@@ -1464,16 +1466,16 @@ def governance_v2_upgrade_mutations(root: Path, source_snapshot: dict[str, Any],
 
     manifest = read_json(manifest_path)
     manifest["schema_version"] = 2
-    manifest["governance_package_version"] = "2.0.0"
-    manifest["policy_version"] = source_version(source, "POLICY_VERSION", "2.0.0")
+    manifest["governance_package_version"] = source_version(source, "GOVERNANCE_PACKAGE_VERSION", GOVERNANCE_PACKAGE_VERSION)
+    manifest["policy_version"] = source_version(source, "POLICY_VERSION", POLICY_VERSION)
     manifest["reference_version"] = source_version(source, "REFERENCE_VERSION", REFERENCE_VERSION)
-    manifest["manager_version"] = "2.0.0"
+    manifest["manager_version"] = source_version(source, "MANAGER_VERSION", MANAGER_VERSION)
     manifest["specify_compatibility"] = cli_contract_metadata(
         manifest.get("source", {}).get("reviewed_upstream_revision") or reviewed_upstream_revision(source),
         cli_version(),
     )
     manifest.setdefault("source", {})["revision"] = source_snapshot["source_revision"]
-    manifest["source"]["release"] = "v2.0.0"
+    manifest["source"]["release"] = f"v{manifest['governance_package_version']}"
     manifest["project_owned_prefixes"] = [f"{PROJECT_PACKAGE}/features/"]
     manifest["companion"] = {
         "version": "2.0.0",
@@ -2171,7 +2173,7 @@ def init_rehearsal(root: Path, key: str, force: bool) -> dict[str, Any]:
     argv = ["specify", "init", "--here"]
     if force:
         argv.append("--force")
-    argv.extend(["--ignore-agent-tools", "--non-interactive", "--integration", key])
+    argv.extend(["--ignore-agent-tools", "--non-interactive", "--integration", key, "--script", "py"])
     with tempfile.TemporaryDirectory(prefix="spec-kit-rehearsal-") as directory:
         rehearsal_root = Path(directory)
         before = project_inventory(rehearsal_root)
@@ -2678,7 +2680,7 @@ def create_plan_command(root: Path, operation: str, args: argparse.Namespace) ->
         if operation == "plan-init":
             if not key:
                 raise GovernanceError("integration key is required", "KEY_REQUIRED")
-            argv = ["specify", "init", "--here", "--ignore-agent-tools", "--non-interactive", "--integration", key]
+            argv = ["specify", "init", "--here", "--ignore-agent-tools", "--non-interactive", "--integration", key, "--script", "py"]
             if args.force:
                 argv.insert(3, "--force")
         elif operation == "plan-onboard":

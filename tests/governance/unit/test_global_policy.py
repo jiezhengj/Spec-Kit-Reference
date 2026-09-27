@@ -6,6 +6,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[3]
 SOURCE = "/Users/jiezhengj/Documents/Project/SpecKitReference"
+WINDOWS_SOURCE = r"C:\Users\jiezhengj\Documents\Project\SpecKitReference"
 
 
 class GlobalPolicyTemplateTests(unittest.TestCase):
@@ -26,6 +27,8 @@ class GlobalPolicyTemplateTests(unittest.TestCase):
         self.assertEqual(sum(line.startswith("## ") for line in lines), 6)
         self.assertEqual(text.count("<ABSOLUTE_PATH_TO_SPEC_KIT_REFERENCE_REPOSITORY>"), 0)
         self.assertIn("SPEC_KIT_GOVERNANCE_SOURCE: " + SOURCE, text)
+        self.assertIn("Windows source path: `" + WINDOWS_SOURCE + "`", text)
+        self.assertIn("On Windows, use this path in place of the macOS locator above", text)
         self.assertLessEqual(sum(bool(line.strip()) for line in lines), 40)
 
     def test_deployment_protocol_exists(self) -> None:

@@ -1,4 +1,11 @@
-# Planned 2.0.0 adaptive release
+# 2.1.0
+
+- Requires centrally governed non-interactive initialization to pass
+  `--script py`, so generated project scripts do not vary by host platform.
+- Records the explicit macOS and Windows paths for the central Reference and
+  exempts SpecKitReference maintenance from downstream Feature routing.
+
+# Earlier releases
 
 ## 2.0.0
 

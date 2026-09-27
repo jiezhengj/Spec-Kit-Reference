@@ -2,6 +2,10 @@
 
 This repository maintains a reviewed local governance and operational reference for GitHub Spec Kit. It is not a fork and must not merge the upstream Spec Kit history into this repository.
 
+## Repository scope boundary
+
+When the repository root contains both `SPEC_KIT_REFERENCE.md` and `UPSTREAM_BASELINE`, treat this checkout as the SpecKitReference source repository. Work on its Policy, Reference, manager, documentation, or release follows this file's maintenance workflow; do not initialize `.specify/` or route this maintenance through target-project Feature workflows, and do not ask the user to choose `governed-sdd` for it. This exception applies only to the Reference source repository. Use the target project's Feature workflow for product work in downstream projects.
+
 ## Upstream
 
 The official upstream is `https://github.com/github/spec-kit`, expected as the `upstream` Git remote. Use it for fetch, log, diff, and evidence gathering only.

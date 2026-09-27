@@ -1,10 +1,12 @@
-<!-- SPEC-KIT-GLOBAL-POLICY:START version=2.0.0 -->
+<!-- SPEC-KIT-GLOBAL-POLICY:START version=2.1.0 -->
 
 # Spec Kit Global Policy
 
 ## Scope
 
-Use GitHub Spec Kit for substantive software engineering. Do not require the full lifecycle for read-only investigation, explanation, trivial typo fixes, or extremely small low-risk changes.
+Use GitHub Spec Kit for substantive product and application engineering in target projects. Do not require the full lifecycle for read-only investigation, explanation, trivial typo fixes, or extremely small low-risk changes.
+
+When the current repository root contains both `SPEC_KIT_REFERENCE.md` and `UPSTREAM_BASELINE`, treat it as the SpecKitReference source repository. Its Policy, Reference, manager, documentation, and release maintenance follows the repository's `AGENTS.md`; do not initialize `.specify/` or route that maintenance through target-project Feature workflows, and do not ask the user to choose `governed-sdd` for it. This exception is limited to that source repository and does not exempt downstream product work from this Policy.
 
 Requests to create, design, plan, or implement a substantive Feature are routed by intent and risk: establish or review the project Constitution first, then use Assessment for undecided ideas, Bug Fix for known defects, short SDD for low-risk Features, and the full upstream path for high-risk work. Before creating or updating high-risk Feature artifacts, ask whether `governed-sdd` should be enabled for this Feature only. Explain any low-risk exemption instead of silently treating substantive work as a small change.
 
@@ -18,7 +20,7 @@ During first-time Spec Kit initialization, the current Agent must ask the user w
 
 ## Agent integration
 
-Determine the current Agent from an explicit user, host, or Agent runtime declaration. Never infer it from installed tools, existing directories, or the project's default integration. Every non-interactive initialization must pass an explicitly approved `--integration <key>`.
+Determine the current Agent from an explicit user, host, or Agent runtime declaration. Never infer it from installed tools, existing directories, or the project's default integration. Every non-interactive initialization must pass an explicitly approved `--integration <key>` and `--script py`, so generated project scripts do not depend on the host platform. If the installed CLI rejects `--script py`, stop and report the incompatibility; do not omit the flag and accept a platform default.
 
 When the current CLI provides a native integration for the current Agent, that native integration is mandatory. An unwritable target, missing permission, sandbox restriction, managed-file repair failure, or installation failure is a blocker and must never trigger a fallback to `generic`. A project is not fully migrated until the native integration and its managed files are verified.
 
@@ -53,6 +55,7 @@ When an Agent enters an existing Spec Kit project, it must check the `specify` C
 ## Central update source
 
 SPEC_KIT_GOVERNANCE_SOURCE: /Users/jiezhengj/Documents/Project/SpecKitReference
+Windows source path: `C:\Users\jiezhengj\Documents\Project\SpecKitReference`. On Windows, use this path in place of the macOS locator above; on macOS, use the `SPEC_KIT_GOVERNANCE_SOURCE` value. Never transform either path or search other directories.
 
 The directory must contain `SPEC_KIT_REFERENCE.md`, `GLOBAL_POLICY.md`, and `UPSTREAM_BASELINE`. When this Policy is actually loaded, and `.specify/` plus the committed project governance package exist, the Agent may additionally run the central manager's read-only `check-update --source <path>` once before the first substantive task in a new session. This is a separate maintenance check from the unconditional upstream Spec Kit update check above. If the result is `UPDATE_AVAILABLE`, the Agent must immediately run `auto-upgrade --source <path>`. This automatic upgrade is limited to Reference-owned governance files and the managed loader block; it does not require project-owner approval and never modifies `.specify/**`, `specs/**`, native Agent files, or business code. If the Policy, source, or verification is unavailable, skip only this central Reference check silently; never scan arbitrary directories or treat an unverified source as an update.
 

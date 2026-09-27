@@ -1,5 +1,73 @@
 # Upstream impact assessment
 
+## Local policy amendment — Reference source repository scope gate
+
+Date:
+
+`2026-09-27`
+
+Classification:
+
+`POLICY`
+
+Trigger:
+
+The target-project Feature-routing Policy and this repository's maintenance instructions could be loaded together without an early repository-mode boundary. The SpecKitReference-only exception existed later in the Reference, but was not stated at the policy and instruction entry points; an Agent consequently asked for a target-project Feature route while maintaining the central Policy and manager.
+
+Evidence:
+
+The repository has no `.specify/` project state and its root `AGENTS.md` defines a maintenance workflow. `SPEC_KIT_REFERENCE.md` already records the source-repository exception. The fetched upstream tip is `c00dc0551583428a10a94443c58c6a41e5e0138c`, 69 commits after baseline `d4229c071c7ea3885b43e8a7739847300f618f13`; the scoped review found no upstream change that determines this local repository-scope rule. The full upstream range was not reviewed, so `UPSTREAM_BASELINE` is unchanged.
+
+Decision:
+
+The root `AGENTS.md` and deployable `GLOBAL_POLICY.md` now identify the Reference source repository by the joint presence of root-level `SPEC_KIT_REFERENCE.md` and `UPSTREAM_BASELINE`. Policy, Reference, manager, documentation, and release maintenance in that checkout follows local maintenance instructions and does not initialize `.specify/` or ask for target-project Feature route selection. This explicit exception is source-repository-only; downstream product work remains subject to Feature routing.
+
+Affected documents and components:
+
+- `AGENTS.md`
+- `GLOBAL_POLICY.md`
+- `docs/CHANGE_IMPACT.md`
+- `docs/HISTORY.md`
+
+Validation:
+
+The `test_reference_owned_boundary_is_documented_and_enforced` regression test checks that both the local maintenance rules and deployable Policy identify the Reference source repository and bypass downstream Feature routing. The full Python unit suite, Python syntax compilation, and `git diff --check` pass. The baseline remains unchanged because the full 69-commit upstream range was not reviewed.
+
+## Local policy amendment — platform-independent Python project initialization
+
+Date:
+
+`2026-09-27`
+
+Classification:
+
+`POLICY`
+
+Trigger:
+
+The upstream `specify init` default selects PowerShell on Windows and shell on other operating systems. That host-dependent default makes generated project scripts vary by the machine that initializes the project, even though the installed upstream CLI supports an explicit Python selection.
+
+Evidence:
+
+The committed baseline is `d4229c071c7ea3885b43e8a7739847300f618f13`; fetched `upstream/main` is `c00dc0551583428a10a94443c58c6a41e5e0138c`. Scoped inspection of the init command at both revisions confirms the `--script` choices include `sh`, `ps`, and `py`, and that omission selects `ps` on Windows and `sh` elsewhere. The upstream command module moved in the reviewed range; the complete intervening history has not been reviewed, so this record does not advance `UPSTREAM_BASELINE`.
+
+Decision:
+
+Every non-interactive initialization governed by the central Policy must pass `--script py`. The governance manager's `plan-init` must pass the same option in its isolated rehearsal and actual upstream invocation. If the installed CLI rejects the option, initialization stops rather than falling back to its host-dependent default. This changes Reference-owned guidance and manager arguments only; it does not replace or directly edit upstream-generated files, and it does not intercept direct CLI commands run outside this governance flow.
+
+This compatible Policy and manager update is versioned as `2.1.0` so projects already on `2.0.0` can detect and apply it. The global Policy records the macOS path `/Users/jiezhengj/Documents/Project/SpecKitReference` and the Windows path `C:\Users\jiezhengj\Documents\Project\SpecKitReference`; an Agent uses the path for its current host without probing other locations.
+
+Affected documents and components:
+
+- `GLOBAL_POLICY.md` and `SPEC_KIT_REFERENCE.md`
+- `governance/manager/speckit_governance.py`
+- `governance/project/**` and `governance/bridge/project/**`
+- `docs/PROJECT_GOVERNANCE_OPERATIONS.md`
+
+Validation:
+
+`specify init --help` confirms that the installed CLI accepts `--script` with `py`. The `test_plan_init_records_isolated_rehearsal` test checks that both the rehearsal and actual CLI invocation pass `--script py`; release tests verify version `2.1.0` and the exact macOS and Windows source paths. The full Python unit suite, Python syntax compilation, and `git diff --check` pass. `UPSTREAM_BASELINE` remains unchanged because this was a scoped evidence review, not a complete review of the upstream range.
+
 ## Local policy amendment — task-scoped high-assurance routing
 
 Date:
