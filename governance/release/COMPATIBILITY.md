@@ -12,6 +12,7 @@ pass `scripts/validate_governance_release.py`.
 | `1.3.0` bridge | v1, with v2 migration planning support | Preserves existing behavior; never enables strict workflow gates | Required staging line before `2.0.0` |
 | `2.0.0` | v2 | Adaptive upstream workflow by default; optional governed SDD with explicit artifact reviews, tiny-model task readiness, and cold-start review | Only from a verified `1.3.0` bridge plan |
 | `2.1.0` | v2 | Compatible policy and manager update; governed non-interactive init pins Python scripts and records host-specific source paths | Direct compatible upgrade from `2.0.0`; v1 projects still require the `1.3.0` bridge |
+| `2.1.1` | v2 | Compatible presentation and packaging correction; lists macOS/Windows source paths symmetrically and binds the runtime locator to the matching host | Direct compatible upgrade from `2.1.0`; v1 projects still require the `1.3.0` bridge |
 
 No manager may silently treat a v1 project as v2. A direct v1-to-v2 write, a
 partially applied major migration, or an unverified bridge is
@@ -56,6 +57,13 @@ non-interactive initialization and recognizes compatible `2.x` sources during
 v1-to-v2 migration. Existing `2.0.0` projects update through the normal
 Reference-owned auto-upgrade plan; v1 projects still pass through the verified
 `1.3.0` bridge migration.
+
+# Compatible patch: 2.1.1
+
+`2.1.1` keeps the v2 package, manager, and project schema unchanged from
+`2.1.0`. It presents the known macOS and Windows central source locations as
+parallel entries and directs the deployer to set the runtime locator to the
+matching host path. No workflow or migration behavior changes.
 
 # Upgrade and rollback
 

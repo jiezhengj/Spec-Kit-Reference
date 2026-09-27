@@ -1,5 +1,34 @@
 # Upstream impact assessment
 
+## Local policy amendment — symmetric central source path mapping
+
+Date:
+
+`2026-09-27`
+
+Classification:
+
+`POLICY`
+
+Trigger:
+
+The first published `2.1.0` Policy recorded the macOS locator separately and appended the Windows path with a Windows-specific instruction. The two supported hosts were therefore described asymmetrically, even though each needs the same host-to-path selection rule.
+
+Decision:
+
+List macOS and Windows source paths in parallel, then state one host-neutral rule: set the unique `SPEC_KIT_GOVERNANCE_SOURCE` locator to the path listed for the current host. The compatible `2.1.1` package preserves the v2 schema and workflow behavior while allowing installed `2.1.0` projects to detect the clearer Policy version.
+
+Affected documents and components:
+
+- `GLOBAL_POLICY.md`
+- `README.md`
+- `governance/release/CHANGELOG.md` and `governance/release/COMPATIBILITY.md`
+- `tests/governance/unit/test_global_policy.py` and `tests/governance/unit/test_governed_release_contract.py`
+
+Validation:
+
+Regression tests assert the paired host mapping, the shared current-host locator rule, and the `2.1.1` release metadata. The complete Python unit suite, syntax compilation, release builder, release validator, and `git diff --check` must pass before publication.
+
 ## Local policy amendment — Reference source repository scope gate
 
 Date:
