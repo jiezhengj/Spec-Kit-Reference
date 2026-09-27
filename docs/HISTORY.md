@@ -1,5 +1,11 @@
 # Maintenance history
 
+## 2026-09-27 — Compatible governance patch 2.1.1
+
+- Rewrote the macOS and Windows central source locations as parallel entries and tied the unique runtime locator to the current host's entry.
+- Kept project schema and workflow behavior unchanged from `2.1.0`; bumped the patch version so existing projects can detect the published Policy update.
+- Added regression coverage for the parallel mapping and current-host locator wording.
+
 ## 2026-09-27 — Compatible governance release 2.1.0
 
 - Bumped the compatible v2 package, Policy, manager, and extension to `2.1.0` so existing `2.0.0` projects can detect the update.

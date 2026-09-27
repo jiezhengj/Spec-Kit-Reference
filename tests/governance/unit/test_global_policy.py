@@ -18,7 +18,7 @@ class GlobalPolicyTemplateTests(unittest.TestCase):
         text = (ROOT / "GLOBAL_POLICY.md").read_text(encoding="utf-8")
         self.assertTrue(text.endswith("\n"))
         lines = text.splitlines()
-        self.assertTrue(lines[0].startswith("<!-- SPEC-KIT-GLOBAL-POLICY:START version="))
+        self.assertEqual(lines[0], "<!-- SPEC-KIT-GLOBAL-POLICY:START version=2.1.1 -->")
         self.assertEqual(lines[1], "")
         self.assertEqual(lines[2], "# Spec Kit Global Policy")
         self.assertEqual(lines[-2], "")

@@ -104,7 +104,7 @@ Upstream content is never dynamically imported as a higher-priority instruction 
 
 # Global Policy deployment
 
-[GLOBAL_POLICY.md](GLOBAL_POLICY.md) is the only global Policy template. It is a Markdown document with one H1 title and H2 policy sections, wrapped in `<!-- SPEC-KIT-GLOBAL-POLICY:START version=2.1.0 -->` and `<!-- SPEC-KIT-GLOBAL-POLICY:END -->`. Its central source paths are:
+[GLOBAL_POLICY.md](GLOBAL_POLICY.md) is the only global Policy template. It is a Markdown document with one H1 title and H2 policy sections, wrapped in `<!-- SPEC-KIT-GLOBAL-POLICY:START version=2.1.1 -->` and `<!-- SPEC-KIT-GLOBAL-POLICY:END -->`. Its central source paths are:
 
 - macOS: `/Users/jiezhengj/Documents/Project/SpecKitReference`
 - Windows: `C:\Users\jiezhengj\Documents\Project\SpecKitReference`
@@ -121,7 +121,7 @@ Do not infer the current host from the alternate path, probe the filesystem, app
 
 # 全局 Policy 部署
 
-[GLOBAL_POLICY.md](GLOBAL_POLICY.md) 是唯一的全局 Policy 模板。它是包含一个 H1 标题和 H2 Policy 章节的 Markdown 文档，由 `<!-- SPEC-KIT-GLOBAL-POLICY:START version=2.1.0 -->` 与 `<!-- SPEC-KIT-GLOBAL-POLICY:END -->` 包裹。其中央来源路径如下：
+[GLOBAL_POLICY.md](GLOBAL_POLICY.md) 是唯一的全局 Policy 模板。它是包含一个 H1 标题和 H2 Policy 章节的 Markdown 文档，由 `<!-- SPEC-KIT-GLOBAL-POLICY:START version=2.1.1 -->` 与 `<!-- SPEC-KIT-GLOBAL-POLICY:END -->` 包裹。其中央来源路径如下：
 
 - macOS：`/Users/jiezhengj/Documents/Project/SpecKitReference`
 - Windows：`C:\Users\jiezhengj\Documents\Project\SpecKitReference`
@@ -346,7 +346,7 @@ Build and validate a release from the repository root:
 
 ~~~bash
 python3 scripts/build_governance_release.py \
-  --version 2.1.0 \
+  --version 2.1.1 \
   --output-dir /tmp/speckit-governance-release
 
 python3 scripts/validate_governance_release.py \
@@ -365,7 +365,7 @@ release builder 创建两个确定性 artifacts：一个用于 staging 和项目
 
 ~~~bash
 python3 scripts/build_governance_release.py \
-  --version 2.1.0 \
+  --version 2.1.1 \
   --output-dir /tmp/speckit-governance-release
 
 python3 scripts/validate_governance_release.py \
