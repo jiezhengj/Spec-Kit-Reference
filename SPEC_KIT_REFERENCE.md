@@ -10,6 +10,7 @@
 | --- | --- |
 | [新项目初始化步骤](docs/PROJECT_INITIALIZATION.md) | 检查 CLI、选择原生集成、初始化项目，并把规则块合并到目标项目。 |
 | [目标项目 AGENTS 规则块模板](docs/PROJECT_AGENTS_TEMPLATE.md) | 原样复制到目标项目根目录 `AGENTS.md`；复制后不再依赖本仓库中的模板。 |
+| `scripts/spec_kit_component_updater.py` | 复制到目标项目 `.agent-support/`；项目 Agent 只在七天成功检查窗口到期后启动它，以按需检查并更新已批准的官方组件。 |
 
 目标项目已存在 `.specify/` 时，不走本节，也不因本索引重新初始化。
 

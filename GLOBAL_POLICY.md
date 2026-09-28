@@ -1,4 +1,4 @@
-<!-- SPEC-KIT-GLOBAL-POLICY:START version=3.0.0 -->
+<!-- SPEC-KIT-GLOBAL-POLICY:START -->
 
 # 适用范围
 

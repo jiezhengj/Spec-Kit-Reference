@@ -1,6 +1,6 @@
 # 仓库定位
 
-本仓库维护 GitHub Spec Kit 的中文政策与操作参考，不是 Spec Kit 分支，也不是下游业务项目。维护本仓库时，不初始化 `.specify/`，不运行下游项目流程。上游只作事实依据，不合并其历史、不复制整个仓库、不改写上游生成文件。
+本仓库维护 GitHub Spec Kit 的中文政策与操作参考，以及供新项目初始化复制的单一组件更新助手；本仓库不是 Spec Kit 分支，也不是下游业务项目。维护本仓库时，不初始化 `.specify/`，不运行下游项目流程。上游只作事实依据，不合并其历史、不复制整个仓库、不改写上游生成文件。
 
 # 上游维护
 
@@ -8,14 +8,14 @@
 
 - `NONE`、`REFERENCE`、`POLICY` 按上游审查规则分类；只按证据修改本地中文文档，并记录 `docs/CHANGE_IMPACT.md`。
 - `POLICY` 候选必须先交由用户审阅；获批前不得部署或合并。
-- 当前全局政策版本只由 `GLOBAL_POLICY.md` 的 `SPEC-KIT-GLOBAL-POLICY:START version=...` 标记表示。版本号不自动联动，只在用户明确作出版本决定后更新。
+- `GLOBAL_POLICY.md` 与个人全局 `AGENTS.md` 的 Spec Kit 受管块使用固定的 `SPEC-KIT-GLOBAL-POLICY:START`、`SPEC-KIT-GLOBAL-POLICY:END` 标记，不维护政策版本号。Git 差异和 `docs/CHANGE_IMPACT.md` 记录变更；不得为普通政策修改要求版本号递增。
 - 当前变更影响记录在 `docs/CHANGE_IMPACT.md`；Git 保存提交历史，不另建重复历史归档。
 
 # 下游边界
 
-- 下游项目的流程和组件使用官方 Spec Kit CLI、官方目录、官方文档及 Agent 原生集成。本仓库只维护简明政策、中文操作摘要、上游影响记录、基线和上游检查器。
-- 不新增本地扩展、工作流、预设、Bundle、命令覆盖、第二套生命周期、任务状态机、项目管理器或自定义审批合同。
-- 新项目初始化时，只能在目标项目根目录 `AGENTS.md` 追加或精准替换 `PROJECT-SPEC-KIT-GOVERNANCE` 受管块，标记外内容必须逐字节保留；不修改下游 `.specify/**`、`specs/**`、Agent 集成文件或业务文件。
+- 下游项目的流程和组件使用官方 Spec Kit CLI、官方目录、官方文档及 Agent 原生集成。本仓库维护简明政策、中文操作摘要、上游影响记录、基线、上游检查器和唯一允许复制到新项目的组件更新助手。
+- 不新增本地扩展、工作流、预设、Bundle、命令覆盖、第二套生命周期、任务状态机、项目管理器或自定义审批合同。唯一例外是 `scripts/spec_kit_component_updater.py`：该标准库脚本只调用官方 CLI，供初始化后的项目按缓存结果刷新官方组件，不定义新的 SDD 流程。
+- 新项目初始化时，官方 CLI 可按其职责生成托管文件；Reference 额外只允许在目标项目根目录精准追加或替换 `PROJECT-SPEC-KIT-GOVERNANCE` 受管块、复制 `.agent-support/spec_kit_component_updater.py`，并在 `.gitignore` 精确忽略 `.agent-state/spec_kit_component_update_cache.json`。AGENTS 标记外内容和 `.gitignore` 的既有内容必须逐字节保留；不得手工修改下游 `.specify/**`、`specs/**`、Agent 集成文件或业务文件。
 - 本仓库只支持新项目初始化，不兼容迁移既有项目规则、旧治理组件或旧 Spec 产物；既有项目迁移须作为独立任务处理。
 - 初始化后，目标项目提交的 `AGENTS.md` 和 Spec Kit 状态是项目级依据；运行时不依赖本机全局政策、中央 Reference 或在线网页。
 
