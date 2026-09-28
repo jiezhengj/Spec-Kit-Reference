@@ -28,4 +28,4 @@
 
 `git diff --check` 和 `python scripts/check_upstream.py` 均通过；上游检查器确认基线与 `upstream/main` 一致、没有待审阅提交。额外检查了 12 份 Markdown、16 个内部链接、代码围栏、规则块标记、流程结构和目标规则块的 Reference 自包含性，均通过；政策标记仍为 `3.0.0`。未运行测试套件。
 
-用户已批准将本地 POLICY 候选推送到 `main`。个人全局 `AGENTS.md` 仍由用户人工更新；GitHub Release `v3.0.0` 已删除，关联 Git tag 保留。
+用户已批准将本地 POLICY 候选推送到 `main`。个人全局 `AGENTS.md` 仍由用户人工更新；GitHub Releases `v3.0.0`、`v2.1.1`、`v2.1.0` 均已删除，Git tags 保留。
