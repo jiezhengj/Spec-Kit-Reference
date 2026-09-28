@@ -1,55 +1,38 @@
-# Update policy
+# 上游审查规则
 
-`UPSTREAM_BASELINE` records the latest official Spec Kit commit whose semantic impact has been reviewed. It is not required to equal the latest upstream commit.
+UPSTREAM_BASELINE 记录已完成语义审查的官方 Spec Kit 提交，不要求始终等于 upstream/main。
 
-## Review procedure
+# 审查步骤
 
-1. Read `AGENTS.md` and the baseline.
-2. Fetch `upstream/main`.
-3. Compare the baseline with `upstream/main`.
-4. Inspect commit messages, changed paths, diffs, and complete relevant files.
-5. Consider path priority, release notes, commit intent, and diff semantics together.
-6. Classify the result as `NONE`, `REFERENCE`, or `POLICY`.
-7. Update local documents only when evidence requires it.
-8. Record the assessment and history.
-9. Validate the repository.
-10. Advance the baseline last.
+1. 阅读 AGENTS.md 和 UPSTREAM_BASELINE。
+2. 获取 upstream/main，并确认基线提交仍是当前上游的祖先。
+3. 查看提交列表、变更路径和完整差异。
+4. 完整阅读与功能流程、官方扩展、CLI 命令、Agent 集成或升级方式相关的文件。
+5. 按 NONE、REFERENCE 或 POLICY 分类。
+6. 只修改有证据支持的中文文档，并记录 docs/CHANGE_IMPACT.md；需要时更新 docs/HISTORY.md。
+7. 运行 git diff --check 和 scripts/check_upstream.py。
+8. 变更审查和文档修改完成后，最后更新 UPSTREAM_BASELINE。
 
-If the baseline is not an ancestor of `upstream/main`, treat the result as a manual review error or upstream history rewrite. Do not use a two-dot range as if it were a normal update; inspect the relevant commits and reset the reviewed baseline deliberately.
+如果 upstream/main 无法快进包含本地基线，先检查上游历史是否被改写或本地远端引用是否过期，不得直接推进基线。
 
-## High-priority paths
+# 优先检查的上游内容
 
-Pay particular attention to:
+根据本次变更涉及的功能，检查官方 Quickstart、Bug Fix、Assessment、Upgrade、已有项目接入指南，扩展和工作流目录，以及 CLI 的安装、集成升级、扩展更新命令。完整提交列表和变更路径用于发现这些重点文件之外的影响；优先清单不是忽略其他差异的理由。
 
-- `docs/reference/agentic-sdd*`
-- `docs/reference/agentic-bugfix*`
-- `docs/reference/integrations*`
-- `integrations/**`
-- `src/**/integrations/**`
-- `templates/commands/**`
-- `templates/**`
-- `workflows/**`
-- `core_pack/**`
-- `docs/upgrade*`
-- `pyproject.toml`
-- `src/specify_cli/**`
+# 影响分类
 
-These paths are a review aid, not an automatic allowlist or ignore list. A README, changelog, or release note can still contain a breaking change.
+## NONE
 
-## Classifications
+上游变化不影响本地政策或操作参考。记录审查结果后可以推进基线。
 
-### NONE
+## REFERENCE
 
-No local operational knowledge or governance policy changes. Record the review and advance the baseline after validation.
+CLI 参数、组件目录、集成、生成文件或升级方式改变。按需要更新 SPEC_KIT_REFERENCE.md，通常不改 GLOBAL_POLICY.md。
 
-### REFERENCE
+## POLICY
 
-Operational facts changed, such as CLI syntax, integrations, generated directories, upgrade commands, or extension behavior. Update `SPEC_KIT_REFERENCE.md` when justified; normally leave `GLOBAL_POLICY.md` unchanged.
+官方流程、工作完成条件或工具权威边界改变，可能影响 Agent 行为。审查 GLOBAL_POLICY.md 与 SPEC_KIT_REFERENCE.md。部署或合并前必须由用户审阅。
 
-### POLICY
+# 自动化边界
 
-The methodology, lifecycle, completion semantics, integration architecture, or project-authority model changed in a way that may alter Agent behavior. Review and possibly update both `GLOBAL_POLICY.md` and `SPEC_KIT_REFERENCE.md`. Human review is required before deployment or merge.
-
-## Automation boundary
-
-The checker and GitHub Action may detect and notify; they do not themselves edit or merge local policy. The runtime manager may automatically synchronize an already-reviewed central Reference package into Reference-owned target files through its hash-bound `auto-upgrade` operation. Semantic upstream assessment and baseline advancement remain separate maintenance steps.
+scripts/check_upstream.py 和 GitHub Actions 只负责发现变化并提醒维护者，不修改政策、合并上游或推进基线。

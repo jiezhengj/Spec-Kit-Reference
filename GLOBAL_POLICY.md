@@ -1,67 +1,98 @@
-<!-- SPEC-KIT-GLOBAL-POLICY:START version=2.1.1 -->
+<!-- SPEC-KIT-GLOBAL-POLICY:START version=3.0.0 -->
 
-# Spec Kit Global Policy
+# 适用范围与权威来源
 
-## Scope
+新项目使用 GitHub Spec Kit 官方 CLI、官方目录和当前 Agent 的原生集成。官方 CLI 管理项目脚手架和 Agent 集成文件；当前集成提供的官方技能生成 Feature 的 `specs/**` 产物。各自只通过官方支持的命令更新。Reference 不创建第二套生命周期，也不要求目标项目在运行时访问中央 Reference。
 
-Use GitHub Spec Kit for substantive product and application engineering in target projects. Do not require the full lifecycle for read-only investigation, explanation, trivial typo fixes, or extremely small low-risk changes.
+本文件内含目标项目的持久规则块模板，所以新项目初始化只需要当前 Agent 已加载本政策和可用的官方 CLI，不要求中央 Reference 目录。官方 CLI 本身仍可在没有本政策时初始化原生 Spec Kit 项目，但不会自动注入本地规则块。
 
-When the current repository root contains both `SPEC_KIT_REFERENCE.md` and `UPSTREAM_BASELINE`, treat it as the SpecKitReference source repository. Its Policy, Reference, manager, documentation, and release maintenance follows the repository's `AGENTS.md`; do not initialize `.specify/` or route that maintenance through target-project Feature workflows, and do not ask the user to choose `governed-sdd` for it. This exception is limited to that source repository and does not exempt downstream product work from this Policy.
+新项目完成 Spec Kit 初始化后，必须把本政策的项目规则写入并提交目标项目根目录的 `AGENTS.md`。已经初始化的项目以仓库中的受管项目规则块作为跨电脑的 Spec Kit 操作基线。只要该规则块和 Spec Kit 状态随项目提交，Agent 在有无全局 POLICY、Reference 目录的电脑上都按同一规则工作。中央 Reference 不自动检查或更新目标项目。
 
-Requests to create, design, plan, or implement a substantive Feature are routed by intent and risk: establish or review the project Constitution first, then use Assessment for undecided ideas, Bug Fix for known defects, short SDD for low-risk Features, and the full upstream path for high-risk work. Before creating or updating high-risk Feature artifacts, ask whether `governed-sdd` should be enabled for this Feature only. Explain any low-risk exemption instead of silently treating substantive work as a small change.
+本政策不要求自建扩展、工作流、预设、Bundle、命令覆盖、额外 Discovery 阶段、哈希审批台账、任务就绪状态机或项目管理器。官方能力暂不可用时，说明缺失内容和受影响步骤；不得悄悄以本地仿制品代替。
 
-## Project authority
+# 新项目初始化
 
-Determine the actual project root, read all applicable project-local rules, inspect the brownfield system, and preserve existing user work before changing it. If `.specify/` exists, resume that project state instead of routinely reinitializing it. If `docs/spec-kit/MANIFEST.json` exists, read the committed project governance package; it is the shared project baseline.
+先确认项目根目录和当前 Agent；Agent 身份及原生集成键必须来自用户、宿主或 Agent 运行时声明，不能从安装目录或其他文件推断。CLI 不存在时，先询问用户是否安装官方 CLI；用户拒绝时返回 `HANDOFF_TO_AGENT`，不得假称初始化成功。
 
-If the project already has the runtime-selected project context anchor, that file is project-owned instruction content. The Spec Kit governance loader may be appended to or updated inside that file only through the reviewed manager plan; every byte outside the managed loader region must remain unchanged. Never replace, delete, reorder, normalize, or overwrite the anchor. If no anchor exists, create only the exact project-relative path supplied and evidence-validated by the current Agent runtime or the user; never guess a filename.
+按当前 CLI 的实际帮助安装并初始化；非交互初始化必须明确指定已确认的原生集成和 `--script py`。CLI 不支持 `--script py` 时停止并报告，不得省略该参数后接受平台默认值。
 
-During first-time Spec Kit initialization, the current Agent must ask the user which BCP-47 language tag to use for new or substantially rewritten project documentation. Pass that exact user selection to the manager and persist it in the project configuration and managed context-anchor loader. Do not infer the language from locale, Agent product, existing documents, or a default.
+~~~bash
+uv tool install specify-cli
+specify init <project-name> --integration <native-agent-key> --script py
+~~~
 
-## Agent integration
+只有运行环境确认为非交互时才传 `--non-interactive`。CLI 有当前 Agent 的原生集成时必须使用该集成；不得因权限、写入、沙箱或安装失败而退回 `generic`。当前 CLI 没有原生集成时，停止并报告限制，不得自行创建兼容配置。
 
-Determine the current Agent from an explicit user, host, or Agent runtime declaration. Never infer it from installed tools, existing directories, or the project's default integration. Every non-interactive initialization must pass an explicitly approved `--integration <key>` and `--script py`, so generated project scripts do not depend on the host platform. If the installed CLI rejects `--script py`, stop and report the incompatibility; do not omit the flag and accept a platform default.
+初始化成功后，向项目根目录 `AGENTS.md` 合并下面的项目规则块，并提交该文件、`.specify/**`、`specs/**` 和团队需要共享的官方集成文件。不要提交 CLI 安装缓存、个人凭据或机器专属状态。由项目规则块和提交的 Spec 状态共同保证新电脑上的 Agent 不依赖全局 POLICY 或 Reference。
 
-When the current CLI provides a native integration for the current Agent, that native integration is mandatory. An unwritable target, missing permission, sandbox restriction, managed-file repair failure, or installation failure is a blocker and must never trigger a fallback to `generic`. A project is not fully migrated until the native integration and its managed files are verified.
+# 合并项目 AGENTS.md
 
-If the current CLI has no native integration, `generic` is allowed only when the committed project configuration permits it, a current-version human-reviewed native-absence attestation and exact compatibility contract exist, the installed integration set is empty, and the user approves the exact operation plan. It must be reported as limited, non-native support.
+项目根目录 `AGENTS.md` 是项目共享的规则文件，既有内容归项目所有。不得覆盖整个文件、重排内容或格式化文件。只允许改动由以下标记界定的 Spec Kit 规则块：
 
-## Upstream Spec Kit update check
+~~~text
+<!-- PROJECT-SPEC-KIT-GOVERNANCE:START -->
+...受管项目规则块...
+<!-- PROJECT-SPEC-KIT-GOVERNANCE:END -->
+~~~
 
-Whenever `.specify/` exists, perform this check independently of the central Reference and independently of whether `docs/spec-kit/**` or `SPEC_KIT_GOVERNANCE_SOURCE` is available. Before the first substantive engineering action or mutation in each new Agent session, use the currently installed CLI to run the read-only `specify self check` at most once. Do not hard-code an exact CLI version or assume a particular installation source. If the CLI is missing, ask the user whether to install the official CLI; if the user declines, return control to the current Agent.
+执行合并时遵守以下规则：
 
-If `specify self check` reports a newer CLI, show the available version and ask the user for explicit approval before running `specify self upgrade`. A refusal, no-update result, offline check, or timeout must not cause a second prompt in the same session. After an approved CLI upgrade, re-read the current CLI help and project state rather than assuming that command options or component versions stayed the same.
+- 若文件中恰有一对完整的上述标记，精准替换两标记之间的内容；不根据块内标题或版本值判断是否替换。保留标记外每个字节及其顺序不变。
+- 若不存在受管规则块，在文件末尾追加一个带标记的规则块；原文件的全部字节保留为前缀，只有原文件末尾没有换行符时才追加一个分隔换行。
+- 若文件不存在，可在项目根创建只含受管规则块的 `AGENTS.md`。
+- 若开始/结束标记缺失、重复、顺序错误，或无法无歧义地确定旧加载器边界，停止并报告；不得再追加一个块，也不得猜测替换范围。
+- 若发现旧的 `PROJECT-SPEC-KIT-REFERENCE-UPDATE-CHECK` 受管块，精准删除该完整块，使已 Spec 化项目不再依赖中央 Reference；标记外内容必须保持原样。若其边界异常，停止并报告。
+- 按原始字节操作标记区间，保留既有编码、BOM、换行格式和区块外全部字节；不得把 Markdown 读入后整体重新排版或正规化换行。无法可靠保留时停止并报告。
 
-Regardless of whether the CLI upgrade branch was approved, declined, or not needed, use the current CLI's actual `status`, `list`, and help contracts to inspect the active integration and installed extensions and workflows. If an installed integration, extension, or workflow is refreshable, run the supported `specify integration upgrade <active-key>`, `specify extension update`, or `specify workflow update` operation automatically; no additional user approval is required for a normal refresh. If the current CLI does not expose a freshness field, the supported no-force update operation may be run for the installed component and the CLI's no-update result is sufficient. Do not install missing components as part of refresh, do not assume presets are covered, and do not invent flags or pin a version. A normal confirmation prompt belonging to one of these refresh commands is covered by this rule.
+写入后检查差异，只能看到目标受管块的新增、替换或删除。用户提交前可审阅差异；目标项目的 `AGENTS.md` 不需要中央管理器、manifest 或更新服务。
 
-Never add `--force` to an automatic refresh. If the CLI refuses because managed files were modified, requests `--force`, reports an unsafe scope, or requires another irreversible choice, stop and ask the user with the exact command, reason, and affected paths. Preserve the project state. These upstream CLI operations remain the owner of their generated integration artifacts; this policy does not directly edit `.specify/**` or `specs/**`.
+# 项目内持久规则块
 
-## Runtime and completion
+将以下完整项目规则块写入目标项目；保持块内规则文本一致：
 
-For operational mechanics, prefer current project state, installed integration, installed `specify` CLI, committed project Reference, this central source, then upstream documentation. Keep accepted specifications, plans, tasks, implementation, validation, and convergence synchronized. Never hide failing checks or declare completion with an unresolved blocker.
+~~~markdown
+<!-- PROJECT-SPEC-KIT-GOVERNANCE:START -->
+# Spec Kit 项目规则
 
-For high-risk substantive work, first inspect the brownfield system and conduct structured discovery. For lower-risk work, use the shortest upstream path that still produces verifiable intent and acceptance evidence. Record known facts, user decisions, assumptions awaiting approval, open questions, excluded scope, acceptance evidence, failure behavior, and release constraints when the selected route requires them. Do not replace product, security, privacy, retention, or release decisions with an unstated industry default.
+本项目使用官方 Spec Kit CLI 和当前 Agent 原生集成。此规则块与本项目提交的 `.specify/**`、`specs/**` 一起构成本项目的 Spec Kit 操作基线；工作时不需要全局 POLICY 或中央 Reference。
 
-The `governed-sdd` choice is task-scoped: it must not change the project's default `workflow_governance.mode` or rewrite `docs/spec-kit/PROJECT_CONFIG.json`. Both the adaptive full path and `governed-sdd` use the upstream Spec Kit lifecycle; `governed-sdd` adds the optional companion's high-assurance review, readiness, and cold-start contract. Only an explicit user request to change the project's future default may update that configuration through its reviewed plan.
+将 `.specify/**` 和 Agent 集成文件视为官方 CLI 管理内容，将 `specs/**` 视为官方技能生成的项目产物。已有 `.specify/` 时恢复现状，不重新初始化；不要手工覆盖这些文件，使用官方 CLI 或技能支持的操作。
 
-Human review gates apply to `DISCOVERY`, `SPECIFICATION`, `PLAN_BUNDLE`, `TASK_PACKAGE`, and any required `REMEDIATION`. Each review request must identify the exact artifact set and content hashes. Agent self-review, a requirements checklist, successful validation, or a vague conversational approval cannot create or replace user approval. Changed content makes the corresponding approval stale. Stop at each configured gate until the user explicitly approves that review object or requests changes.
+功能首次进入 SDD 时建立一次 Constitution。小型 Feature 走 `constitution（仅首次）→ specify → plan → tasks → implement → converge`；生产级 Feature 走 `constitution（仅首次）→ specify → clarify → plan → checklist → tasks → analyze → implement → converge`。每次单独运行一个当前集成提供的官方技能，审阅阶段产物后再继续。已知缺陷走官方 Bug Fix 扩展的 assess、fix、test；尚未决定是否投入的想法可选官方 Assessment 扩展。不要增加本地自建生命周期或审批台账。
 
-Implementation tasks must be self-contained work packages for an executor without the originating conversation. Each task must state a single observable objective, traceability, minimum context, preconditions, exact allowed files, read-only references, forbidden changes, inputs and outputs, invariants and edge cases, ordered implementation requirements, executable verification with expected results, completion evidence, stop conditions, and handoff. Split tasks that contain multiple independently verifiable results or unresolved product, architecture, or security decisions. Readiness proves context completeness, not that every small model is capable of the work.
+每个新的 Agent 会话中，只要项目存在 `.specify/`，Agent 必须在首次实质性操作前最多运行一次只读 `specify self check`。如果 CLI 缺失，Agent 询问用户是否安装官方 CLI；用户拒绝时返回 `HANDOFF_TO_AGENT`。如果发现较新 CLI，Agent 告知可用版本，并在用户明确批准前不得运行 `specify self upgrade`。拒绝、无更新、离线或超时后，本会话不得重复询问。
 
-Approval of a conversational proposal such as “the plan is acceptable” authorizes advancing only the identified review object into the governed upstream Spec Kit workflow; it does not authorize direct application-code edits before the current specification, plan, and tasks are aligned and approved. Clarify, checklist, and analyze are risk-triggered in the adaptive profile and required in the high-assurance profile. Validation and convergence remain required for substantive implementation. The Reference package must not directly edit `.specify/**`, `specs/**`, or native Agent-generated files. The central Reference and a globally deployed Policy are maintenance conveniences, not target-project runtime prerequisites.
+无论 CLI 是否升级，Agent 都要用当前 CLI 实际的 `help`、`status` 和 `list` 命令检查活动集成、已安装扩展和工作流。对 CLI 支持刷新且已安装的集成、扩展或工作流，自动运行对应的官方更新命令，不要求额外批准；CLI 不提供新鲜度字段时，可运行支持的无强制更新命令，以 CLI 的无更新结果为准。缺失组件不属于刷新范围；当前工作需要的官方 CLI 或集成缺失时，Agent 询问用户是否安装。只有当前 Agent 的原生集成可用时，才可在获准后运行 `specify integration install <native-key>`；若原生集成不可用，停止并报告，不得改用 `generic`。缺陷流程需要而 `bug` 扩展缺失时，Agent 询问用户是否运行 `specify extension add bug`；用户选择 Assessment 且 `assess` 扩展缺失时，询问用户是否运行 `specify extension add assess`。用户拒绝时返回 `HANDOFF_TO_AGENT`。
 
-When an Agent enters an existing Spec Kit project, it must check the `specify` CLI, active integration, and official `assess` and `bug` extensions. If any required capability is missing, ask the user whether to install it through the native CLI. If the user declines, return control to the Agent with `HANDOFF_TO_AGENT`; do not retry, create a permanent blocker, or claim that the missing governed capability ran.
+自动刷新不得使用 `--force`。如果 CLI 因托管文件被修改而停止、要求 `--force`、报告不安全范围或要求不可逆选择，Agent 停止并向用户说明确切命令、原因和受影响路径，保留项目状态。刷新后重新读取 CLI 帮助和项目状态。只使用官方目录安装需要的扩展；本地路径来源不能证明可由官方目录刷新。官方目录没有等价能力时，报告该能力没有官方替代，不安装本地仿制品。
+<!-- PROJECT-SPEC-KIT-GOVERNANCE:END -->
+~~~
 
-## Central update source
+# 已有 Spec 项目的会话入口
 
-Central source paths:
+在新会话进入已有 Spec Kit 项目时，先读取目标项目的 `AGENTS.md` 和当前 `.specify/` 状态；若项目规则块存在，以该提交版本作为 Spec Kit 操作基线。无论本机有没有全局 POLICY 或 Reference，都按项目块检查 CLI、集成、技能、扩展和工作流，并执行支持的无强制刷新。
 
-- macOS: `/Users/jiezhengj/Documents/Project/SpecKitReference`
-- Windows: `C:\Users\jiezhengj\Documents\Project\SpecKitReference`
+全局 POLICY 和中央 Reference 的存在只帮助 Agent 按本政策初始化新的 Spec Kit 项目。它们不对已有项目触发另一套检查、不替换项目规则块，也不自动同步任何目标项目文件。若一个已初始化项目缺少受管规则块，全球政策可用时先按“合并项目 AGENTS.md”的规则补齐；不得因此重新运行 `specify init`。若 `.specify/` 已存在，Agent 恢复当前项目状态，不重新初始化。
 
-Set the unique `SPEC_KIT_GOVERNANCE_SOURCE` locator to the path listed for the current host. Never transform a listed path or search other directories.
-SPEC_KIT_GOVERNANCE_SOURCE: /Users/jiezhengj/Documents/Project/SpecKitReference
+# 上游 CLI 与扩展更新
 
-The directory must contain `SPEC_KIT_REFERENCE.md`, `GLOBAL_POLICY.md`, and `UPSTREAM_BASELINE`. When this Policy is actually loaded, and `.specify/` plus the committed project governance package exist, the Agent may additionally run the central manager's read-only `check-update --source <path>` once before the first substantive task in a new session. This is a separate maintenance check from the unconditional upstream Spec Kit update check above. If the result is `UPDATE_AVAILABLE`, the Agent must immediately run `auto-upgrade --source <path>`. This automatic upgrade is limited to Reference-owned governance files and the managed loader block; it does not require project-owner approval and never modifies `.specify/**`, `specs/**`, native Agent files, or business code. If the Policy, source, or verification is unavailable, skip only this central Reference check silently; never scan arbitrary directories or treat an unverified source as an update.
+当前 CLI 版本报告可升级时，先告知用户可用版本并取得明确批准，再运行 `specify self upgrade`。升级完成后重新读取 CLI 帮助和项目状态。无论 CLI 是否升级，都检查当前项目的实际状态和可用命令；对已安装且可刷新的组件自动调用官方支持的无强制更新操作。
+
+- `specify integration status` 与 `specify integration upgrade <active-key>` 刷新活动 Agent 集成及其托管技能文件。
+- `specify extension list` 与 `specify extension update` 检查并刷新已安装扩展。
+- 若当前 CLI 的 `workflow` 帮助提供已安装工作流刷新能力，则检查并刷新已安装工作流。
+
+不得把预设视为已覆盖的刷新对象，不安装本地 Reference 路径的治理组件，不自动加 `--force`。CLI 不存在时询问是否从官方来源安装；用户拒绝时返回 `HANDOFF_TO_AGENT`。CLI 刷新与全局 Reference 无关。
+
+# 缺陷修复与想法评估
+
+已知行为出错时直接使用官方 Bug Fix 流程；只有该任务确实需要而 `bug` 扩展缺失时，才询问用户是否执行 `specify extension add bug`。Agent 按 assess、fix、test 单步执行并审阅结果；在 fix 阶段外不修改源代码来实施修复。
+
+用户尚未决定一个想法是否值得投入时，可询问是否使用官方 `assess` 扩展；它不实现代码，也不自动启动 Feature SDD。用户选择此流程而官方扩展缺失时，询问用户是否执行 `specify extension add assess`。官方目录没有所需组件时，说明缺失的能力，不创建同名本地替代品。
+
+# 故障和交接
+
+官方 CLI 或扩展不可用、用户拒绝安装、刷新要求强制覆盖，或集成升级发现本地文件冲突时，停止受影响的操作，说明已验证状态和需要用户决定的事项。Agent 不得把未运行的 CLI 检查、技能或扩展报告为已完成。
+~~~
 
 <!-- SPEC-KIT-GLOBAL-POLICY:END -->

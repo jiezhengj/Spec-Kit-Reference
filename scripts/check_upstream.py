@@ -1,7 +1,6 @@
-"""Detect unreviewed commits in the official Spec Kit upstream repository.
+"""检查官方 Spec Kit 上游是否有尚未审阅的提交。
 
-This command is deliberately read-only with respect to local policy files and
-the reviewed baseline. It may update Git's remote-tracking refs by fetching.
+此命令不会修改本地政策文件或已审阅基线。获取上游时只会更新 Git 远端跟踪引用。
 """
 
 from __future__ import annotations
@@ -25,7 +24,7 @@ OFFICIAL_UPSTREAM_URLS = {
 
 
 class CheckError(RuntimeError):
-    """An actionable error while checking upstream."""
+    """检查上游时需要维护者处理的错误。"""
 
 
 def git(*args: str, check: bool = True) -> str:
@@ -41,30 +40,30 @@ def git(*args: str, check: bool = True) -> str:
     )
     if check and result.returncode != 0:
         detail = result.stderr.strip() or result.stdout.strip()
-        raise CheckError(f"git {' '.join(args)} failed: {detail}")
+        raise CheckError(f"git {' '.join(args)} 执行失败：{detail}")
     return result.stdout.strip()
 
 
 def read_baseline() -> str:
     if not BASELINE_FILE.is_file():
-        raise CheckError(f"missing baseline file: {BASELINE_FILE}")
+        raise CheckError(f"找不到基线文件：{BASELINE_FILE}")
     baseline = BASELINE_FILE.read_text(encoding="utf-8").strip()
     if not SHA_RE.fullmatch(baseline):
         raise CheckError(
-            "UPSTREAM_BASELINE must contain exactly one 40-character commit SHA; "
-            f"found {baseline!r}. Complete the initial upstream review first."
+            "UPSTREAM_BASELINE 必须只包含一个 40 位提交 SHA；"
+            f"当前内容为 {baseline!r}。请先完成首次上游审查。"
         )
     return baseline.lower()
 
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Compare UPSTREAM_BASELINE with upstream/main."
+        description="比较 UPSTREAM_BASELINE 与官方 upstream/main。"
     )
     parser.add_argument(
         "--no-fetch",
         action="store_true",
-        help="use the existing upstream/main ref instead of fetching",
+        help="使用已有 upstream/main 引用，不重新获取",
     )
     return parser.parse_args()
 
@@ -86,7 +85,7 @@ def is_ancestor(older: str, newer: str) -> bool:
         return False
     detail = result.stderr.strip() or result.stdout.strip()
     raise CheckError(
-        f"could not compare upstream history for {older} and {newer}: {detail}"
+        f"无法比较上游提交 {older} 与 {newer}：{detail}"
     )
 
 
@@ -97,8 +96,8 @@ def main() -> int:
     remote = git("remote", "get-url", "upstream")
     if remote.rstrip("/") not in OFFICIAL_UPSTREAM_URLS:
         raise CheckError(
-            "the upstream remote must point to the official GitHub Spec Kit "
-            f"repository; found {remote!r}"
+            "upstream 远端必须指向 GitHub Spec Kit 官方仓库；"
+            f"当前地址为 {remote!r}"
         )
 
     if not args.no_fetch:
@@ -106,7 +105,7 @@ def main() -> int:
 
     latest = git("rev-parse", "upstream/main").lower()
     if not SHA_RE.fullmatch(latest):
-        raise CheckError(f"upstream/main did not resolve to a commit SHA: {latest!r}")
+        raise CheckError(f"upstream/main 未解析为提交 SHA：{latest!r}")
 
     baseline_exists = subprocess.run(
         ["git", "cat-file", "-e", f"{baseline}^{{commit}}"],
@@ -120,37 +119,36 @@ def main() -> int:
     )
     if baseline_exists.returncode != 0:
         raise CheckError(
-            "the reviewed baseline commit is not available locally; "
-            "run the checker without --no-fetch"
+            "本地找不到已审阅的基线提交；请在不带 --no-fetch 的情况下重试"
         )
 
     if not is_ancestor(baseline, latest):
         if is_ancestor(latest, baseline):
             raise CheckError(
-                "upstream/main is older than UPSTREAM_BASELINE; the local "
-                "remote-tracking ref is stale, so rerun without --no-fetch"
+                "upstream/main 早于 UPSTREAM_BASELINE，说明本地远端引用可能已过期；"
+                "请在不带 --no-fetch 的情况下重试"
             )
         raise CheckError(
-            "UPSTREAM_BASELINE is not an ancestor of upstream/main; "
-            "inspect possible upstream history rewriting or an invalid baseline"
+            "UPSTREAM_BASELINE 不是 upstream/main 的祖先；"
+            "请检查上游历史改写或错误的基线"
         )
 
-    print(f"Reviewed baseline: {baseline}")
-    print(f"Upstream latest:   {latest}")
+    print(f"已审阅基线：{baseline}")
+    print(f"当前上游：    {latest}")
 
     if baseline == latest:
-        print("No unreviewed Spec Kit upstream changes.")
+        print("没有待审阅的 Spec Kit 上游变更。")
         return 0
 
     commits = git("log", "--oneline", f"{baseline}..{latest}")
     files = git("diff", "--name-only", f"{baseline}..{latest}")
 
-    print("\nUnreviewed upstream changes detected.")
-    print("\nCommits:")
+    print("\n发现尚未审阅的上游变更。")
+    print("\n提交：")
     print(commits or "(none)")
-    print("\nChanged files:")
+    print("\n变更路径：")
     print(files or "(none)")
-    print("\nReview the changes before updating local policy or UPSTREAM_BASELINE.")
+    print("\n请先审阅变更，再更新本地政策或 UPSTREAM_BASELINE。")
     return 2
 
 
@@ -158,5 +156,5 @@ if __name__ == "__main__":
     try:
         sys.exit(main())
     except (CheckError, OSError) as exc:
-        print(f"upstream check failed: {exc}", file=sys.stderr)
+        print(f"上游检查失败：{exc}", file=sys.stderr)
         sys.exit(1)

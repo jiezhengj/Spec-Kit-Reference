@@ -1,66 +1,15 @@
-# Scope
+# 部署规则
 
-This document is the sole manual deployment protocol for `GLOBAL_POLICY.md`. It does not discover, create, or select the global rules file of any Agent product; the deployer must first provide the absolute path of the target file and the absolute path of the local governance repository root.
+GLOBAL_POLICY.md 是全局政策的维护来源；开始标记是唯一当前政策版本号来源。只有用户审阅并明确接受 POLICY 变更后，维护者才可将它部署到 Agent 实际加载的全局规则文件。
 
-# Manual Inputs
+全局 POLICY 内含项目规则块模板，因此它与官方 CLI 足以初始化新的 Spec Kit 项目，不需要中央 Reference 目录。初始化后，Agent 将自包含、可提交的规则块写入项目根 `AGENTS.md`。已初始化项目以仓库中的该规则块为准；部署或升级全局 POLICY 不会自动改写已有项目。Reference 目录不是目标项目的运行时依赖，也不执行项目规则同步。
 
-Each deployment accepts only:
+# 部署步骤
 
-1. The absolute path of the global rules file actually loaded by the current Agent product.
-2. The absolute path of the local `SpecKitReference` repository root.
+1. 确认 Agent 实际读取的全局规则文件，不猜路径、不扫描其他位置。
+2. 检查本地 GLOBAL_POLICY.md 开始标记中的版本、内容和 UTF-8 编码。
+3. 备份目标文件；只替换 SPEC-KIT-GLOBAL-POLICY 开始标记与结束标记之间的块，保留其他规则。
+4. 重新读取目标文件，确认标记唯一且顺序正确，候选内容完整。
+5. 在新的 Agent 会话中确认新政策已加载。
 
-If the target does not exist, a human must first confirm that the product permits creating a file at that exact path. After confirmation, treat it as a target to be created; no write may occur until all pre-deployment validation passes.
-
-# Pre-deployment Validation
-
-Any failure must stop the operation with zero writes:
-
-1. source is an absolute, readable directory as determined by the current platform's path API; the input is a single-line literal path containing no CR, LF, NUL, `~`, environment-variable syntax, marker text, or placeholder, and no shell expansion is performed.
-2. `SPEC_KIT_REFERENCE.md`, `GLOBAL_POLICY.md`, and `UPSTREAM_BASELINE` exist and are readable within source.
-3. The sole template is `<source>/GLOBAL_POLICY.md`; the template must not be obtained from another checkout, the current working directory, or session text.
-5. `GLOBAL_POLICY.md` has exactly one H1 title, `# Spec Kit Global Policy`, and its policy sections are H2 headings; the source is wrapped in the `<!-- SPEC-KIT-GLOBAL-POLICY:START version=X.Y.Z -->` and `<!-- SPEC-KIT-GLOBAL-POLICY:END -->` markers.
-6. The source block contains exactly one `SPEC_KIT_GOVERNANCE_SOURCE:` locator line. The renderer replaces that line's current host value with the validated absolute source path. Any separately documented host-specific path remains literal documentation and must not be inferred, rewritten, or searched for.
-7. The template uses the fixed START line `<!-- SPEC-KIT-GLOBAL-POLICY:START version=X.Y.Z -->` and END line `<!-- SPEC-KIT-GLOBAL-POLICY:END -->`, where `X.Y.Z` is a non-negative SemVer; each generated line occurs exactly once and START precedes END.
-8. Any target line containing `SPEC-KIT-GLOBAL-POLICY:` that does not match the generated marker grammar causes validation to fail.
-9. A nonexistent target, an empty target, a target without markers, and a target with one valid and unique marker pair enter the create, initial append, or update branch, respectively; a missing, duplicate, reversed, or malformed marker stops the operation.
-
-The managed marker block is generated as a whole. Updates do not perform a three-way merge or determine whether the block contains manual edits; the new rendered block replaces the old block unconditionally. Custom rules that must be preserved must be placed outside the markers.
-
-# Sole Rendering Procedure
-
-Read the complete source template and replace only the value on its unique `SPEC_KIT_GOVERNANCE_SOURCE:` line with the validated absolute source path for the current host. Preserve every other byte in the managed block, including any explicitly documented path for another host.
-
-After replacement, validation must confirm: zero unresolved path placeholders remain, the marker grammar is valid, the locator value is exactly identical to the input, any alternate host path is preserved byte for byte, and the rendered block is UTF-8/LF and ends with exactly one LF.
-
-# Initial Deployment and Updates
-
-For a target to be created or an empty file, the candidate is the complete rendered block.
-
-For a nonempty target without markers, preserve all original bytes: if the final byte of the original file is LF, append one LF; otherwise append two LFs; then append the rendered block. Newly inserted bytes always use LF, and the original content is not normalized.
-
-For an update, the candidate is fixed as:
-
-```text
-prefix bytes + rendered block + suffix bytes
-```
-
-The replacement span begins at the `<` of the START marker and ends at the `>` of the END marker, and includes one immediately adjacent newline sequence after END (two bytes for CRLF, one byte for LF, or none if absent). Preserve prefix and suffix byte for byte.
-
-# Backup, Publication, and Recovery
-
-1. Read UTC in the format `YYYYMMDDTHHMMSSZ`. The backup path is fixed as `<target>.spec-kit-global-policy.backup.<UTC>`; stop if it already exists, and do not overwrite it.
-2. For an existing target, copy all bytes and permissions to the backup and reread its hash. For a target to be created, record `target_previously_absent = true` and do not create an empty backup.
-3. In the target directory, use exclusive-create to create `<target>.spec-kit-global-policy.deploy-journal.<UTC>.json`, recording the pre-state, candidate hash, backup, and the `prepared` phase.
-4. Safely create a temporary file in the same directory, write the candidate, flush/fsync it, and reread it for validation.
-5. For an existing target, use an atomic replace on the same file system.
-6. For a target to be created, call `os.link(candidate, target, follow_symlinks=False)` with the fsynced candidate; this no-clobber atomic publish corresponds to `link(2)` on POSIX and `CreateHardLinkW` on Windows. If the platform or file system does not support it, return `GLOBAL_DEPLOY_ATOMIC_CREATE_UNSUPPORTED`, keep the target absent, and do not write directly to the final target.
-7. After publication, set the journal to `published` and fsync it, then reread the final target to validate the marker, placeholder, source, and hash.
-8. If validation fails for an existing target, restore atomically from the backup and reread the hash. If validation fails for a target that was to be created, deletion is permitted only when the target hash equals the journal candidate hash; if the hashes differ, stop and recover manually.
-9. Crash recovery first reads the journal: if the phase is `prepared` and the target is absent, delete the candidate; if the target hash equals the candidate hash, treat publication as complete and continue validation; if the hashes differ, stop. Apply the same determination in the `published` phase. Do not begin a new deployment until the journal has converged.
-10. After successful validation, delete the candidate, set the journal to `verified`, and fsync it; retain the journal and backup until validation through an actual Agent load is complete.
-
-Finally, the deployer creates a new session in the target Agent product and confirms that the global rules location was loaded. If either text validation or actual-session validation fails, deployment success must not be reported.
-
-# Subsequent Updates
-
-After the central `GLOBAL_POLICY.md` passes POLICY review and a new version is released, repeat the same update process. Do not manually synchronize individual sections within the old block. After the source directory moves, a human must provide the new absolute path again; do not scan the disk for an alternative directory.
+如果目标文件没有这对标记、标记重复或顺序错误，停止并请用户处理；不要猜测替换范围。此仓库不再提供自动部署器或下游同步器。

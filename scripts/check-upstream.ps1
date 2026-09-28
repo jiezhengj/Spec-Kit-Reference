@@ -5,6 +5,6 @@ if (Get-Command python -ErrorAction SilentlyContinue) {
 } elseif (Get-Command py -ErrorAction SilentlyContinue) {
     & py -3 $scriptPath @args
 } else {
-    throw 'Neither python nor the Windows py launcher is available on PATH.'
+    throw 'PATH 中找不到 Python，也找不到 Windows py 启动器。'
 }
 exit $LASTEXITCODE

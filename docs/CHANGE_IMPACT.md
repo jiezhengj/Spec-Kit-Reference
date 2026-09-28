@@ -1,426 +1,67 @@
-# Upstream impact assessment
+# 2026-09-28：改用官方流程并精简 Reference
 
-## Local policy amendment — symmetric central source path mapping
+分类：POLICY
 
-Date:
+审查范围：已审阅基线 d4229c071c7ea3885b43e8a7739847300f618f13 至 upstream/main c00dc0551583428a10a94443c58c6a41e5e0138c，共 69 个提交、476 个变更路径。检查了完整提交列表和路径分布，并重点核对上游工作树中的 docs/quickstart.md、docs/guides/bugfix.md、docs/guides/assessment.md、docs/upgrade.md、扩展/工作流/Bundle 目录及相关 CLI 实现。相关文件于 2026-09-28 在本地审阅。
 
-`2026-09-27`
+上游变化：
 
-Classification:
+- 官方 Quickstart 明确给出 Constitution 一次性建立方式、小型功能短流程和生产级完整流程，并要求逐个调用 Agent skill、审阅输出后再继续。
+- 官方 Bug Fix 指南给出独立的 assess → fix → test 流程。bug 扩展通过官方 CLI 安装，不要求先跑 SDD。
+- 官方 Assessment 是独立可选流程，用于决定一个想法是否值得投入。
+- 官方扩展和 Bundle 目录已提供 bug、assess 组件；CLI Upgrade Guide 说明使用官方 CLI 更新本体、集成和已安装扩展。
+- 上游提交还包含大量与本地政策无关的 CLI 重构、集成修复、社区目录和测试变更；这些未复制进本仓库。
+- 官方页面作为阅读入口会打断 Agent 的本地分步阅读。保留流程要点时改为仓库内的中文导航、功能、缺陷、评估和更新说明；各页记录上游提交及源文件路径，不要求执行流程时在线查阅。
 
-`POLICY`
+影响判断：
 
-Trigger:
+此前本地 Discovery 扩展、governed-sdd 工作流、tiny-model-tasks 预设、项目治理管理器、运行时包和配套发布/测试合同与用户希望依赖官方 Quickstart 和 Bug Fix 的方向冲突。它们使用本地来源，无法由官方目录更新。官方已经提供相应的工作流步骤与目录组件，因此本地保留第二套流程没有必要。
 
-The first published `2.1.0` Policy recorded the macOS locator separately and appended the Windows path with a Windows-specific instruction. The two supported hosts were therefore described asymmetrically, even though each needs the same host-to-path selection rule.
+处理：
 
-Decision:
+- 将 GLOBAL_POLICY.md 改为中文 v3.0.0 候选，规定功能和缺陷分别遵循官方流程，保留官方 CLI 更新方式，不再要求本地治理产物或自建审批合同。
+- 将 SPEC_KIT_REFERENCE.md、README.md、AGENTS.md 和保留的 docs 文档改为中文，并建立按任务选择的本地渐进式阅读入口。
+- 删除本地治理包、Discovery 扩展、governed-sdd 工作流、任务预设、管理器、发布器及其合同测试。
+- 保留不改政策或基线的上游检查器、定期上游提醒、基线和维护记录；获取时检查器会更新 Git 远端跟踪引用。
+- 按用户说明，不为现有下游项目的旧 Spec 产物设计兼容或迁移步骤。
+- 后续经用户审阅批准的 POLICY v3.0.0 已部署到当前 Codex 用户级规则文件；部署只替换政策标记块，没有批量改写下游项目。
 
-List macOS and Windows source paths in parallel, then state one host-neutral rule: set the unique `SPEC_KIT_GOVERNANCE_SOURCE` locator to the path listed for the current host. The compatible `2.1.1` package preserves the v2 schema and workflow behavior while allowing installed `2.1.0` projects to detect the clearer Policy version.
+补充处理：
 
-Affected documents and components:
+- 全局政策、README 和参考入口不再把在线网页作为 Agent 阅读依赖。
+- 本地流程摘要分别记录 Quickstart、Bug Fix、Assessment 和 Upgrade 对应的上游文件路径及 c00dc0551583428a10a94443c58c6a41e5e0138c 审阅提交。
 
-- `GLOBAL_POLICY.md`
-- `README.md`
-- `governance/release/CHANGELOG.md` and `governance/release/COMPATIBILITY.md`
-- `tests/governance/unit/test_global_policy.py` and `tests/governance/unit/test_governed_release_contract.py`
+验证：
 
-Validation:
+检查保留文档是否仍依赖已删除的自建组件；运行 git diff --check 和上游基线检查器。没有运行已退役的治理测试套件。
 
-Regression tests assert the paired host mapping, the shared current-host locator rule, and the `2.1.1` release metadata. The complete Python unit suite, syntax compilation, release builder, release validator, and `git diff --check` must pass before publication.
+# 2026-09-28：将持久规则写入目标项目
 
-## Local policy amendment — Reference source repository scope gate
+分类：POLICY
 
-Date:
+用户决策：Spec Kit 初始化完成后，向目标项目根目录 `AGENTS.md` 写入可提交的自包含规则块。没有该标记块时追加；恰有一对标记时只替换块内内容；旧版独立 Reference 更新块按其标记精准删除。所有块外字节保持不变；边界异常或重复时停止，不猜测范围。
 
-`2026-09-27`
+本次核实：当前 Spec Kit 上游仍为已审阅基线 c00dc0551583428a10a94443c58c6a41e5e0138c，没有新增提交。当时的草案仍保留了本地文档语言标签选择；该要求已由后续用户决策撤销，见本记录末尾的补充影响评估。
 
-Classification:
+修改结果：
 
-`POLICY`
+- 目标项目的受管 `AGENTS.md` 块现在包含项目工作流程，以及每个新 Agent 会话中的 CLI 自检和已安装集成、扩展、工作流刷新规则。
+- CLI 缺失时询问用户是否安装官方 CLI；CLI 有更新时先取得用户批准；普通组件刷新不加 `--force`。
+- 已初始化项目使用已提交的项目规则块和 Spec 状态。全局 POLICY 或中央 Reference 不存在时仍运行相同检查；二者存在时也不额外同步已有项目。
+- 首次按当时的治理规则初始化需要已加载的全局 POLICY 或显式提供的同一规则模板；中央 Reference 目录不是初始化前提。没有 POLICY/模板时，官方 CLI 仍能初始化原生 Spec Kit 项目，但不会自动写入本地治理块。完成后，项目不携带 Reference 管理器、manifest 或中央更新程序。
+- 当时按用户明确要求，政策标记版本保持 `3.0.0`。
 
-Trigger:
+# 2026-09-28：移除项目文档语言选择机制
 
-The target-project Feature-routing Policy and this repository's maintenance instructions could be loaded together without an early repository-mode boundary. The SpecKitReference-only exception existed later in the Reference, but was not stated at the policy and instruction entry points; an Agent consequently asked for a target-project Feature route while maintaining the central Policy and manager.
+分类：POLICY
 
-Evidence:
+用户决策：初始化 Spec Kit 项目时不再询问、记录或传递单独的文档语言标签。项目运行规则集中写入目标项目的 `AGENTS.md` 受管块；项目中的其他内容遵循用户要求和项目已有约定。无需为旧规格或其他 Spec 产物设计兼容迁移。
 
-The repository has no `.specify/` project state and its root `AGENTS.md` defines a maintenance workflow. `SPEC_KIT_REFERENCE.md` already records the source-repository exception. The fetched upstream tip is `c00dc0551583428a10a94443c58c6a41e5e0138c`, 69 commits after baseline `d4229c071c7ea3885b43e8a7739847300f618f13`; the scoped review found no upstream change that determines this local repository-scope rule. The full upstream range was not reviewed, so `UPSTREAM_BASELINE` is unchanged.
+影响与处理：
 
-Decision:
+- 从 GLOBAL_POLICY.md 的初始化说明、目标项目规则块和旧规则替换说明中删除语言选择要求。
+- 从 AGENTS.md、功能流程、任务导航、参考入口和历史记录中删除该机制的现行要求。
+- 保留根目录 GLOBAL_POLICY.md 作为新项目规则块的中心来源；本决策不要求目标项目额外保存另一份项目级规则文档。
+- 本轮保留当时的 `3.0.0` 政策标记。用户随后审阅并批准 POLICY v3.0.0；当前 Codex 用户级规则已部署该版本。项目级规则仍由各目标项目自行携带和维护。
 
-The root `AGENTS.md` and deployable `GLOBAL_POLICY.md` now identify the Reference source repository by the joint presence of root-level `SPEC_KIT_REFERENCE.md` and `UPSTREAM_BASELINE`. Policy, Reference, manager, documentation, and release maintenance in that checkout follows local maintenance instructions and does not initialize `.specify/` or ask for target-project Feature route selection. This explicit exception is source-repository-only; downstream product work remains subject to Feature routing.
-
-Affected documents and components:
-
-- `AGENTS.md`
-- `GLOBAL_POLICY.md`
-- `docs/CHANGE_IMPACT.md`
-- `docs/HISTORY.md`
-
-Validation:
-
-The `test_reference_owned_boundary_is_documented_and_enforced` regression test checks that both the local maintenance rules and deployable Policy identify the Reference source repository and bypass downstream Feature routing. The full Python unit suite, Python syntax compilation, and `git diff --check` pass. The baseline remains unchanged because the full 69-commit upstream range was not reviewed.
-
-## Local policy amendment — platform-independent Python project initialization
-
-Date:
-
-`2026-09-27`
-
-Classification:
-
-`POLICY`
-
-Trigger:
-
-The upstream `specify init` default selects PowerShell on Windows and shell on other operating systems. That host-dependent default makes generated project scripts vary by the machine that initializes the project, even though the installed upstream CLI supports an explicit Python selection.
-
-Evidence:
-
-The committed baseline is `d4229c071c7ea3885b43e8a7739847300f618f13`; fetched `upstream/main` is `c00dc0551583428a10a94443c58c6a41e5e0138c`. Scoped inspection of the init command at both revisions confirms the `--script` choices include `sh`, `ps`, and `py`, and that omission selects `ps` on Windows and `sh` elsewhere. The upstream command module moved in the reviewed range; the complete intervening history has not been reviewed, so this record does not advance `UPSTREAM_BASELINE`.
-
-Decision:
-
-Every non-interactive initialization governed by the central Policy must pass `--script py`. The governance manager's `plan-init` must pass the same option in its isolated rehearsal and actual upstream invocation. If the installed CLI rejects the option, initialization stops rather than falling back to its host-dependent default. This changes Reference-owned guidance and manager arguments only; it does not replace or directly edit upstream-generated files, and it does not intercept direct CLI commands run outside this governance flow.
-
-This compatible Policy and manager update is versioned as `2.1.0` so projects already on `2.0.0` can detect and apply it. The global Policy records the macOS path `/Users/jiezhengj/Documents/Project/SpecKitReference` and the Windows path `C:\Users\jiezhengj\Documents\Project\SpecKitReference`; an Agent uses the path for its current host without probing other locations.
-
-Affected documents and components:
-
-- `GLOBAL_POLICY.md` and `SPEC_KIT_REFERENCE.md`
-- `governance/manager/speckit_governance.py`
-- `governance/project/**` and `governance/bridge/project/**`
-- `docs/PROJECT_GOVERNANCE_OPERATIONS.md`
-
-Validation:
-
-`specify init --help` confirms that the installed CLI accepts `--script` with `py`. The `test_plan_init_records_isolated_rehearsal` test checks that both the rehearsal and actual CLI invocation pass `--script py`; release tests verify version `2.1.0` and the exact macOS and Windows source paths. The full Python unit suite, Python syntax compilation, and `git diff --check` pass. `UPSTREAM_BASELINE` remains unchanged because this was a scoped evidence review, not a complete review of the upstream range.
-
-## Local policy amendment — task-scoped high-assurance routing
-
-Date:
-
-`2026-09-21`
-
-Classification:
-
-`POLICY`
-
-Trigger:
-
-The adaptive release documented risk-based full paths and an optional `governed-sdd` profile, but did not explicitly tell the Agent to ask the user which profile to use for a high-risk Feature. The wording also left room for the mistaken belief that selecting `governed-sdd` replaces upstream Spec Kit or necessarily changes the project default.
-
-Decision:
-
-Before creating or updating high-risk Feature artifacts, the Agent must ask for a task-scoped choice between the `governed-sdd` high-assurance profile and the adaptive full upstream path. The choice does not modify `docs/spec-kit/PROJECT_CONFIG.json` or `workflow_governance.mode`; only an explicit project-default request may do so through a reviewed configuration operation. Both routes continue to use upstream Spec Kit. The companion adds mandatory discovery, review, readiness, and cold-start controls only for the selected high-assurance Feature.
-
-Affected documents and components:
-
-- `GLOBAL_POLICY.md`
-- `SPEC_KIT_REFERENCE.md`
-- `governance/project/**`
-- `governance/spec-kit-native/workflows/governed-sdd/README.md`
-- `tests/governance/unit/test_capability_contract.py`
-- `governance/capability-baseline.json`
-
-Validation:
-
-The task-scoped route contract is asserted in the capability tests, the full repository test suite passes, and the adaptive default remains unchanged.
-
-## Local policy amendment — governed discovery and review
-
-Date:
-
-`2026-09-04`
-
-Classification:
-
-`POLICY`
-
-Trigger:
-
-Across existing Spec Kit projects, “按 Spec 制定方案” did not reliably cause the Agent to collect enough primary requirements, request human review at each artifact boundary, or produce implementation tasks that an executor with no prior conversation could safely run.
-
-Decision:
-
-Substantive Spec intent now enters structured Discovery before specification. Discovery, specification, plan bundle, task package, and remediation use hash-bound human review evidence. Implementation tasks must satisfy the tiny-model task contract and cold-start validation. These requirements are delivered through a separate `governed-sdd` companion and Reference-owned project sidecars; they do not redefine or directly edit upstream `.specify/**`, `specs/**`, or native Agent-generated artifacts.
-
-Existing v1 projects use the reviewed `1.3.0` bridge before the strict `2.0.0` configuration and companion are enabled. Migration and rollback preserve `docs/spec-kit/features/**` as project-owned evidence.
-
-Affected documents and components:
-
-- `GLOBAL_POLICY.md`
-- `SPEC_KIT_REFERENCE.md`
-- `governance/project/**`
-- `governance/manager/**`
-- `governance/schemas/**`
-- `governance/spec-kit-native/**`
-- release, migration, operations, and test contracts
-
-Validation:
-
-The manager contract, review-state, task-readiness, cold-start, bridge/strict release, deterministic archive, ownership-boundary, and full repository regression suites must pass before publication and rollout.
-
-## Review range
-
-Baseline:
-
-`abfc66b670c81b9758f1f47f18f7fea0f48686cf`
-
-Reviewed through:
-
-`fa19e1c68b6daec5cab3309913cf5ecf6553075d`
-
-## Date
-
-2026-08-21
-
-## Classification
-
-REFERENCE
-
-## Relevant upstream changes
-
-Reviewed commit `fa19e1c68b6daec5cab3309913cf5ecf6553075d` fixes the Qoder CLI migration from `.qoder/commands/*.md` to `.qoder/skills/<name>/SKILL.md`, updates invocation style, and retires legacy flat extension commands after replacement Skills are present.
-
-## Impact on SPEC_KIT_REFERENCE.md
-
-The local reference now explicitly states that generated integration artifacts can migrate between command and Skills layouts and that current project integration status and managed-file metadata are authoritative. No Qoder-specific command is required because the local reference intentionally remains Agent-neutral.
-
-## Impact on AGENTS.md
-
-The repository maintenance policy is intentionally independent of dynamically fetched upstream instructions. No upstream content has been promoted to governance authority.
-
-## Runtime compatibility
-
-Installed/expected CLI:
-
-`specify` version was verified as `0.16.6.dev0`; `specify integration --help` succeeds. In this governance repository, `specify integration list` and `specify integration status` correctly report that no `.specify/` project exists. The earlier `uv trampoline` failure was resolved by registering Python314 on PATH.
-
-Potential version mismatch:
-
-The upstream reviewed commit, local reference, and installed CLI may differ and must be recorded separately when verified. Project-level integration behavior still needs to be checked from a real Spec Kit project root.
-
-## Changes made
-
-- [x] Created the repository governance and reference documents.
-- [x] Added deterministic upstream detection.
-- [x] Added scheduled and manual notification workflow.
-- [x] Complete the current upstream semantic review.
-- [x] Record the current reviewed upstream SHA.
-- [x] Record the installed `specify` CLI version, if available.
-
-## Conclusion
-
-The Qoder integration change is classified as `REFERENCE`: it changes generated artifact layout for one integration but does not change the local Agent governance lifecycle. The baseline has advanced to the reviewed commit after repository validation. The current CLI is operational; project-level integration behavior remains to be checked from a real Spec Kit project root.
-
-## Local policy amendment
-
-Date:
-
-`2026-08-21`
-
-Classification:
-
-`POLICY`
-
-Trigger:
-
-The DriversLicense migration review found that choosing `generic` because the Codex Skills target was not writable produced a valid Agent-neutral project but did not satisfy the requirement to expose Codex Spec Kit Skills.
-
-Decision:
-
-When a concrete Agent is in scope, its native Spec Kit integration is mandatory. Permission, sandbox, or unwritable-path failures are blockers and must not trigger a silent downgrade to `generic`. A migration cannot be marked complete or pushed as complete until the native integration and its managed files are verified. `generic` remains available only for an explicitly Agent-neutral request.
-
-Affected documents:
-
-- `GLOBAL_POLICY.md`
-- `SPEC_KIT_REFERENCE.md`
-
-Validation:
-
-The rule was added to the single logical Policy source and the corresponding operational reference. Existing upstream baseline data was not changed.
-
-## Local policy amendment — substantive task entry
-
-Date:
-
-`2026-08-28`
-
-Classification:
-
-`POLICY`
-
-Trigger:
-
-In Spec Kit projects, an Agent could interpret conversational approval such as “方案可以” as immediate permission to edit application code, even when the approved direction was not represented in the current specification, plan, and tasks.
-
-Decision:
-
-Conversational approval advances the direction into the upstream Spec Kit artifact workflow; it does not authorize direct code edits before artifact alignment. Discussion-only work remains non-mutating. The Reference package remains a governance guide and manager for its own additions, not a second Spec Kit executor. The upstream CLI continues to own `.specify/**`, `specs/**`, and native Agent-generated integration files. `analyze`, `validate`, and `converge` are required before substantive completion.
-
-A manager ownership guard rejects direct local mutations outside `docs/spec-kit/**`, `tools/spec-kit-governance/governance.py`, `.spec-kit-governance/**`, and the managed loader or Reference-update-check blocks in the explicit context anchor. Global Policy and the central Reference are not target-project runtime prerequisites for offline work.
-
-Affected documents:
-
-- `GLOBAL_POLICY.md`
-- `SPEC_KIT_REFERENCE.md`
-- `governance/project/START_HERE.md`
-- `governance/project/POLICY.md`
-- `governance/project/OPERATING_PROTOCOL.md`
-- `governance/project/REFERENCE.md`
-- `governance/manager/speckit_governance.py`
-
-Validation:
-
-The `1.1.0` release metadata, portable package, extension package, manager ownership regression, conversation-approval contract, schema validation, `pytest`, `unittest`, and compile checks passed. This local policy amendment did not advance the upstream baseline; the following section records the separate upstream review.
-
-## Local capability addition — 2026-08-28
-
-### Classification
-
-`POLICY`
-
-### Decision
-
-Added a source-gated, session-scoped central Reference update check. It runs only when the current Agent has loaded the global Policy and that Policy exposes a readable `SPEC_KIT_GOVERNANCE_SOURCE` path. Without the global Policy or central source, normal target-project work skips the check silently and does not scan arbitrary directories.
-
-### Synchronization boundary
-
-After a verified update is reported and the user explicitly approves an exact plan, synchronization updates only the target governance package, local manager, and the managed Reference-update block in the selected context anchor. It does not edit `.specify/**`, `specs/**`, native Agent-generated files, or business code. The upstream Spec Kit workflow independently decides whether specification, plan, tasks, or other Spec artifacts require alignment.
-
-### Release
-
-This policy-affecting capability is published as governance package `1.2.0` with `policy_version` `1.2.0`. The existing CLI-only `plan-install-update-reminder` remains available as a separate lightweight path.
-
-## Local capability addition — 2026-08-28
-
-### Classification
-
-`REFERENCE`
-
-### Decision
-
-Added the optional `plan-install-update-reminder` operation for an already Spec Kit project that has an installed `specify` CLI and an existing explicit context anchor but does not install the full `docs/spec-kit/**` governance package. The operation appends only a separate managed reminder block. The Agent is instructed to call upstream `specify self check` once per session and to request approval before `specify self upgrade`.
-
-### Boundary verification
-
-The operation does not create or copy the project governance package, does not copy the manager into the target project, and does not modify `.specify/**`, `specs/**`, or native Agent-generated integration files. No global Policy or central Reference directory is required at runtime. The reminder is informational; an offline or timed-out update check is non-blocking.
-
-### Release
-
-This compatible Reference capability is published as governance package `1.1.1`; `policy_version` remains `1.1.0`. The portable and extension artifacts remain subject to the existing plan/apply, checksum, and explicit approval protocols.
-
-## Upstream review — 2026-08-28
-
-### Review range
-
-Baseline:
-
-`fa19e1c68b6daec5cab3309913cf5ecf6553075d`
-
-Reviewed through:
-
-`5aa8bea7823dcd056f111f847bf2d576bad3f0a5`
-
-### Classification
-
-`REFERENCE`
-
-### Relevant upstream changes
-
-The range includes the Spec Kit `1.0.1` release and subsequent `1.0.2.dev0` development changes. The relevant operational changes are the existing-project adoption guide, the distinction between Spec Kit project-file maintenance and feature-artifact evolution, the `.specify/feature.json` active-feature selector, Python support for workflow init scripts, and additional validation hardening for bundles, presets, events, and catalog inputs. Community catalog content and dependency-only changes do not alter this repository's governance contract.
-
-### Local impact
-
-The local central and project References now record that the active feature is selected by `.specify/feature.json` or `SPECIFY_FEATURE_DIRECTORY`, not by the Git branch; existing-project initialization uses the upstream `specify init --here --force --integration <key>` command under the existing reviewable-baseline and manager-scope protections; and workflow init script choices include `sh`, `ps`, and `py` where the installed CLI exposes them. No upstream-produced artifact is copied, replaced, or edited by this repository.
-
-The upstream quickstart documents both a shorter lifecycle and a full lifecycle with optional quality gates. This repository keeps its independently approved local policy requiring `analyze`, `validate`, and `converge` before substantive completion. The upstream range is therefore `REFERENCE`, not a local Policy replacement.
-
-### Runtime compatibility
-
-The installed local CLI is `specify 1.0.2.dev0`, matching the reviewed upstream source version `1.0.2.dev0`. Runtime behavior must continue to be checked against the installed CLI and project state; the release manifest records the reviewed upstream revision separately.
-
-### Conclusion
-
-The range is reviewed and the local Reference updates are complete. No global Policy change is justified by these upstream commits. After repository validation, advance `UPSTREAM_BASELINE` to `5aa8bea7823dcd056f111f847bf2d576bad3f0a5` as the last maintenance mutation.
-
-# Upstream review — 2026-09-04
-
-## Review range
-
-Baseline:
-
-`5aa8bea7823dcd056f111f847bf2d576bad3f0a5`
-
-Reviewed through:
-
-`df6b3187022ce986759bd854467e8a4bb56bb0f4`
-
-## Classification
-
-`REFERENCE`
-
-## Relevant upstream changes
-
-The range contains 60 commits spanning the `1.0.2`, `1.0.3`, and `1.0.4` releases and the beginning of `1.0.5.dev0`. The operationally relevant changes are:
-
-- workflow `slot` steps that are skipped when unfilled and may be replaced through schema-valid overlays;
-- bundled `speckit` workflow version `1.0.1`, with `integration=auto`, no unused `scope` input, and review gates only after specification and planning;
-- `analyze` and `converge` prerequisite checks that now require `spec.md` in addition to `plan.md` and `tasks.md`;
-- setup-plan output standardized on `FEATURE_DIR`, with unknown arguments rejected;
-- workflow, preset, extension, event, authentication, bundler, Unicode, and state-recovery hardening;
-- additional native Agent integrations and shared-Skills-directory collision metadata.
-
-Community catalog changes and new integration-specific layouts do not alter this repository's Agent-neutral governance contract.
-
-## 2026-09-21 upstream update maintenance impact
-
-This maintenance change is `POLICY` and `REFERENCE` impact. It separates
-upstream Spec Kit maintenance from central Reference maintenance. Every Agent
-session entering an existing `.specify/` project performs at most one
-read-only `specify self check`, regardless of whether a central Reference or
-local `docs/spec-kit/**` package exists. A reported CLI update requires explicit
-user approval for `specify self upgrade`; supported refreshes of installed
-integrations, extensions, and workflows are automatic without `--force`.
-Modified managed files, unsafe scope, or another irreversible choice stops the
-automatic refresh and requests user review. The central Reference check remains
-separately source-gated and session-gated.
-
-Affected files include `GLOBAL_POLICY.md`, `SPEC_KIT_REFERENCE.md`, the
-portable and bridge project policy/loader/reference documents, the manager's
-lightweight reminder block, and the security/test/history records. No manager
-operation directly edits `.specify/**` or `specs/**`; supported upstream CLI
-commands remain responsible for their generated artifacts.
-
-Validation:
-
-The reminder plan preserves existing anchor bytes and upstream project files;
-regression tests assert the independent session check, explicit CLI approval,
-automatic no-force component refresh contract, and the unchanged central
-Reference source gate.
-
-## 2026-09-21 local policy and runtime impact
-
-This maintenance change is `POLICY` and `REFERENCE` impact. The Reference now routes by intent and risk, recognizes the official Assessment and Bug Fix extensions, and keeps the high-assurance companion as an opt-in profile. Existing mandatory v2 defaults are automatically migrated to `upstream-adaptive`; no `legacy-strict` profile is retained.
-
-Specify compatibility is now capability-based. Observed CLI versions remain diagnostic metadata, while help surfaces, supported commands, installed component inventories, active integration state, and postconditions determine whether an operation can proceed. A missing CLI or official extension produces an installation offer; a user refusal hands the task back to the current Agent without a permanent Reference blocker.
-
-Central Reference synchronization uses a generated, hash-bound `auto-upgrade` operation. It requires no project-owner approval because its mutation set is restricted to Reference-owned governance files and managed context-anchor blocks. It never mutates `.specify/**`, `specs/**`, native Agent-generated files, or business code. Projects without GLOBAL_POLICY and the central Reference remain self-contained when they carry the local package; pure upstream projects remain outside this Reference layer.
-
-## Local impact
-
-`SPEC_KIT_REFERENCE.md` now records the bundled workflow's actual scope and its distinction from individual Skill execution. It also records the workflow-slot boundary, the current setup-plan JSON key, and the fail-fast prerequisites for `analyze` and `converge`.
-
-The bundled workflow still does not run `clarify`, task review, `analyze`, validation, or convergence. Workflow slots are an available extension mechanism only when a workflow declares them; the bundled workflow currently declares none. These facts support, but do not themselves implement, the separately requested governance design for mandatory discovery, artifact approval, tiny-model task packages, and cold-start validation.
-
-No change to `GLOBAL_POLICY.md` is justified by the upstream range. Any stronger intake, review, task-granularity, preset, extension, or custom-workflow requirement is a separate local `POLICY` decision requiring its own reviewed design and approval.
-
-## Runtime compatibility
-
-The installed local runtime observed during this review is `specify 1.0.5`. Its workflow, preset, and extension help surfaces were verified. The reviewed upstream source is newer than that installed runtime; source revision, installed CLI version, and target-project generated Skills remain separate facts and must not be inferred from one another.
-
-## Conclusion
-
-The range is `REFERENCE`: it changes current operational mechanics and available extension points without replacing the local lifecycle or ownership policy. After repository validation, advance `UPSTREAM_BASELINE` to `d4229c071c7ea3885b43e8a7739847300f618f13` as the final maintenance mutation.
+验证范围：已检查当前 CLI 初始化帮助、CLI 自检/升级帮助、集成、扩展和工作流命令列表；上游基线与当前 `main` 相同。`git diff --check` 通过；13 份项目 Markdown 无外部 URL，内部链接全部有效。未运行测试套件。

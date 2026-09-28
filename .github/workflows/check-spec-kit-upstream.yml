@@ -1,4 +1,4 @@
-name: Check Spec Kit upstream
+name: 检查 Spec Kit 上游
 
 concurrency:
   group: spec-kit-upstream-check
@@ -17,22 +17,22 @@ jobs:
   check:
     runs-on: ubuntu-latest
     steps:
-      - name: Check out reference repository
+      - name: 检出 Reference 仓库
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Add official upstream remote
+      - name: 添加官方上游远端
         run: |
           upstream_url=$(git remote get-url upstream 2>/dev/null || true)
           if [ -z "$upstream_url" ]; then
             git remote add upstream https://github.com/github/spec-kit.git
           elif [ "$upstream_url" != "https://github.com/github/spec-kit.git" ] && [ "$upstream_url" != "https://github.com/github/spec-kit" ]; then
-            echo "upstream remote points to an unexpected URL: $upstream_url" >&2
+            echo "upstream 远端地址异常：$upstream_url" >&2
             exit 1
           fi
 
-      - name: Check upstream baseline
+      - name: 检查上游基线
         id: upstream
         continue-on-error: true
         run: |
@@ -42,18 +42,18 @@ jobs:
           echo "status=$status" >> "$GITHUB_OUTPUT"
           exit 0
 
-      - name: Stop on checker error
+      - name: 检查器出错时停止
         if: steps.upstream.outputs.status != '0' && steps.upstream.outputs.status != '2'
         run: |
           cat upstream-update.md
           exit 1
 
-      - name: Create or update review issue
+      - name: 创建或更新上游审查 Issue
         if: steps.upstream.outputs.status == '2'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          title="Spec Kit upstream update requires review"
+          title="Spec Kit 上游变更需要审查"
           issue_number=$(gh issue list --state open --search "$title in:title" --json number --jq '.[0].number')
           if [ -n "$issue_number" ]; then
             gh issue comment "$issue_number" --body-file upstream-update.md
@@ -62,29 +62,29 @@ jobs:
           fi
 
   validate:
-    name: Validate ${{ matrix.os }} wrapper
+    name: 验证 ${{ matrix.os }} 环境检查脚本
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]
     steps:
-      - name: Check out reference repository
+      - name: 检出 Reference 仓库
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Fetch upstream for validation
+      - name: 获取上游以供验证
         shell: bash
         run: |
           git remote add upstream https://github.com/github/spec-kit.git
           git fetch --quiet upstream main
 
-      - name: Validate POSIX wrapper
+      - name: 验证 POSIX 脚本
         if: runner.os != 'Windows'
         shell: bash
         run: ./scripts/check-upstream.sh --no-fetch
 
-      - name: Validate PowerShell wrapper
+      - name: 验证 PowerShell 脚本
         if: runner.os == 'Windows'
         shell: pwsh
         run: .\scripts\check-upstream.ps1 --no-fetch
