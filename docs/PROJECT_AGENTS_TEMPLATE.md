@@ -24,8 +24,9 @@ specify self check
 - CLI 缺失时，询问用户是否从官方来源安装。用户拒绝时返回 `HANDOFF_TO_AGENT`，不得假称已检查或初始化。
 - CLI 报告有更新时，告知用户可用版本和当前版本；只有用户明确批准后才运行 `specify self upgrade`。用户拒绝、离线、超时或无更新后，本会话不重复询问。
 - 无论 CLI 是否升级，都用当前 CLI 实际支持的 `help`、`status` 和 `list` 命令检查活动集成及已安装扩展、工作流；不存在新鲜度字段时，以官方更新命令的实际结果为准。
-- 对已安装且 CLI 支持刷新的官方组件，运行官方更新命令：集成按已安装 key 执行 `specify integration upgrade <key> --force`；扩展使用 `specify extension update`；工作流仅在当前 CLI 帮助确认支持时使用 `specify workflow update`。
-- 本项目已授权覆盖官方管理的集成技能、脚本、扩展和目录工作流。集成升级支持 `--force` 时使用它；扩展或工作流命令不支持该参数时，不附加无效参数，也不绕过官方更新器。若官方命令询问是否应用已发现的官方更新，Agent 可直接确认；若 CLI 因本地修改而阻止覆盖，或要求 CLI 不支持的强制参数，则停止并说明受影响路径。此授权不适用于本规则块、`specs/**`、业务文件或本地来源组件。
+- 对已安装的官方集成和扩展执行强制刷新：集成使用 `specify integration upgrade <key> --force`；扩展使用 `specify extension add <id> --force`，以官方目录版本覆盖现有扩展文件。不要把扩展更新命令的“已是最新”当作文件内容校验。
+- 工作流命令不支持 `--force`。为覆盖现有官方工作流并取得可更新的 catalog 来源，先用官方 CLI 移除该工作流，再按官方 catalog ID 重新添加；不得使用本地副本或自建来源替代。
+- 本项目已授权覆盖官方管理的集成技能、脚本、扩展和目录工作流。若命令支持 `--force`，必须使用；不支持时使用上述官方移除后重装流程。此授权不适用于本规则块、`specs/**`、业务文件或本地来源组件。每次刷新后重新检查 CLI 帮助和项目状态，记录实际结果。
 - 当前任务需要的官方集成或扩展缺失时，先询问用户是否安装。只有当前 Agent 的官方原生集成可用时，才可在获准后运行 `specify integration install <native-key>`；缺少原生集成时停止并报告，不得改用 `generic`。拒绝安装时返回 `HANDOFF_TO_AGENT`。
 - Bug Fix 需要而 `bug` 扩展缺失时，询问是否运行 `specify extension add bug`；用户选择 Assessment 且 `assess` 缺失时，询问是否运行 `specify extension add assess`。
 - 刷新后重新检查 CLI 帮助和项目状态。离线、超时、失败或组件被跳过时，说明哪些内容无法核实；不得把未检查或被跳过的组件报告为最新。

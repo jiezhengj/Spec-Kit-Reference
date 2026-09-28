@@ -16,7 +16,7 @@
 - 将新项目初始化操作和字节级合并规则放在 `docs/PROJECT_INITIALIZATION.md`，把可写入目标项目的自包含规则块单独放在 `docs/PROJECT_AGENTS_TEMPLATE.md`。
 - 以 `SPEC_KIT_REFERENCE.md` 作为唯一任务索引，删除重复的 `docs/START_HERE.md`。
 - 精简根目录 `AGENTS.md`，由 `docs/UPSTREAM_UPDATE_POLICY.md` 统一维护上游审查步骤；保留下游边界、POLICY 审阅、版本、文档、验证和 GitHub 规则。
-- 精简 CLI 更新摘要；明确集成升级覆盖官方托管文件，扩展和工作流按各自不带 `--force` 的官方更新命令刷新。
+- 精简 CLI 更新摘要；根据用户决定，目标项目对官方集成和扩展强制覆盖，对不支持 `--force` 的工作流用官方 CLI 移除并从 catalog 重装。
 - 更正扩展来源说明：官方 CLI 可能随包提供扩展，CLI 安装时优先使用随包副本；更新说明区分 CLI 捆绑版本和目录版本。
 - Bug Fix 与 Assessment 文档分别说明用途、官方步骤和所需扩展，不插入本地生命周期。
 - 明确文档受众：将初始化说明命名为 `PROJECT_INITIALIZATION.md`；将 Bug Fix、Assessment 和 CLI 更新摘要命名为参考页，并标明它们不属于目标项目运行时输入。初始化步骤和规则模板只在新项目首次接入时由初始化 Agent 读取。
