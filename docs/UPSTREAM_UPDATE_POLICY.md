@@ -9,7 +9,7 @@ UPSTREAM_BASELINE 记录已完成语义审查的官方 Spec Kit 提交，不要�
 3. 查看提交列表、变更路径和完整差异。
 4. 完整阅读与功能流程、官方扩展、CLI 命令、Agent 集成或升级方式相关的文件。
 5. 按 NONE、REFERENCE 或 POLICY 分类。
-6. 只修改有证据支持的中文文档，并记录 docs/CHANGE_IMPACT.md；需要时更新 docs/HISTORY.md。
+6. 只修改有证据支持的中文文档，并记录 docs/CHANGE_IMPACT.md。
 7. 运行 git diff --check 和 scripts/check_upstream.py。
 8. 变更审查和文档修改完成后，最后更新 UPSTREAM_BASELINE。
 
@@ -17,7 +17,7 @@ UPSTREAM_BASELINE 记录已完成语义审查的官方 Spec Kit 提交，不要�
 
 # 优先检查的上游内容
 
-根据本次变更涉及的功能，检查官方 Quickstart、Bug Fix、Assessment、Upgrade、已有项目接入指南，扩展和工作流目录，以及 CLI 的安装、集成升级、扩展更新命令。完整提交列表和变更路径用于发现这些重点文件之外的影响；优先清单不是忽略其他差异的理由。
+根据本次变更涉及的功能，检查官方 Quickstart、Bug Fix、Assessment、Upgrade、已有项目接入指南、扩展和工作流目录，以及 CLI 的安装、集成升级、扩展更新和工作流更新实现。完整提交列表和变更路径用于发现这些重点文件之外的影响；优先清单不是忽略其他差异的理由。
 
 # 影响分类
 
@@ -27,11 +27,11 @@ UPSTREAM_BASELINE 记录已完成语义审查的官方 Spec Kit 提交，不要�
 
 ## REFERENCE
 
-CLI 参数、组件目录、集成、生成文件或升级方式改变。按需要更新 SPEC_KIT_REFERENCE.md，通常不改 GLOBAL_POLICY.md。
+CLI 参数、组件目录、集成、生成文件或升级方式改变。更新对应的操作说明；若任务索引变化，再更新 `SPEC_KIT_REFERENCE.md`。通常不改 `GLOBAL_POLICY.md`。
 
 ## POLICY
 
-官方流程、工作完成条件或工具权威边界改变，可能影响 Agent 行为。审查 GLOBAL_POLICY.md 与 SPEC_KIT_REFERENCE.md。部署或合并前必须由用户审阅。
+官方流程、工作完成条件或工具权威边界改变，可能影响 Agent 行为。审查 `GLOBAL_POLICY.md`、`docs/PROJECT_INITIALIZATION.md`、`docs/PROJECT_AGENTS_TEMPLATE.md` 和 `SPEC_KIT_REFERENCE.md` 中受影响的文件；若上游改变 Bug Fix、Assessment 或组件更新行为，也审查对应的 `*_REFERENCE.md` 摘要。部署或合并前必须由用户审阅。
 
 # 自动化边界
 

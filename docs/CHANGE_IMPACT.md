@@ -1,67 +1,31 @@
-# 2026-09-28：改用官方流程并精简 Reference
+# 2026-09-28：重做 Spec Kit 规则分层
 
 分类：POLICY
 
-审查范围：已审阅基线 d4229c071c7ea3885b43e8a7739847300f618f13 至 upstream/main c00dc0551583428a10a94443c58c6a41e5e0138c，共 69 个提交、476 个变更路径。检查了完整提交列表和路径分布，并重点核对上游工作树中的 docs/quickstart.md、docs/guides/bugfix.md、docs/guides/assessment.md、docs/upgrade.md、扩展/工作流/Bundle 目录及相关 CLI 实现。相关文件于 2026-09-28 在本地审阅。
+## 决策边界
 
-上游变化：
+个人全局规则只判断是否询问用户为尚未 Spec 化的软件或技术项目启用 Spec Kit，并引导新项目初始化。目标项目根目录 `AGENTS.md` 负责项目内流程和每会话检查。Reference 只在新项目初始化时使用，不是已 Spec 项目的运行时依赖。
 
-- 官方 Quickstart 明确给出 Constitution 一次性建立方式、小型功能短流程和生产级完整流程，并要求逐个调用 Agent skill、审阅输出后再继续。
-- 官方 Bug Fix 指南给出独立的 assess → fix → test 流程。bug 扩展通过官方 CLI 安装，不要求先跑 SDD。
-- 官方 Assessment 是独立可选流程，用于决定一个想法是否值得投入。
-- 官方扩展和 Bundle 目录已提供 bug、assess 组件；CLI Upgrade Guide 说明使用官方 CLI 更新本体、集成和已安装扩展。
-- 上游提交还包含大量与本地政策无关的 CLI 重构、集成修复、社区目录和测试变更；这些未复制进本仓库。
-- 官方页面作为阅读入口会打断 Agent 的本地分步阅读。保留流程要点时改为仓库内的中文导航、功能、缺陷、评估和更新说明；各页记录上游提交及源文件路径，不要求执行流程时在线查阅。
+## 上游依据
 
-影响判断：
+已审阅基线 `c00dc0551583428a10a94443c58c6a41e5e0138c` 与当前 `upstream/main` 一致，无待审阅提交。审查了 `docs/quickstart.md`、`docs/guides/existing-projects.md`、`docs/guides/bugfix.md`、`docs/guides/assessment.md`、`docs/upgrade.md`，以及 `src/specify_cli/integrations/command_upgrade.py`、`src/specify_cli/extensions/command_add.py`、`src/specify_cli/extensions/_command_update_discovery.py`、`src/specify_cli/extensions/_command_update_transaction.py` 和 `src/specify_cli/workflows/command_update.py`。
 
-此前本地 Discovery 扩展、governed-sdd 工作流、tiny-model-tasks 预设、项目治理管理器、运行时包和配套发布/测试合同与用户希望依赖官方 Quickstart 和 Bug Fix 的方向冲突。它们使用本地来源，无法由官方目录更新。官方已经提供相应的工作流步骤与目录组件，因此本地保留第二套流程没有必要。
+## 本地调整
 
-处理：
+- 精简 `GLOBAL_POLICY.md`，只保留项目触发判断、本机 Reference 定位、初始化说明入口和初始化后的规则边界；Reference 不可用时停止初始化。
+- 将新项目初始化操作和字节级合并规则放在 `docs/PROJECT_INITIALIZATION.md`，把可写入目标项目的自包含规则块单独放在 `docs/PROJECT_AGENTS_TEMPLATE.md`。
+- 以 `SPEC_KIT_REFERENCE.md` 作为唯一任务索引，删除重复的 `docs/START_HERE.md`。
+- 精简根目录 `AGENTS.md`，由 `docs/UPSTREAM_UPDATE_POLICY.md` 统一维护上游审查步骤；保留下游边界、POLICY 审阅、版本、文档、验证和 GitHub 规则。
+- 精简 CLI 更新摘要；明确集成升级覆盖官方托管文件，扩展和工作流按各自不带 `--force` 的官方更新命令刷新。
+- 更正扩展来源说明：官方 CLI 可能随包提供扩展，CLI 安装时优先使用随包副本；更新说明区分 CLI 捆绑版本和目录版本。
+- Bug Fix 与 Assessment 文档分别说明用途、官方步骤和所需扩展，不插入本地生命周期。
+- 明确文档受众：将初始化说明命名为 `PROJECT_INITIALIZATION.md`；将 Bug Fix、Assessment 和 CLI 更新摘要命名为参考页，并标明它们不属于目标项目运行时输入。初始化步骤和规则模板只在新项目首次接入时由初始化 Agent 读取。
+- 调整 `SPEC_KIT_REFERENCE.md` 为按使用阶段索引，分开一次性初始化文档与本仓库维护/人工参考文档；目标项目后续不回读 Reference。
+- 按目标项目 Agent 的实际执行顺序重写规则模板：先说明权威来源，再说明每会话 CLI/组件检查，再选择任务流程；将 Feature SDD 的 Constitution 前置步骤设为两种模式共用，并并列短路径、完整路径、Bug Fix 和 Assessment。规则块内不链接或依赖 Reference。
+- 政策版本仍为 `3.0.0`。本次不修改个人全局 `AGENTS.md`，不迁移已有目标项目。
 
-- 将 GLOBAL_POLICY.md 改为中文 v3.0.0 候选，规定功能和缺陷分别遵循官方流程，保留官方 CLI 更新方式，不再要求本地治理产物或自建审批合同。
-- 将 SPEC_KIT_REFERENCE.md、README.md、AGENTS.md 和保留的 docs 文档改为中文，并建立按任务选择的本地渐进式阅读入口。
-- 删除本地治理包、Discovery 扩展、governed-sdd 工作流、任务预设、管理器、发布器及其合同测试。
-- 保留不改政策或基线的上游检查器、定期上游提醒、基线和维护记录；获取时检查器会更新 Git 远端跟踪引用。
-- 按用户说明，不为现有下游项目的旧 Spec 产物设计兼容或迁移步骤。
-- 后续经用户审阅批准的 POLICY v3.0.0 已部署到当前 Codex 用户级规则文件；部署只替换政策标记块，没有批量改写下游项目。
+## 验证
 
-补充处理：
+`git diff --check` 和 `python scripts/check_upstream.py` 均通过；上游检查器确认基线与 `upstream/main` 一致、没有待审阅提交。额外检查了 12 份 Markdown、16 个内部链接、代码围栏、规则块标记、流程结构和目标规则块的 Reference 自包含性，均通过；政策标记仍为 `3.0.0`。未运行测试套件。
 
-- 全局政策、README 和参考入口不再把在线网页作为 Agent 阅读依赖。
-- 本地流程摘要分别记录 Quickstart、Bug Fix、Assessment 和 Upgrade 对应的上游文件路径及 c00dc0551583428a10a94443c58c6a41e5e0138c 审阅提交。
-
-验证：
-
-检查保留文档是否仍依赖已删除的自建组件；运行 git diff --check 和上游基线检查器。没有运行已退役的治理测试套件。
-
-# 2026-09-28：将持久规则写入目标项目
-
-分类：POLICY
-
-用户决策：Spec Kit 初始化完成后，向目标项目根目录 `AGENTS.md` 写入可提交的自包含规则块。没有该标记块时追加；恰有一对标记时只替换块内内容；旧版独立 Reference 更新块按其标记精准删除。所有块外字节保持不变；边界异常或重复时停止，不猜测范围。
-
-本次核实：当前 Spec Kit 上游仍为已审阅基线 c00dc0551583428a10a94443c58c6a41e5e0138c，没有新增提交。当时的草案仍保留了本地文档语言标签选择；该要求已由后续用户决策撤销，见本记录末尾的补充影响评估。
-
-修改结果：
-
-- 目标项目的受管 `AGENTS.md` 块现在包含项目工作流程，以及每个新 Agent 会话中的 CLI 自检和已安装集成、扩展、工作流刷新规则。
-- CLI 缺失时询问用户是否安装官方 CLI；CLI 有更新时先取得用户批准；普通组件刷新不加 `--force`。
-- 已初始化项目使用已提交的项目规则块和 Spec 状态。全局 POLICY 或中央 Reference 不存在时仍运行相同检查；二者存在时也不额外同步已有项目。
-- 首次按当时的治理规则初始化需要已加载的全局 POLICY 或显式提供的同一规则模板；中央 Reference 目录不是初始化前提。没有 POLICY/模板时，官方 CLI 仍能初始化原生 Spec Kit 项目，但不会自动写入本地治理块。完成后，项目不携带 Reference 管理器、manifest 或中央更新程序。
-- 当时按用户明确要求，政策标记版本保持 `3.0.0`。
-
-# 2026-09-28：移除项目文档语言选择机制
-
-分类：POLICY
-
-用户决策：初始化 Spec Kit 项目时不再询问、记录或传递单独的文档语言标签。项目运行规则集中写入目标项目的 `AGENTS.md` 受管块；项目中的其他内容遵循用户要求和项目已有约定。无需为旧规格或其他 Spec 产物设计兼容迁移。
-
-影响与处理：
-
-- 从 GLOBAL_POLICY.md 的初始化说明、目标项目规则块和旧规则替换说明中删除语言选择要求。
-- 从 AGENTS.md、功能流程、任务导航、参考入口和历史记录中删除该机制的现行要求。
-- 保留根目录 GLOBAL_POLICY.md 作为新项目规则块的中心来源；本决策不要求目标项目额外保存另一份项目级规则文档。
-- 本轮保留当时的 `3.0.0` 政策标记。用户随后审阅并批准 POLICY v3.0.0；当前 Codex 用户级规则已部署该版本。项目级规则仍由各目标项目自行携带和维护。
-
-验证范围：已检查当前 CLI 初始化帮助、CLI 自检/升级帮助、集成、扩展和工作流命令列表；上游基线与当前 `main` 相同。`git diff --check` 通过；13 份项目 Markdown 无外部 URL，内部链接全部有效。未运行测试套件。
+用户已批准将本地 POLICY 候选推送到 `main`。个人全局 `AGENTS.md` 仍由用户人工更新；GitHub Release `v3.0.0` 已删除，关联 Git tag 保留。

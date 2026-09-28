@@ -1,21 +1,28 @@
-# 渐进式阅读入口
+# 本仓库文档索引
 
-先读 [任务导航](docs/START_HERE.md)，再只读当前任务对应的本地中文说明：
+本索引面向维护 SpecKitReference 的人，以及按照个人全局规则为新项目执行一次性初始化的 Agent。目标项目完成初始化后，其 Agent 只依据目标项目已提交的 `AGENTS.md`、官方 CLI、原生集成和技能工作；不需要读取本仓库。
 
-| 当前任务 | 阅读 |
+## 新项目初始化时
+
+只有在用户同意为尚未 Spec 化的项目启用 Spec Kit 后，初始化 Agent 才读取以下两份文件：
+
+| 文件 | 用途 |
 | --- | --- |
-| 初始化项目、开发功能 | [功能流程](docs/FEATURE_WORKFLOW.md) |
-| 修复已知缺陷 | [缺陷流程](docs/BUGFIX_WORKFLOW.md) |
-| 判断一个想法是否值得投入 | [想法评估](docs/ASSESSMENT_WORKFLOW.md) |
-| 更新 CLI、Agent 集成或扩展 | [更新操作](docs/CLI_UPDATES.md) |
-| 审查 Spec Kit 上游变化 | [上游审查规则](docs/UPSTREAM_UPDATE_POLICY.md) |
+| [新项目初始化步骤](docs/PROJECT_INITIALIZATION.md) | 检查 CLI、选择原生集成、初始化项目，并把规则块合并到目标项目。 |
+| [目标项目 AGENTS 规则块模板](docs/PROJECT_AGENTS_TEMPLATE.md) | 原样复制到目标项目根目录 `AGENTS.md`；复制后不再依赖本仓库中的模板。 |
 
-项目全局执行规则见 [GLOBAL_POLICY.md](GLOBAL_POLICY.md)。官方 Agent 技能负责具体产物生成；此参考只帮助 Agent 找到对应步骤，不创建第二套工作流。
+目标项目已存在 `.specify/` 时，不走本节，也不因本索引重新初始化。
 
-新项目初始化后，项目根目录 `AGENTS.md` 会携带自包含的 Spec Kit 规则块。后续会话使用该提交内容；中央 Reference 不更新或覆盖已 Spec 化项目。
+## 本仓库维护和人工参考
 
-# 维护者依据
+以下中文摘要供本仓库维护者或希望了解官方流程的读者参考。它们不会随初始化复制到目标项目，也不是目标 Agent 的运行时输入。目标 Agent 按项目自己的 `AGENTS.md` 和当前官方 CLI/技能执行；发生差异时，以实际 CLI 帮助、安装的官方技能及官方文档为准。
 
-本地中文摘要依据已审阅的 Spec Kit 上游提交 c00dc0551583428a10a94443c58c6a41e5e0138c。逐页记录的源文件和本地校订日期见对应文档末尾及 [上游影响记录](docs/CHANGE_IMPACT.md)。
+| 主题 | 文件 | 适用场景 |
+| --- | --- | --- |
+| Bug Fix | [官方缺陷流程参考](docs/BUGFIX_REFERENCE.md) | 了解官方 Bug Fix 的阶段和产物；目标项目 Agent 不需从 Reference 读取。 |
+| Assessment | [官方想法评估参考](docs/ASSESSMENT_REFERENCE.md) | 了解官方 Assessment 的阶段和产物；目标项目 Agent 不需从 Reference 读取。 |
+| CLI 与组件更新 | [官方组件更新行为参考](docs/COMPONENT_UPDATE_REFERENCE.md) | 维护或审阅本地政策时核对更新行为；目标项目 Agent 按项目规则与当前 CLI 操作。 |
+| 上游变化 | [上游审查规则](docs/UPSTREAM_UPDATE_POLICY.md) | 检查 Spec Kit 上游变化并更新本仓库摘要、影响记录和基线。 |
+| 全局规则部署 | [人工部署说明](docs/GLOBAL_POLICY_DEPLOYMENT.md) | 由使用者手动更新个人全局规则。 |
 
-进入下游项目时，优先使用该项目当前安装的 specify CLI、Agent 集成和技能内容。本仓库的本地摘要不能覆盖它们，也不是下游运行时依赖。
+本仓库自身的维护边界和验证要求见根目录 `AGENTS.md`。

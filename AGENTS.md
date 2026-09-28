@@ -1,43 +1,32 @@
 # 仓库定位
 
-本仓库维护 GitHub Spec Kit 的中文政策和操作参考，不是 Spec Kit 分支，也不是下游业务项目。维护本仓库时，不初始化 .specify，不运行下游功能流程，也不要求用户选择本地自建工作流。
+本仓库维护 GitHub Spec Kit 的中文政策与操作参考，不是 Spec Kit 分支，也不是下游业务项目。维护本仓库时，不初始化 `.specify/`，不运行下游项目流程。上游只作事实依据，不合并其历史、不复制整个仓库、不改写上游生成文件。
 
-# 维护流程
+# 上游维护
 
-涉及 Spec Kit 上游的政策或参考维护时：
+涉及上游政策、参考文档或 CLI 行为时，按 [上游审查规则](docs/UPSTREAM_UPDATE_POLICY.md) 执行。该规则负责检查提交和完整差异、分类影响、记录审查并在完成后推进 `UPSTREAM_BASELINE`。
 
-1. 阅读本文件和 UPSTREAM_BASELINE。
-2. 获取 upstream/main，确认记录的基线是其祖先。
-3. 检查基线到当前上游的提交、变更路径和差异。
-4. 完整阅读与本地政策、流程和 CLI 行为相关的上游文件。
-5. 将影响分类为 NONE、REFERENCE 或 POLICY。
-6. 只按证据修改本地中文文档；记录 docs/CHANGE_IMPACT.md 和必要的 docs/HISTORY.md。
-7. 执行仓库验证；确认审查和本地文档修改完成后，最后更新 UPSTREAM_BASELINE。
+- `NONE`、`REFERENCE`、`POLICY` 按上游审查规则分类；只按证据修改本地中文文档，并记录 `docs/CHANGE_IMPACT.md`。
+- `POLICY` 候选必须先交由用户审阅；获批前不得部署或合并。
+- 当前全局政策版本只由 `GLOBAL_POLICY.md` 的 `SPEC-KIT-GLOBAL-POLICY:START version=...` 标记表示。版本号不自动联动，只在用户明确作出版本决定后更新。
+- 当前变更影响记录在 `docs/CHANGE_IMPACT.md`；Git 保存提交历史，不另建重复历史归档。
 
-上游仓库只作证据来源。不得合并上游历史、复制整个上游仓库或改写上游生成的文件。
+# 下游边界
 
-NONE 表示本地操作知识和政策没有变化；REFERENCE 表示 CLI 参数、安装目录、更新方式等操作事实变化；POLICY 表示工作流程、完成条件或工具权威边界变化。POLICY 候选必须先交由用户审阅，获批后才能部署或合并。
+- 下游项目的流程和组件使用官方 Spec Kit CLI、官方目录、官方文档及 Agent 原生集成。本仓库只维护简明政策、中文操作摘要、上游影响记录、基线和上游检查器。
+- 不新增本地扩展、工作流、预设、Bundle、命令覆盖、第二套生命周期、任务状态机、项目管理器或自定义审批合同。
+- 新项目初始化时，只能在目标项目根目录 `AGENTS.md` 追加或精准替换 `PROJECT-SPEC-KIT-GOVERNANCE` 受管块，标记外内容必须逐字节保留；不修改下游 `.specify/**`、`specs/**`、Agent 集成文件或业务文件。
+- 本仓库只支持新项目初始化，不兼容迁移既有项目规则、旧治理组件或旧 Spec 产物；既有项目迁移须作为独立任务处理。
+- 初始化后，目标项目提交的 `AGENTS.md` 和 Spec Kit 状态是项目级依据；运行时不依赖本机全局政策、中央 Reference 或在线网页。
 
-当前全局政策版本只由 `GLOBAL_POLICY.md` 的 `SPEC-KIT-GLOBAL-POLICY:START version=...` 标记表示。目标项目的受管规则块不重复版本号；历史记录保留变更发生时的版本和审阅状态，不随后续版本批量替换。版本号不会自动联动，维护者只在明确的版本决策后更新该标记。
+# 文档维护
 
-# 架构边界
+新增或修改的 Markdown 正文使用简体中文，产品名、命令、文件名和官方术语保留原文。操作摘要记录已审阅的上游提交和源文件路径；若摘要与当前 CLI 或技能不符，先核对实际帮助和项目状态，再安排上游审查。
 
-- 官方 Spec Kit CLI、官方目录和官方文档是下游项目的流程与组件来源。
-- 本仓库只保留简明政策、带上游文件路径的中文操作摘要、上游变更记录和不改政策/基线的上游检查器。新项目初始化时，唯一的目标项目治理文件是根目录 `AGENTS.md` 内有明确边界的 Spec Kit 规则块。
-- 不新增本地扩展、工作流、预设、Bundle、命令覆盖、第二套生命周期、任务状态机、项目管理器或自定义产物审批合同。
-- 不为已有下游项目提供旧治理包、旧工作流或旧 Spec 产物的兼容迁移。本次只替换可识别的旧治理加载块，不迁移 Spec 产物。
-- 不直接修改下游项目的 `.specify/**`、`specs/**`、CLI 生成的 Agent 集成文件或业务文件。初始化时只可在目标项目根目录 `AGENTS.md` 追加或精准替换 `PROJECT-SPEC-KIT-GOVERNANCE` 标记块；升级旧规则时，可精准删除已知的旧 `PROJECT-SPEC-KIT-REFERENCE-UPDATE-CHECK` 标记块。标记外内容必须逐字节保留。
+从根目录 `SPEC_KIT_REFERENCE.md` 进入，先确认当前工作是新项目的一次性初始化，还是本仓库维护/人工查阅；只读取对应页面。目标项目已完成初始化后，不要求其 Agent 回读本仓库的流程摘要。
 
-# 文档语言与格式
+# 验证与 GitHub 操作
 
-新增或修改的 Markdown 正文使用简体中文。产品名、CLI 命令、文件名和官方术语保留原文。目标项目规则块不要求用户另行选择或记录文档语言。官方流程细节以当前 CLI 和 Agent 技能为准；本仓库只维护有上游提交与源文件记录的中文摘要。
+至少运行 `git diff --check` 和 `python scripts/check_upstream.py`。不新增或运行已退役的治理合同测试；只有用户明确要求时才运行测试套件。
 
-本仓库的 Agent 按任务从 docs/START_HERE.md 进入，只读取当前流程需要的本地页面。目标项目则从其已提交的 `AGENTS.md` 受管规则块和 Spec Kit 状态继续工作；运行时不需要全局 POLICY、中央 Reference 或在线网页。每份摘要必须记录已审阅的上游提交和源文件路径；发现当前 CLI 或技能与摘要不同，先检查其实际 help 和项目状态，再安排上游复核。
-
-# 验证
-
-至少运行 git diff --check，并用本仓库的上游检查器确认基线状态。不要新增或运行已退役的治理合同测试。只有用户明确要求测试时才运行测试套件。
-
-# GitHub 操作
-
-GitHub 状态查询、Issue、Pull Request、Review、Actions 和 Release 操作只使用 gh CLI。不得用浏览器或直接 HTTP/API 替代 gh。
+GitHub 的认证、查询、Issue、Pull Request、Review、Actions 和 Release 操作只使用 `gh` CLI；不得用浏览器或直接 HTTP/API 替代。

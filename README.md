@@ -1,17 +1,15 @@
 # 仓库用途
 
-本仓库维护简体中文的 GitHub Spec Kit 使用政策、渐进式流程说明和上游变更审查记录。下游项目使用官方 Spec Kit CLI 及其官方 Agent 集成。新项目 Spec 化时会把自包含的 Spec Kit 规则块写入并提交目标项目 `AGENTS.md`；后续运行不依赖全局 POLICY 或本仓库。
+本仓库维护 GitHub Spec Kit 的中文政策和操作参考。下游项目的流程与组件来自官方 CLI、目录和 Agent 原生集成；本仓库不提供目标项目运行时组件。
 
-# 从这里开始
+新项目初始化由个人全局规则引导。初始化后，目标项目提交的根目录 `AGENTS.md` 规则块和 Spec Kit 状态构成项目基线；后续工作不依赖个人全局规则或本仓库。
 
-Agent 应先读 [任务导航](docs/START_HERE.md)，再只打开当前任务所需的页面。政策与摘要按步骤说明流程，具体规格、计划、任务和缺陷记录由当前项目的官方 Agent 技能生成。
+# 查找文档
 
-# 当前维护范围
+按使用阶段查看[文档索引](SPEC_KIT_REFERENCE.md)：新项目初始化 Agent 只在首次接入时读取初始化步骤和项目规则模板；目标项目后续会话不依赖本仓库。其他流程摘要是本仓库维护者或读者的参考资料，不是目标项目 Agent 的运行时文档。
 
-- [全局政策](GLOBAL_POLICY.md)：新项目初始化、功能开发、缺陷修复和更新规则。
-- [渐进式阅读入口](SPEC_KIT_REFERENCE.md)：按当前工作选择本地中文说明。
-- docs/：功能、缺陷、评估、更新和上游维护说明。
-- scripts/check_upstream.py：比较已审阅上游基线的检查器。获取时会更新 Git 远端跟踪引用，但不会改政策或基线。
-- 每周 GitHub Actions：发现上游提交并提醒维护者，不会自动改政策。
+# 仓库维护
 
-本仓库不再包含自建扩展、工作流、预设、Bundle、项目管理器、下游运行时包、发布器或对应的合同测试。目标项目只携带 `AGENTS.md` 受管规则块和官方 CLI 生成的项目状态，不携带 Reference 管理器或中央更新程序。
+- [全局政策来源](GLOBAL_POLICY.md)由用户人工部署；[人工更新说明](docs/GLOBAL_POLICY_DEPLOYMENT.md)记录部署步骤。
+- 仓库维护规则见根目录 `AGENTS.md`；上游审查步骤见[上游审查规则](docs/UPSTREAM_UPDATE_POLICY.md)。
+- `scripts/check_upstream.py` 和每周运行的 GitHub Actions 只提醒上游变化，不修改政策或推进基线。
