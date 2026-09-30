@@ -1,3 +1,28 @@
+# 2026-09-30：明确文档语言并精简仓库规则
+
+分类：POLICY（用户已批准）
+
+## 决策边界
+
+新项目初始化时，Agent 在运行 `specify init` 前询问用户后续 Spec Kit 流程文档的默认语言；不从系统地区、Agent 默认语言或现有文档推断。Agent 将选择写入目标项目的 `AGENTS.md` 治理块，使后续会话都能读取。该选择适用于 Constitution、Feature SDD、Bug Fix 和 Assessment 流程产物；具体任务的明确语言指示优先。本仓库根目录 `AGENTS.md` 精简为仓库边界、核心维护规则和验证入口，详细步骤留在专门文档中。
+
+## 上游审查
+
+已审阅基线 `9b8e5d815d06853ea0d7fb274e9a4cc9e7e3982a` 至当前 `upstream/main` `2c0a57abe1e7383a864c7d5e4dfa2457d7537734` 的完整提交列表、49 个变更路径和差异，共 15 个提交：`c648d96f`、`7b50c45a`、`7c54ef5d`、`8d3f64cd`、`a40bbcb6`、`d5cba602`、`5b584394`、`5a046ab8`、`987c9b8b`、`7dc319bc`、`e333b3c8`、`273d0002`、`59ab5434`、`2c0a57ab`，以及它们涉及的路径。审查重点包括 `docs/guides/agentic-sdlc.md`、`docs/installation.md`、`docs/reference/agentic-sdd.md`、`docs/reference/workflows.md`、`docs/reference/bundles.md`、`src/specify_cli/workflows/**`、`src/specify_cli/bundles/**`、`src/specify_cli/integrations/{copilot,vibe}/**`、`extensions/github/**` 和新增回归测试。
+
+上游影响分类为 `NONE`：这些提交增加 Agentic SDLC 说明、GitHub 扩展、workflow 历史版本选择和 bundle pin 校验，并修正集成参数、JSON 编码及 workflow 条件表达式；没有改变新项目文档语言的采集或保存行为，也没有改变未指定版本时选择当前 workflow 发布版的行为。本地语言规则是项目级写作偏好，不依赖新的 CLI 命令或扩展，因此不修改上游摘要页。
+
+## 本地调整
+
+- 在 `docs/PROJECT_INITIALIZATION.md` 中加入初始化提问规则，要求用户明确选择；没有明确语言值时暂停初始化。
+- 在 `docs/PROJECT_AGENTS_TEMPLATE.md` 中加入语言字段及适用范围；初始化时只替换代码围栏内的唯一占位符，将选择写入目标项目 `AGENTS.md`。
+- 要求 Spec Kit 流程文档使用所选语言，保留命令、路径、标识符、产品名和官方术语；允许用户为单项任务指定其他语言。
+- 精简根目录 `AGENTS.md`，移除重复的操作细节和已退役治理测试约束，保留下游边界、审阅要求、文档语言、GitHub CLI 和必要验证规则。
+
+## 验证
+
+`git diff --check` 通过。当前环境没有 `python` 命令，改用 `python3 scripts/check_upstream.py` 完成上游审查；审查后将基线推进到 `2c0a57abe1e7383a864c7d5e4dfa2457d7537734`，并再次运行检查器确认无待审阅提交。未运行测试套件。
+
 # 2026-09-28：按需刷新组件并取消全局政策版本号
 
 分类：POLICY
