@@ -11,5 +11,5 @@
 # 仓库维护
 
 - [全局政策来源](GLOBAL_POLICY.md)由用户人工部署；[人工更新说明](docs/GLOBAL_POLICY_DEPLOYMENT.md)记录部署步骤。
-- 仓库维护规则见根目录 `AGENTS.md`；上游审查步骤见[上游审查规则](docs/UPSTREAM_UPDATE_POLICY.md)。
-- `scripts/check_upstream.py` 和每周运行的 GitHub Actions 只提醒上游变化，不修改政策或推进基线。
+- 仓库维护规则见根目录 `AGENTS.md`；上游依赖处理规则见[上游依赖兼容性规则](docs/UPSTREAM_UPDATE_POLICY.md)。
+- `scripts/check_cli_contract.py` 和每月运行的 GitHub Actions 校验官方 CLI 输出契约；本仓库不逐提交跟踪上游，文档使用 CLI 版本锚点。

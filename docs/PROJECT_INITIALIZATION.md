@@ -88,4 +88,4 @@ specify init --here --force --integration <native-agent-key> --script py --non-i
 
 # 上游依据
 
-初始化步骤依据已审阅提交 c00dc0551583428a10a94443c58c6a41e5e0138c 的 `docs/quickstart.md` 和 `docs/guides/existing-projects.md`。目标项目规则块见[独立模板](PROJECT_AGENTS_TEMPLATE.md)；模板复制到目标项目后，目标 Agent 不再依赖本仓库。
+初始化命令在 `specify` 1.2.5（2026-11-02）上实测通过：`specify init … --integration … --script py --non-interactive` 会在目标目录生成 `.specify/`。官方 CLI 变化时按[上游依赖兼容性规则](UPSTREAM_UPDATE_POLICY.md)核对并更新本页；目标项目规则块见[独立模板](PROJECT_AGENTS_TEMPLATE.md)。

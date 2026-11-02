@@ -1,3 +1,28 @@
+# 2026-11-02：停止逐提交上游审查，改为 CLI 契约检查
+
+分类：POLICY（用户已批准方向，合并前审阅）
+
+## 决策边界
+
+本仓库不再逐提交审查 `github/spec-kit` 历史，不再维护 `UPSTREAM_BASELINE`，也不再每周运行上游检查工作流。参考摘要是非权威材料，仓库只守住官方 CLI 的接口契约。
+
+理由：2026-09-28 的 3.0.0 重构已经取消“把上游文档翻译成已审阅本地事实”的镜像角色（README 从 217 行降为 9 行，`SPEC_KIT_REFERENCE.md` 改为索引并声明以 CLI 为准），逐提交语义审查失去维护对象；同期上游约每天 6 个提交，人工逐条分类不可持续，基线停在 2026-09-29，每周任务自 2026-08-24 起的 11 次运行中有 10 次失败。
+
+## 本地调整
+
+- 删除 `.github/workflows/check-spec-kit-upstream.yml`、`scripts/check_upstream.py`、`scripts/check-upstream.sh`、`scripts/check-upstream.ps1` 和 `UPSTREAM_BASELINE`。
+- 新增 `scripts/check_cli_contract.py`：在临时初始化的项目中校验官方 CLI 的版本、`self check`、集成状态、扩展清单、扩展与工作流目录、工作流元数据输出仍被本仓库解析器接受。
+- 新增 `.github/workflows/check-spec-kit-cli-contract.yml`：每月 1 日运行 Ubuntu 和 Windows 单元测试，并在 Ubuntu 上安装最新官方 CLI 执行契约检查；失败只体现为工作流失败，不尝试创建 Issue。
+- 重写 `docs/UPSTREAM_UPDATE_POLICY.md`：去掉逐提交分类和基线推进，改为契约检查、人工核对入口、季度节奏和 CONTRACT/REFERENCE/POLICY 分类。
+- 把 `docs/BUGFIX_REFERENCE.md`、`docs/ASSESSMENT_REFERENCE.md`、`docs/COMPONENT_UPDATE_REFERENCE.md`、`docs/PROJECT_INITIALIZATION.md`、`docs/PROJECT_AGENTS_TEMPLATE.md` 的提交 SHA 锚点改为 CLI 版本锚点。
+- 更新 `AGENTS.md`、`README.md`、`SPEC_KIT_REFERENCE.md` 的维护与验证入口；`docs/CHANGE_IMPACT.md` 历史记录保持不变。
+
+## 验证
+
+`git diff --check` 通过；`python -m unittest tests.test_spec_kit_component_updater -v` 的 28 项测试通过。在 `specify` 1.2.5 上运行 `python scripts/check_cli_contract.py`，全部检查通过（`--version`、`self check`、项目初始化、`integration status --json`、`extension list --json`、`extension catalog list`、`workflow catalog list`、`workflow info speckit`、`workflow search speckit`），`--offline` 模式同样通过。
+
+此前每周任务失败的系统性原因一并消除：退出码 2（发现上游变化）被当成失败、Windows cp1252 编码崩溃、令牌无法创建 Issue、矩阵 fail-fast 取消另一平台。
+
 # 2026-09-30：明确文档语言并精简仓库规则
 
 分类：POLICY（用户已批准）

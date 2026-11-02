@@ -64,4 +64,4 @@ specify extension add assess
 
 # 上游依据
 
-本页依据已审阅提交 c00dc0551583428a10a94443c58c6a41e5e0138c 的 `docs/guides/assessment.md` 和 `src/specify_cli/extensions/command_add.py` 整理。
+本页按官方 Assessment 流程和官方技能行为整理；最近一次核对使用 `specify` 1.2.5（2026-11-02）。官方说明变化时按[上游依赖兼容性规则](UPSTREAM_UPDATE_POLICY.md)核对，本页不固定上游提交版本。

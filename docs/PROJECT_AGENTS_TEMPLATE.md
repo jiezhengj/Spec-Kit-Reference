@@ -88,4 +88,4 @@ Assessment 可以用于软件或非软件想法，不要求已有源代码，不
 
 # 上游依据
 
-本模板依据已审阅提交 `c00dc0551583428a10a94443c58c6a41e5e0138c` 的 `docs/quickstart.md`、`docs/guides/bugfix.md`、`docs/guides/assessment.md`、`docs/upgrade.md`，以及 `src/specify_cli/integrations/command_upgrade.py`、`src/specify_cli/extensions/command_add.py`、`src/specify_cli/extensions/command_update.py`、`src/specify_cli/extensions/_command_update_discovery.py` 和 `src/specify_cli/workflows/command_update.py` 整理。每次维护本模板时，应按 `docs/UPSTREAM_UPDATE_POLICY.md` 重新核对上游当前内容；这些来源说明不复制进目标项目。
+本模板按官方 CLI、官方技能和官方流程说明整理；最近一次核对使用 `specify` 1.2.5（2026-11-02），核对了 `specify init` 命令和 `speckit` 工作流的当前元数据。维护本模板时按[上游依赖兼容性规则](UPSTREAM_UPDATE_POLICY.md)核对当前 CLI 与官方文档；这些来源说明不复制进目标项目。

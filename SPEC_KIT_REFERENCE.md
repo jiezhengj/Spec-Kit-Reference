@@ -23,7 +23,7 @@
 | Bug Fix | [官方缺陷流程参考](docs/BUGFIX_REFERENCE.md) | 了解官方 Bug Fix 的阶段和产物；目标项目 Agent 不需从 Reference 读取。 |
 | Assessment | [官方想法评估参考](docs/ASSESSMENT_REFERENCE.md) | 了解官方 Assessment 的阶段和产物；目标项目 Agent 不需从 Reference 读取。 |
 | CLI 与组件更新 | [官方组件更新行为参考](docs/COMPONENT_UPDATE_REFERENCE.md) | 维护或审阅本地政策时核对更新行为；目标项目 Agent 按项目规则与当前 CLI 操作。 |
-| 上游变化 | [上游审查规则](docs/UPSTREAM_UPDATE_POLICY.md) | 检查 Spec Kit 上游变化并更新本仓库摘要、影响记录和基线。 |
+| 上游依赖 | [上游依赖兼容性规则](docs/UPSTREAM_UPDATE_POLICY.md) | 官方 CLI 契约变化时更新解析器、文档与影响记录；不逐提交跟踪上游。 |
 | 全局规则部署 | [人工部署说明](docs/GLOBAL_POLICY_DEPLOYMENT.md) | 由使用者手动更新个人全局规则。 |
 
 本仓库自身的维护边界和验证要求见根目录 `AGENTS.md`。
