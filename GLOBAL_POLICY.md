@@ -2,29 +2,27 @@
 
 # 适用范围
 
-本规则只判断一个尚未 Spec 化的软件或技术项目是否需要启用 Spec Kit，并在适合时询问用户。它不决定项目内具体工作的 SDD 流程。
+本规则只管一件事：尚未 Spec 化的软件/技术项目是否需要启用 Spec Kit，并在合适时询问用户。项目内的 SDD 流程不归它管——Feature 短流程/完整流程、缺陷修复、想法评估等由目标项目自己的 `AGENTS.md` 决定。
 
-判断前读取目标项目根目录 `AGENTS.md`，并检查项目是否已有 `.specify/`：
+判断前读目标项目根目录 `AGENTS.md`，并检查是否已有 `.specify/`：
 
-- 已有 `.specify/`：遵循项目提交的规则和 Spec Kit 状态。本机全局规则不再判断该项目的流程，不读取、探测或使用中央 Reference。
-- 没有 `.specify/`：只有当项目属于软件或技术项目，且当前任务要创建或改变技术能力时，才询问用户是否启用 Spec Kit。纯问答、只读调查、代码审查和不改变技术能力的常规维护不触发询问。
-- 用户明确要求为项目 Spec 化时视为同意。用户拒绝后，本次工作按普通项目任务继续，不运行 `specify init`；同一任务中不重复询问。
-
-Feature 的短流程或完整流程、缺陷修复、想法评估等项目内路径由目标项目自己的 `AGENTS.md` 决定。
+- 已有 `.specify/`：遵循项目提交的规则与 Spec Kit 状态，全局规则不再介入，也不读、不探测、不使用中央 Reference。
+- 没有 `.specify/`：仅当项目属于软件/技术项目、且当前任务要创建或改变技术能力时，才询问是否启用 Spec Kit；纯问答、只读调查、代码审查、不改变技术能力的常规维护不触发询问。
+- 用户明确要求 Spec 化即视为同意；用户拒绝后按普通项目任务继续，不跑 `specify init`，同一任务中不再重复询问。
 
 # 新项目 Spec 化
 
-只有用户同意且目标项目不存在 `.specify/` 时，才执行本节。Reference 只用于新项目引导和提供目标项目规则模板，不是目标项目的运行时依赖。
+仅在用户同意且目标项目还没有 `.specify/` 时执行。Reference 只用于新项目引导和提供规则模板，不是运行时依赖。
 
-只查当前电脑对应的固定目录，不扫描其他目录、不从工作目录猜测，也不读取其他机器的路径：
+只查当前电脑的固定目录，不扫描其他目录、不按工作目录猜、不读其他机器的路径：
 
 - Windows：`C:\Users\jiezhengj\Documents\Project\SpecKitReference`
 - macOS：`/Users/jiezhengj/Documents/Project/SpecKitReference`
 
-若对应目录不可用，说明路径并暂停 Spec Kit 初始化；不得只运行官方 CLI 而省略本地项目规则块。
+目录不可用就说明路径并暂停初始化；不得只跑官方 CLI 而省掉本地项目规则块。
 
-找到 Reference 后，仅在本次新项目初始化期间读取 `docs/PROJECT_INITIALIZATION.md` 和 `docs/PROJECT_AGENTS_TEMPLATE.md`：前者说明初始化操作，后者提供一次性写入目标项目 `AGENTS.md` 的规则块。目标项目 Agent 后续不读取这些 Reference 文档；其规则和组件刷新要求已写入项目自身的 `AGENTS.md`。
+找到 Reference 后，仅本次初始化期间读 `docs/PROJECT_INITIALIZATION.md`（怎么做）和 `docs/PROJECT_AGENTS_TEMPLATE.md`（一次性写入目标项目 `AGENTS.md` 的规则块）。目标项目之后不再读这两份文档，其规则与组件刷新要求已在项目自己的 `AGENTS.md` 里。
 
-初始化完成后，目标项目提交的 `AGENTS.md` 和 Spec Kit 状态成为项目级规则来源。后续会话不需要全局政策或中央 Reference；两者是否存在都不改变该项目的流程和更新行为。
+初始化完成后，目标项目提交的 `AGENTS.md` 和 Spec Kit 状态即成为项目级规则来源；后续会话不再需要全局政策或中央 Reference，二者存不存在都不影响该项目的流程。
 
 <!-- SPEC-KIT-GLOBAL-POLICY:END -->
