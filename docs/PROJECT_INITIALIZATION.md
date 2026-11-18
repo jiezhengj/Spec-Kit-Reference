@@ -4,7 +4,11 @@
 
 本页只用于用户同意为新项目启用 Spec Kit、且项目尚无 `.specify/` 时。若 `.specify/` 已存在，不要重新初始化；遵循项目现有 `AGENTS.md` 和 Spec Kit 状态。
 
-确认目标项目根目录和当前 Agent 的原生集成键。集成键必须来自用户、宿主或 Agent 运行时声明，不得从安装目录或其他文件推断。若 CLI 不支持该原生集成或 Python 脚本，停止并报告，不退回 `generic`。
+确认目标项目根目录，并确认官方 CLI 支持 `generic` 集成和 Python 脚本。初始化一律使用 `generic` 集成，把技能目录显式钉在 `.agents/skills`；不探测、不推断、也不切换为当时 Harness 的原生集成键。
+
+这样做的原因是兼容性而非偏好：`.agents/skills` 是多个 Harness 共用的项目级技能目录，同一份产物在换 Harness 后仍然可加载；而各 Harness 的原生集成会写到 `.github/skills`、`.dsh/skills`、`.grok/skills` 等不同位置，项目状态随当时使用的 Harness 漂移。
+
+官方 CLI 只生成技能与 `.specify/**`，不写 `AGENTS.md`；该文件完全由下文“写入目标项目规则”产生。CLI 不支持该集成或 Python 脚本时，停止并报告。
 
 CLI 缺失时，先询问用户是否从官方来源安装。用户同意后运行：
 
@@ -30,20 +34,22 @@ Agent 不得根据系统地区、Agent 默认语言、现有文档或代码注�
 
 # 选择初始化方式
 
-初始化命令使用已确认的原生集成，并明确选择 `--script py`。只有运行环境确认为非交互时才增加 `--non-interactive`。
+初始化命令固定使用 `generic` 集成、显式技能目录选项和 `--script py`。只有运行环境确认为非交互时才增加 `--non-interactive`。
+
+技能目录必须走 `--integration-options` 传入；`--commands-dir` 不是 `specify init` 的顶层选项，直接传给 `init` 会报 `No such option`。`--skills` 让 CLI 生成 `speckit-<name>/SKILL.md` 目录结构而不是扁平的 `speckit.<name>.md` 文件，同时仍把技能根落在 `.agents/skills`。
 
 ## 新目录
 
 在目标目录的父目录中运行：
 
 ~~~bash
-specify init <project-name> --integration <native-agent-key> --script py
+specify init <project-name> --integration generic --integration-options="--commands-dir .agents/skills --skills" --script py
 ~~~
 
 非交互环境运行：
 
 ~~~bash
-specify init <project-name> --integration <native-agent-key> --script py --non-interactive
+specify init <project-name> --integration generic --integration-options="--commands-dir .agents/skills --skills" --script py --non-interactive
 ~~~
 
 ## 已有代码目录
@@ -53,14 +59,16 @@ specify init <project-name> --integration <native-agent-key> --script py --non-i
 交互环境运行：
 
 ~~~bash
-specify init --here --force --integration <native-agent-key> --script py
+specify init --here --force --integration generic --integration-options="--commands-dir .agents/skills --skills" --script py
 ~~~
 
 非交互环境运行：
 
 ~~~bash
-specify init --here --force --integration <native-agent-key> --script py --non-interactive
+specify init --here --force --integration generic --integration-options="--commands-dir .agents/skills --skills" --script py --non-interactive
 ~~~
+
+初始化后应确认产物落在 `.agents/skills/speckit-*/SKILL.md`，并运行 `specify integration status --json` 确认 `status` 为 `ok`、缺失与修改文件数为 0。`AGENTS.md` 不在 CLI 产物中，仍由下一节写入。
 
 # 写入目标项目规则
 
@@ -88,4 +96,4 @@ specify init --here --force --integration <native-agent-key> --script py --non-i
 
 # 上游依据
 
-初始化命令在 `specify` 1.2.5（2026-11-02）上实测通过：`specify init … --integration … --script py --non-interactive` 会在目标目录生成 `.specify/`。官方 CLI 变化时按[上游依赖兼容性规则](UPSTREAM_UPDATE_POLICY.md)核对并更新本页；目标项目规则块见[独立模板](PROJECT_AGENTS_TEMPLATE.md)。
+初始化命令在 `specify` 1.4.2（2026-11-18）上实测通过：`specify init --here --force --integration generic --integration-options="--commands-dir .agents/skills --skills" --script py --non-interactive` 生成 `.agents/skills/speckit-*/SKILL.md`（9 个技能）与 `.specify/**`，`specify integration status --json` 报 `status: ok`、`multi_install_safe: true`、缺失与修改文件数为 0，且不生成 `AGENTS.md`。同等条件下 `zed` 集成产物与本组合逐字节相同，但技能目录依赖该集成到 `.agents/skills` 的映射，因此不选它作为默认基线。官方 CLI 变化时按[上游依赖兼容性规则](UPSTREAM_UPDATE_POLICY.md)核对并更新本页；目标项目规则块见[独立模板](PROJECT_AGENTS_TEMPLATE.md)。

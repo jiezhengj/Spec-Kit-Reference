@@ -12,7 +12,7 @@
 specify extension add bug
 ~~~
 
-通过官方 CLI 安装官方扩展。当前 CLI 若随包提供 `bug`，会优先使用该副本；否则按 CLI 的官方目录解析结果安装。以下命令采用 GitHub Copilot 的技能写法；其他 Agent 使用原生集成提供的对应调用方式。
+通过官方 CLI 安装官方扩展。当前 CLI 若随包提供 `bug`，会优先使用该副本；否则按 CLI 的官方目录解析结果安装。以下命令采用项目内 `.agents/skills` 的通用技能写法 `/speckit-<name>`；目标项目按自身 `AGENTS.md` 执行，不因换 Harness 改用其他目录。
 
 # Assess：诊断问题
 

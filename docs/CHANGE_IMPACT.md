@@ -1,3 +1,27 @@
+# 2026-11-18：新项目初始化固定使用 generic 集成与 .agents/skills
+
+分类：POLICY（用户已批准）
+
+## 决策边界
+
+新项目初始化不再按当时 Harness 选择“原生集成键”，一律使用 `generic` 集成，并用 `--integration-options="--commands-dir .agents/skills --skills"` 把技能目录显式钉在 `.agents/skills`。目标是产物与 Harness 无关：同一项目换 Harness 后仍加载同一份技能，状态不漂移。
+
+实测依据（`specify` 1.4.2）：写 `.agents/skills` 的集成有 codex、zed、agy、muse、docker-agent；`dsh` 写 `.dsh/skills`、`grok` 写 `.grok/skills`，非交互 `specify init` 不给 `--integration` 时默认 copilot 写 `.github/skills`。`codex`/`muse` 在无对应 CLI 时直接失败，`agy` 需要 Antigravity CLI v1.0.0+ 并打警告，`codex` 生成 `$speckit-*` 调用前缀，`zed`/`agy`/`generic` 生成 `/speckit-*`。`generic` 配上述选项的产物与 `zed` 逐字节相同（`diff -r` 差异 0），但路径由本仓库显式指定，不依赖上游对某集成的目录映射；`integration status --json` 对 `generic` 报 `multi_install_safe: true`，日后可与别的集成共存。`--commands-dir` 必须走 `--integration-options`，作为 `init` 顶层选项会报 `No such option`。
+
+任何集成都不写 `AGENTS.md`；该文件仍只由 `docs/PROJECT_AGENTS_TEMPLATE.md` 的规则块产生。
+
+## 本地调整
+
+- `docs/PROJECT_INITIALIZATION.md`：初始化前检查改为确认 `generic` 集成与 Python 脚本可用，不再确认“当前 Agent 原生集成键”；四条初始化命令改为 `--integration generic --integration-options="--commands-dir .agents/skills --skills"`；新增 `--integration-options` 传递方式与 `--skills` 产物的说明；新增初始化后校验 `.agents/skills/speckit-*/SKILL.md` 与 `integration status --json` 的步骤；“上游依据”改为 `specify` 1.4.2 实测记录。
+- `docs/PROJECT_AGENTS_TEMPLATE.md`：权威来源改为 `.agents/skills` + `.specify/**`，并写明调用写作 `/speckit-<name>`、不按 Harness 换目录、不为换 Harness 重新初始化；Feature SDD 的调用方式由“以当前原生集成为准”改为 `/speckit-<name>`；执行边界由“只用原生集成，不改用 generic”改为“扩展装在 `.specify/` 内、与 Harness 无关，不为换 Harness 追加第二套集成”；“上游依据”改用 `specify` 1.4.2。
+- `scripts/check_cli_contract.py`：契约探测的 `INIT_ARGS` 由 `--integration copilot` 改为与文档一致 `generic` 组合，使每月检查直接守护这条默认路径。
+- `docs/BUGFIX_REFERENCE.md`、`docs/ASSESSMENT_REFERENCE.md`：调用写法说明由“GitHub Copilot 技能写法 / 其他 Agent 用原生集成”改为项目内 `.agents/skills` 的 `/speckit-<name>`。
+- `README.md`、`SPEC_KIT_REFERENCE.md`、`AGENTS.md`：组件来源由“Agent 原生集成”改为 `.agents/skills` 技能与 `.specify/` 状态。
+
+## 验证
+
+`git diff --check` 通过；`python3 -m unittest tests.test_spec_kit_component_updater -v` 28 项通过；在 `specify` 1.4.2 上 `python3 scripts/check_cli_contract.py` 全部 9 项通过（含以 `generic` 组合实际初始化临时项目）。规则块占位符仍出现 1 次、标记各 1 处、标题前后各留空行，块为 75 行、3138 字符。另在临时目录复跑文档中的非交互命令：生成 9 个 `.agents/skills/speckit-*/SKILL.md` 与 `.specify/**`，`integration status --json` 为 `status: ok`、`multi_install_safe: true`、缺失与修改文件均为 0，且不生成 `AGENTS.md`。
+
 # 2026-11-03：精简全局政策与目标项目规则块
 
 分类：POLICY（用户已批准）

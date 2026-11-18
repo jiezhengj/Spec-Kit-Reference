@@ -4,7 +4,7 @@
 
 # 维护规则
 
-- 下游使用官方 CLI、原生集成和技能。Reference 只支持新项目初始化；初始化后，目标项目以自身提交的 `AGENTS.md` 和 Spec Kit 状态为准，不依赖 Reference。
+- 下游使用官方 CLI、`generic` 集成、`.agents/skills` 技能和 `.specify/` 状态。Reference 只支持新项目初始化；初始化后，目标项目以自身提交的 `AGENTS.md` 和 Spec Kit 状态为准，不依赖 Reference。
 - Reference 对新项目的额外写入限于 `PROJECT-SPEC-KIT-GOVERNANCE` 规则块、组件更新助手和缓存忽略规则；助手只调用官方 CLI，不定义 SDD 流程。
 - 从 `SPEC_KIT_REFERENCE.md` 选择当前任务所需页面；新项目初始化只读 `docs/PROJECT_INITIALIZATION.md` 和 `docs/PROJECT_AGENTS_TEMPLATE.md`。
 - 新增或修改的 Markdown 正文使用简体中文；命令、文件名、产品名和官方术语保留原文。

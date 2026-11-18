@@ -1,6 +1,6 @@
 # 本仓库文档索引
 
-本索引面向维护 SpecKitReference 的人，以及按照个人全局规则为新项目执行一次性初始化的 Agent。目标项目完成初始化后，其 Agent 只依据目标项目已提交的 `AGENTS.md`、官方 CLI、原生集成和技能工作；不需要读取本仓库。
+本索引面向维护 SpecKitReference 的人，以及按照个人全局规则为新项目执行一次性初始化的 Agent。目标项目完成初始化后，其 Agent 只依据目标项目已提交的 `AGENTS.md`、官方 CLI、`.agents/skills` 技能和 `.specify/` 状态工作；不需要读取本仓库。
 
 ## 新项目初始化时
 
@@ -8,7 +8,7 @@
 
 | 文件 | 用途 |
 | --- | --- |
-| [新项目初始化步骤](docs/PROJECT_INITIALIZATION.md) | 检查 CLI、选择原生集成、初始化项目，并把规则块合并到目标项目。 |
+| [新项目初始化步骤](docs/PROJECT_INITIALIZATION.md) | 检查 CLI、用 `generic` 集成把技能固定到 `.agents/skills`、初始化项目，并把规则块合并到目标项目。 |
 | [目标项目 AGENTS 规则块模板](docs/PROJECT_AGENTS_TEMPLATE.md) | 将用户选择的文档语言填入模板占位符后，写入目标项目根目录 `AGENTS.md`；之后不再依赖本仓库模板。 |
 | `scripts/spec_kit_component_updater.py` | 复制到目标项目 `.agent-support/`；项目 Agent 只在七天成功检查窗口到期后启动它，以按需检查并更新已批准的官方组件。 |
 
